@@ -21,6 +21,7 @@
         "underscore": "*",
         "express": "~3.2.5",
         "ejs": "*",
+        "less-middleware": "*",
         "grand-central-junction": "*"
     }
 }

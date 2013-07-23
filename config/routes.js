@@ -1,1 +1,3 @@
-module.exports = function(match, resources) {};
+module.exports = function(match, resources) {
+	match('/', 'home#index');
+};
