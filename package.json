@@ -11,7 +11,7 @@
         "url": "https://github.com/atlastory/api.git"
     },
     "scripts": {
-        "start": "node run",
+        "start": "node app",
         "test": "mocha -R spec"
     },
     "devDependencies": {
@@ -19,9 +19,8 @@
     },
     "dependencies": {
         "underscore": "*",
-        "express": "3.2.5",
+        "express": "~3.2.5",
         "ejs": "*",
-        "grand-central-express": "0.1.11",
-        "less-middleware": "*"
+        "grand-central-junction": "*"
     }
 }
