@@ -19,9 +19,11 @@
     },
     "dependencies": {
         "underscore": "*",
+        "step": "*",
         "express": "~3.2.5",
         "ejs": "*",
         "less-middleware": "*",
-        "grand-central-junction": "*"
+        "grand-central-junction": "*",
+        "node-api": "git+ssh://git@github.com:atlastory/node-api.git#master"
     }
 }
