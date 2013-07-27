@@ -35,7 +35,7 @@ fn.getGeoJSON = function(options, callback) {
         box = "%g && " + box;
     }
     // @TODO: http://trac.osgeo.org/postgis/wiki/UsersWikiSimplifyPreserveTopology
-    if (z !== null) {
+    if (z !== null && z !== undefined) {
         var s = 0.25; // Simplify intensity
         if (z/8 > 1) z = 1;
         else z = z / 8;
@@ -46,11 +46,19 @@ fn.getGeoJSON = function(options, callback) {
     atlastory.getShapes({
         layer: id,
         period: pid,
+        properties: ["gid", "name"],
         geom: gis.asGeoJSON(geom),
         where: [box]
     }, function(err, rows) {
         if (err) callback(err);
         else callback(null, gis.buildGeoJSON(rows));
+    });
+};
+
+fn.getTopoJSON = function(options, callback) {
+    this.getGeoJSON(options, function(err, geojson) {
+        if (err) callback(err);
+        else callback(null, gis.convertTopoJSON(geojson));
     });
 };
 
