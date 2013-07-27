@@ -49,9 +49,11 @@ fn.getGeoJSON = function(options, callback) {
         properties: ["gid", "name"],
         geom: gis.asGeoJSON(geom),
         where: [box]
-    }, function(err, rows) {
+    }, function(err, shapes, lyr) {
         if (err) callback(err);
-        else callback(null, gis.buildGeoJSON(rows));
+        else callback(null, gis.buildGeoJSON(shapes, {
+            table: lyr.table
+        }));
     });
 };
 
