@@ -1,9 +1,18 @@
 # Atlastory API
 
-## GeoJSON
+## Layer
 
-### get
-`/v1/geojson?id=<layer id>&pid=<period id>`
+### geojson
+`/v1/layer/:id/geojson?pid=:pid`
+
+* __pid__ (required) -- period ID
+* __bbox__ (optional) -- bounding box for geometries
+* __z__ (optional) -- zoom level for geometry simplificaiton
+
+### topojson
+`/v1/layer/:id/topojson?pid=:pid`
+
+Same options as GeoJSON.
 
 ## Shape
 

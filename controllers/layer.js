@@ -4,7 +4,7 @@ var Layer = require('../models/Layer');
 var getJSON = function(type, req, res) {
     var id = req.param("id"),
         pid = req.param("pid"),
-        box = req.param("box"),
+        box = req.param("bbox"),
         z = req.param("z");
     if (box) box = box.split(',');
 
