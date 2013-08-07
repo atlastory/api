@@ -4,6 +4,9 @@
 # $ chmod a+x setup.sh
 # $ ./setup.sh
 
+# SET APP NAME (github repo name):
+APP="api"
+
 sudo apt-get -y update
 sudo apt-get -y upgrade
 
@@ -28,8 +31,7 @@ nvm use v0.10
 sudo apt-get install -y rlwrap
 
 # Set git user info and SSH key
-git config --global user.name "Max Olson"
-git config --global user.emal "maxprogram@gmail.com"
+git config --global user.name "Atlastory"
 echo "-----BEGIN RSA PRIVATE KEY-----
 MIIEowIBAAKCAQEAuaVzn+dTfeYCxG2TrOp19SVLBtoB00hoMO+3IyK55BEUQFlN
 WX62s2s4//nMKIdykrCZL5Evsg2O4Gh046xrxVkUUwz/3C8hciZnD9r/iCp79JJW
@@ -60,10 +62,15 @@ YJsqHSRBNFqnFfIGvDXGEtGqB62HJjnErjN6nIm6XkpShY5MEARu
 chmod 400 ~/.ssh/id_rsa
 
 # Clone and install API repo
-echo 'yes' | git clone git@github.com:atlastory/api.git
-cd api
+echo 'yes' | git clone git@github.com:atlastory/$APP.git
+cd $APP
 npm install
-chmod a+x run.sh
 
+# Server deployment
+chmod a+x run.sh
 export PORT=80
+sudo apt-get install upstart monit
+sudo cp upstart.conf /etc/init/$APP.conf
+sudo chmod a+x /etc/init/$APP.conf
+
 echo '"./run.sh" to start'
