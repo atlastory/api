@@ -63,4 +63,7 @@ chmod 400 ~/.ssh/id_rsa
 echo 'yes' | git clone git@github.com:atlastory/api.git
 cd api
 npm install
-echo '"sudo node app" to start'
+chmod a+x run.sh
+
+export PORT=80
+echo '"./run.sh" to start'
