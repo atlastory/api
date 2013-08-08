@@ -1,4 +1,9 @@
+#!/bin/bash
+
+export APP=api
+
+cd $HOME/$APP
 git pull origin master
 npm install
-sudo stop api
-sudo start api
+sudo stop $APP
+sudo start $APP

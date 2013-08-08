@@ -67,11 +67,12 @@ cd $APP
 npm install
 
 # Server deployment
-chmod a+x run.sh
+chmod a+x run.sh server/update.sh
 export PORT=80
 sudo apt-get install upstart monit
 sudo cp $HOME/$APP/server/upstart.conf /etc/init/$APP.conf
-sudo sed -i 's/@@@/$APP/g' /etc/init/$APP.conf
+REGEX=s/@@@/$APP/g
+sudo sed -i $REGEX /etc/init/$APP.conf
 sudo chmod a+x /etc/init/$APP.conf
 exec sudo -E sh -c "echo 'check process nodejs with pidfile \"$HOME/$APP/server/pid.pid\"
     start program = \"/sbin/start $APP\"
