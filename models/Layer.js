@@ -11,10 +11,23 @@ fn.find = function(id, callback) {
     return atlastory.getLayerData(id, callback);
 };
 
+fn.all = function(mapId, callback) {
+    return LayerDB.where({map_id: mapId}, callback);
+};
 
+fn.create = function(data, callback) {
+    return LayerDB.create(data, callback);
+};
 
-// fn.all
-//
+fn.update = function(id, data, callback) {
+    return LayerDB.update(id, data, callback);
+};
+
+fn.remove = function(id, callback) {
+    return LayerDB.remove(id, callback);
+};
+
+// fn.remove
 
 fn.getGeoJSON = function(options, callback) {
     /* Get's GeoJSON for a layer

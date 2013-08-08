@@ -1,5 +1,19 @@
 var Layer = require('../models/Layer');
 
+// GET /layer/map/:id
+// exports.index
+
+// GET /layer/:id
+// exports.show
+
+// POST /layer/:id
+// exports.create
+
+// PUT /layer/:id
+// exports.update
+
+// DELETE /layer/:id
+// exports.destroy
 
 var getJSON = function(type, req, res) {
     var ops = {
