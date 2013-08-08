@@ -26,7 +26,7 @@ fn.getGeoJSON = function(options, callback) {
         pid = options.pid,
         p1 = options.p1 || null,
         p2 = options.p2 || null,
-        z = (options.hasOwnProperty('zoom')) ? options.zoom : null,
+        z = options.hasOwnProperty('zoom') ? parseFloat(options.zoom) : null,
         geom = "%g", box = "";
 
     if (p1 && p2) {
@@ -35,7 +35,7 @@ fn.getGeoJSON = function(options, callback) {
         box = "%g && " + box;
     }
     // @TODO: http://trac.osgeo.org/postgis/wiki/UsersWikiSimplifyPreserveTopology
-    if (z !== null && z !== undefined) {
+    if (z !== null && z !== undefined && isNaN(z)) {
         var s = 0.25; // Simplify intensity
         if (z/8 > 1) z = 1;
         else z = z / 8;
