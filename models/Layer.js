@@ -1,6 +1,7 @@
 var atlastory = require('node-api'),
     Step = require('step'),
-    gis = atlastory.gis;
+    gis = atlastory.gis,
+    LayerDB = atlastory.db.Layer;
 
 function Layer() {}
 
@@ -9,6 +10,8 @@ var fn = Layer.prototype;
 fn.find = function(id, callback) {
     return atlastory.getLayerData(id, callback);
 };
+
+
 
 // fn.all
 //
