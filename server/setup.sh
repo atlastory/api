@@ -5,7 +5,7 @@
 # $ ./setup.sh
 
 # SET APP NAME (github repo name):
-APP="api"
+export APP="api"
 
 sudo apt-get -y update
 sudo apt-get -y upgrade
@@ -61,7 +61,7 @@ YJsqHSRBNFqnFfIGvDXGEtGqB62HJjnErjN6nIm6XkpShY5MEARu
 -----END RSA PRIVATE KEY-----" >> ~/.ssh/id_rsa
 chmod 400 ~/.ssh/id_rsa
 
-# Clone and install API repo
+# Clone and install repo
 echo 'yes' | git clone git@github.com:atlastory/$APP.git
 cd $APP
 npm install
@@ -70,7 +70,15 @@ npm install
 chmod a+x run.sh
 export PORT=80
 sudo apt-get install upstart monit
-sudo cp upstart.conf /etc/init/$APP.conf
+sudo cp $HOME/$APP/server/upstart.conf /etc/init/$APP.conf
+sudo sed -i 's/@@@/$APP/g' /etc/init/$APP.conf
 sudo chmod a+x /etc/init/$APP.conf
+exec sudo -E sh -c "echo 'check process nodejs with pidfile \"$HOME/$APP/server/pid.pid\"
+    start program = \"/sbin/start $APP\"
+    stop program  = \"/sbin/stop $APP\"
+    if failed port 80 protocol HTTP
+        request /
+        with timeout 10 seconds
+        then restart' >> /etc/monit/monitrc"
 
 echo '"./run.sh" to start'
