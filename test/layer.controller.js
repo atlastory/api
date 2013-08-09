@@ -35,4 +35,39 @@ describe('GET /map/:mid/layer/:id', function() {
     });
 });
 
+
+describe('GET /geojson', function() {
+    this.timeout(0);
+    it('should respond with geojson', function(done) {
+        request.get('/geojson?pid=1&bbox=-13.711,32.842,37.969,58.263&id='+lyr)
+          .set('Accept', 'application/json')
+          .expect('Content-Type', /json/)
+          .expect(200)
+          .end(function(err, res) {
+            assert.ifError(err);
+            var j = res.body;
+            assert.equal(j.type, "FeatureCollection");
+            assert.equal(j.features[0].type, "Feature");
+            done();
+          });
+    });
+});
+
+describe('GET /topojson', function() {
+    this.timeout(0);
+    it('should respond with geojson', function(done) {
+        request.get('/topojson?pid=1&bbox=-13.711,32.842,37.969,58.263&id='+lyr)
+          .set('Accept', 'application/json')
+          .expect('Content-Type', /json/)
+          .expect(200)
+          .end(function(err, res) {
+            assert.ifError(err);
+            var j = res.body;
+            assert.equal(j.type, "Topology");
+            assert(typeof j.bbox[0] === "number");
+            done();
+          });
+    });
+});
+
 });
