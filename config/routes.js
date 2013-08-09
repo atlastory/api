@@ -1,10 +1,11 @@
 module.exports = function(match, resources) {
-	var v = "/v1";
 
     match('/', 'home#index');
 
-    match(v+'/layer/:id/geojson', 'layer#geojson');
-    match(v+'/layer/:id/topojson', 'layer#topojson');
+    resources('/map/:mid/layer', 'layer');
+    match('/map/:mid/layer/:id/geojson',  'layer#geojson');
+    match('/map/:mid/layer/:id/topojson', 'layer#topojson');
+    match('/geojson', 'layer#geojson');
+    match('/topojson', 'layer#topojson');
 
-    //match(v+'/shape', 'shape#get');
 };

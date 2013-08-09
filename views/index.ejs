@@ -16,7 +16,7 @@
 
     <h3>GeoJSON</h3>
 
-    <p><strong>/v1/layer/:id/geojson</strong></p>
+    <p><strong>/map/:id/layer/:id/geojson</strong></p>
     Options:
     <ul>
         <li><strong>pid</strong> (required) -- period ID</li>
@@ -28,16 +28,16 @@
     </code>
 
     <p>
-        <em>Example:</em> <a href="/v1/layer/61/geojson?pid=1&z=0">GeoJSON with zoom</a><br/>
-        <em>Example:</em> <a href="/v1/layer/61/geojson?pid=1&bbox=-86.30859375,16.804541076383455,-71.630859375,25.3241665257384">GeoJSON with bounding box</a>
+        <em>Example:</em> <a href="/layer/61/geojson?pid=1&z=0">GeoJSON with zoom</a><br/>
+        <em>Example:</em> <a href="/layer/61/geojson?pid=1&bbox=-86.30859375,16.804541076383455,-71.630859375,25.3241665257384">GeoJSON with bounding box</a>
     </p>
 
     <h3>TopoJSON</h3>
 
-    <p><strong>/v1/layer/:id/topojson</strong></p>
+    <p><strong>/map/:id/layer/:id/topojson</strong></p>
     Options: same as GeoJSON
     <p>
-        <em>Example:</em> <a href="/v1/layer/61/topojson?pid=1&bbox=-86.309,16.805,-71.631,25.324">TopoJSON with bounding box</a>
+        <em>Example:</em> <a href="/layer/61/topojson?pid=1&bbox=-86.309,16.805,-71.631,25.324">TopoJSON with bounding box</a>
     </p>
 
     <h2>Shape</h2>

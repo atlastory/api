@@ -1,18 +1,33 @@
 var Layer = require('../models/Layer');
 
-// GET /layer/map/:id
-// exports.index
+// GET /map/:mid/layer
+exports.index = function(req, res) {
+    var mId = req.param("mid");
+    Layer.all(mId, function(err, layers) {
+        if (err) res.send(500, err);
+        else res.json(layers);
+    });
+};
 
-// GET /layer/:id
-// exports.show
+// GET /map/:mid/layer/:id
+exports.show = function(req, res) {
+    var id = req.param("id");
+    Layer.find(id, function(err, layer) {
+        if (err) res.send(500, err);
+        else res.json(layer);
+    });
+};
 
-// POST /layer/:id
+// POST /map/:mid/layer/:id
+// wiki model
 // exports.create
 
-// PUT /layer/:id
+// PUT /map/:mid/layer/:id
+// wiki model
 // exports.update
 
-// DELETE /layer/:id
+// DELETE /map/:mid/layer/:id
+// wiki model
 // exports.destroy
 
 var getJSON = function(type, req, res) {
@@ -42,10 +57,14 @@ var getJSON = function(type, req, res) {
     });
 };
 
+// GET /map/:mid/layer/:id/geojson
+// GET /geojson
 exports.geojson = function(req, res) {
     return getJSON("geojson", req, res);
 };
 
+// GET /map/:mid/layer/:id/topojson
+// GET /topojson
 exports.topojson = function(req, res) {
     return getJSON("topojson", req, res);
 };
