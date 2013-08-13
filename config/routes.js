@@ -8,4 +8,6 @@ module.exports = function(match, resources) {
     match('/geojson', 'layer#geojson');
     match('/topojson', 'layer#topojson');
 
+    match('/layer/:lid/s/:id', 'shape#show');
+
 };

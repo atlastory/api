@@ -1,13 +1,15 @@
 var Shape = require('../models/Shape');
 
 // GET /layer/:lid/s/:id
-exports.index = function(req, res) {
+exports.show = function(req, res) {
     var lid = req.param("lid"),
         id  = req.param("id");
 
-    /* Shape.find(lid, id, function() {
+    Shape.find(lid, id, function(err, json) {
         if (err) res.send(500, err);
-    });*/
+        res.type('application/json');
+        res.send(JSON.stringify(json));
+    });
 };
 
 // POST /layer/:lid/s/:id
