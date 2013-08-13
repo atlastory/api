@@ -55,7 +55,7 @@ describe('GET /geojson', function() {
 
 describe('GET /topojson', function() {
     this.timeout(0);
-    it('should respond with geojson', function(done) {
+    it('should respond with topojson', function(done) {
         request.get('/topojson?pid=1&bbox=-13.711,32.842,37.969,58.263&id='+lyr)
           .set('Accept', 'application/json')
           .expect('Content-Type', /json/)

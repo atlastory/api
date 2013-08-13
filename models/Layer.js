@@ -27,8 +27,6 @@ fn.remove = function(id, callback) {
     return LayerDB.remove(id, callback);
 };
 
-// fn.remove
-
 fn.getGeoJSON = function(options, callback) {
     /* Get's GeoJSON for a layer
      * id   INT   layer id
