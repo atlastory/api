@@ -5,7 +5,7 @@ exports.index = function(req, res) {
     var mId = req.param("mid");
     Layer.all(mId, function(err, layers) {
         if (err) res.send(500, err);
-        else res.json(layers);
+        else res.jsonp(layers);
     });
 };
 
@@ -14,7 +14,7 @@ exports.show = function(req, res) {
     var id = req.param("id");
     Layer.find(id, function(err, layer) {
         if (err) res.send(500, err);
-        else res.json(layer);
+        else res.jsonp(layer);
     });
 };
 
@@ -52,11 +52,7 @@ var getJSON = function(type, req, res) {
 
     Layer[type](ops, function(err, geojson) {
         if (err) res.send(500, err);
-        if (req.param("callback")) res.jsonp(geojson);
-        else {
-            res.type('application/json');
-            res.send(JSON.stringify(geojson));
-        }
+        else res.jsonp(geojson);
     });
 };
 
