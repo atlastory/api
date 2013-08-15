@@ -7,8 +7,11 @@ exports.show = function(req, res) {
 
     Shape.find(lid, id, function(err, json) {
         if (err) res.send(500, err);
-        res.type('application/json');
-        res.send(JSON.stringify(json));
+        if (req.param("callback")) res.jsonp(json);
+        else {
+            res.type('application/json');
+            res.send(JSON.stringify(json));
+        }
     });
 };
 

@@ -4,6 +4,8 @@ var express = require('express'),
     gcj = require('grand-central-junction'),
     app = express();
 
+app.enable("jsonp callback");
+
 app.configure(function(){
     app.set('port', process.env.PORT || 3000);
     app.set('views', __dirname + '/views');

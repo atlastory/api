@@ -52,8 +52,11 @@ var getJSON = function(type, req, res) {
 
     Layer[type](ops, function(err, geojson) {
         if (err) res.send(500, err);
-        res.type('application/json');
-        res.send(JSON.stringify(geojson));
+        if (req.param("callback")) res.jsonp(geojson);
+        else {
+            res.type('application/json');
+            res.send(JSON.stringify(geojson));
+        }
     });
 };
 
