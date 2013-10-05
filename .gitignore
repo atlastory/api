@@ -14,3 +14,5 @@ config.db.js
 .log
 npm-debug.log
 VERSION
+
+sandbox.js
