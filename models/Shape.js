@@ -1,4 +1,4 @@
-var Postgis = require('../lib/Postgis'),
+var postgis = require('../lib/postgis'),
     Layer = require('./Layer'),
     gis = require('../lib/gis.utilities');
 
@@ -10,7 +10,7 @@ fn.find = function(layerId, id, callback) {
     if (!layerId) callback(new Error('No layer ID!'));
     else Layer.find(layerId, function(err,layer) {
         if (err) callback(err);
-        else Postgis.getShapes({
+        else postgis.getShapes({
             table: layer.table,
             type: layer.shape,
             shape: id,

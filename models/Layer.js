@@ -1,4 +1,4 @@
-var Postgis = require('../lib/Postgis'),
+var postgis = require('../lib/postgis'),
     db = require('../db/db'),
     gis = require('../lib/gis.utilities');
 
@@ -68,7 +68,7 @@ function getGeoJSON (options, callback) {
         geom = gis.simplify(geom, z);
     }
 
-    Postgis.getShapes({
+    postgis.getShapes({
         table: table,
         type: shape,
         period: pid,
