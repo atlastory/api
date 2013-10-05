@@ -1,42 +1,53 @@
-var atlastory = require('node-api'),
-    Step = require('step'),
-    gis = atlastory.gis,
-    LayerDB = atlastory.db.Layer;
+var Postgis = require('../lib/Postgis'),
+    db = require('../db/db'),
+    gis = require('../lib/gis.utilities');
 
-function Layer() {}
+var Layer = db.mysql.model("layers");
 
-var fn = Layer.prototype;
-
-fn.find = function(id, callback) {
-    return atlastory.getLayerData(id, callback);
+var LayerDB = {
+    methods: {
+        table: function() {
+            return this.short_name + '_' + this.id;
+        },
+        getGeoJSON: getGeoJSON,
+        getTopoJSON: function(options, callback) {
+            this.getGeoJSON(options, function(err, geojson) {
+                if (err) callback(err);
+                else callback(null, gis.convertTopoJSON(geojson));
+            });
+        }
+    }
 };
 
-fn.all = function(mapId, callback) {
-    return LayerDB.where({map_id: mapId}, callback);
+
+Layer._find = Layer.find;
+Layer.find = function(id, callback) {
+    id = parseFloat(id);
+    return this._find(id, function(err, res) {
+        if (res) {
+            res = res[0];
+            res.table = res.short_name + '_' + res.id;
+        }
+        callback(err, res);
+    });
 };
 
-fn.create = function(data, callback) {
-    return LayerDB.create(data, callback);
+Layer._all = Layer.all;
+Layer.all = function(mapId, callback) {
+    return this.where({map_id: mapId}, callback);
 };
 
-fn.update = function(id, data, callback) {
-    return LayerDB.update(id, data, callback);
-};
-
-fn.remove = function(id, callback) {
-    return LayerDB.remove(id, callback);
-};
-
-fn.getGeoJSON = function(options, callback) {
+function getGeoJSON (options, callback) {
     /* Get's GeoJSON for a layer
-     * id   INT   layer id
+     * table STRING layer table name
+     * shape STRING layer shape type
      * pid  INT   period id
      * p1   ARRAY [x,y] bottom left (optional)
      * p2   ARRAY [x,y] top right   (optional)
      * zoom INT   zoom level        (optional)
      */
-    var Layer = this,
-        id = options.id,
+    var table = options.table,
+        shape = options.shape,
         pid = options.pid,
         p1 = options.p1 || null,
         p2 = options.p2 || null,
@@ -57,25 +68,36 @@ fn.getGeoJSON = function(options, callback) {
         geom = gis.simplify(geom, z);
     }
 
-    atlastory.getShapes({
-        layer: id,
+    Postgis.getShapes({
+        table: table,
+        type: shape,
         period: pid,
         properties: ["gid", "name"],
         geom: gis.asGeoJSON(geom),
         where: [box]
-    }, function(err, shapes, lyr) {
+    }, function(err, shapes) {
         if (err) callback(err);
-        else callback(null, gis.buildGeoJSON(shapes, {
-            table: lyr.table
-        }));
+        else callback(null, gis.buildGeoJSON(shapes));
+    });
+}
+
+Layer.getGeoJSON = function(id, options, callback) {
+    if (!id) callback(new Error('Need layer ID!'));
+    else this.find(id, function(err, layer) {
+        if (err) callback(err);
+        else {
+            options.table = layer.table;
+            options.shape = layer.shape;
+            getGeoJSON(options, callback);
+        }
     });
 };
 
-fn.getTopoJSON = function(options, callback) {
-    this.getGeoJSON(options, function(err, geojson) {
+Layer.getTopoJSON = function(id, options, callback) {
+    this.getGeoJSON(id, options, function(err, geojson) {
         if (err) callback(err);
         else callback(null, gis.convertTopoJSON(geojson));
     });
 };
 
-module.exports = new Layer();
+module.exports = Layer;

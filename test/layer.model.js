@@ -34,14 +34,14 @@ describe('#all()', function() {
 describe('#getGeoJSON()', function() {
     this.timeout(0);
     it('should fail with no id or pid', function() {
-        Layer.getGeoJSON({}, function(err) {
+        Layer.getGeoJSON(null, {}, function(err) {
             assert.throws(function(){throw err;}, Error);
         });
     });
 
     it('should get geoJSON with zoom', function(done) {
-        Layer.getGeoJSON({
-            id: lyr, pid: 1, z: 0
+        Layer.getGeoJSON(lyr, {
+            pid: 1, z: 0
         }, function(err, json) {
             assert.ifError(err);
             assert.equal(json.type, "FeatureCollection");
@@ -51,8 +51,8 @@ describe('#getGeoJSON()', function() {
     });
 
     it('should get geoJSON with bounding box', function(done) {
-        Layer.getGeoJSON({
-            id: lyr, pid: 1,
+        Layer.getGeoJSON(lyr, {
+            pid: 1,
             p1: [-13.711,32.842],
             p2: [37.969,58.263]
         }, function(err, json) {
@@ -67,8 +67,8 @@ describe('#getGeoJSON()', function() {
 describe('#getTopoJSON()', function() {
     this.timeout(0);
     it('should get topoJSON with zoom', function(done) {
-        Layer.getTopoJSON({
-            id: lyr, pid: 1, z: 0
+        Layer.getTopoJSON(lyr, {
+            pid: 1, z: 0
         }, function(err, json) {
             assert.ifError(err);
             assert.equal(json.type, "Topology");
@@ -78,8 +78,8 @@ describe('#getTopoJSON()', function() {
     });
 
     it('should get topoJSON with bounding box', function(done) {
-        Layer.getTopoJSON({
-            id: lyr, pid: 1,
+        Layer.getTopoJSON(lyr, {
+            pid: 1,
             p1: [-13.711,32.842],
             p2: [37.969,58.263]
         }, function(err, json) {

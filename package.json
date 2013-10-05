@@ -25,6 +25,9 @@
         "ejs": "*",
         "less-middleware": "*",
         "grand-central-junction": "*",
-        "node-api": "git+ssh://git@github.com:atlastory/node-api.git#master"
+        "topojson": "1.2.2",
+        "grand-central-records": "0.0.32",
+        "mysql": "2.0.0-alpha8",
+        "pg": "~2.0.0"
     }
 }
