@@ -50,9 +50,12 @@ var getJSON = function(type, req, res) {
     if (type == 'geojson') type = 'getGeoJSON';
     if (type == 'topojson') type = 'getTopoJSON';
 
-    Layer[type](id, ops, function(err, geojson) {
+    Layer.find(id, function(err, layer) {
         if (err) res.send(500, err);
-        else res.jsonp(geojson);
+        else layer[type](ops, function(err, geojson) {
+            if (err) res.send(500, err);
+            else res.jsonp(geojson);
+        });
     });
 };
 

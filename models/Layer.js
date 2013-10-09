@@ -2,53 +2,39 @@ var postgis = require('../lib/postgis'),
     db = require('../db/db'),
     gis = require('../lib/gis.utilities');
 
-var Layer = db.mysql.model("layers");
 
-var LayerDB = {
-    methods: {
+var Layer = module.exports = db.mysql.model("layers", {
+    map: true,
+    schema: {
+        map_id: { type: Number, default: 1 },
+        name: { type: String, allowNull: false },
+        color: String,
+        level: Number,
+        shape: { type: String, allowNull: false },
+        short_name: String,
+        created_at: Date,
+        updated_at: Date
+    },
+    getters: {
         table: function() {
             return this.short_name + '_' + this.id;
-        },
-        getGeoJSON: getGeoJSON,
-        getTopoJSON: function(options, callback) {
-            this.getGeoJSON(options, function(err, geojson) {
-                if (err) callback(err);
-                else callback(null, gis.convertTopoJSON(geojson));
-            });
         }
     }
-};
-
-
-Layer._find = Layer.find;
-Layer.find = function(id, callback) {
-    id = parseFloat(id);
-    return this._find(id, function(err, res) {
-        if (res) {
-            res = res[0];
-            res.table = res.short_name + '_' + res.id;
-        }
-        callback(err, res);
-    });
-};
+});
 
 Layer._all = Layer.all;
 Layer.all = function(mapId, callback) {
     return this.where({map_id: mapId}, callback);
 };
 
-function getGeoJSON (options, callback) {
+Layer.addMethod('getGeoJSON', function(options, callback) {
     /* Get's GeoJSON for a layer
-     * table STRING layer table name
-     * shape STRING layer shape type
      * pid  INT   period id
      * p1   ARRAY [x,y] bottom left (optional)
      * p2   ARRAY [x,y] top right   (optional)
      * zoom INT   zoom level        (optional)
      */
-    var table = options.table,
-        shape = options.shape,
-        pid = options.pid,
+    var pid = options.pid,
         p1 = options.p1 || null,
         p2 = options.p2 || null,
         z = options.hasOwnProperty('zoom') ? parseFloat(options.zoom) : null,
@@ -69,8 +55,8 @@ function getGeoJSON (options, callback) {
     }
 
     postgis.getShapes({
-        table: table,
-        type: shape,
+        table: this.table,
+        type: this.shape,
         period: pid,
         properties: ["gid", "name"],
         geom: gis.asGeoJSON(geom),
@@ -79,25 +65,11 @@ function getGeoJSON (options, callback) {
         if (err) callback(err);
         else callback(null, gis.buildGeoJSON(shapes));
     });
-}
+});
 
-Layer.getGeoJSON = function(id, options, callback) {
-    if (!id) callback(new Error('Need layer ID!'));
-    else this.find(id, function(err, layer) {
-        if (err) callback(err);
-        else {
-            options.table = layer.table;
-            options.shape = layer.shape;
-            getGeoJSON(options, callback);
-        }
-    });
-};
-
-Layer.getTopoJSON = function(id, options, callback) {
-    this.getGeoJSON(id, options, function(err, geojson) {
+Layer.addMethod('getTopoJSON', function(options, callback) {
+    this.getGeoJSON(options, function(err, geojson) {
         if (err) callback(err);
         else callback(null, gis.convertTopoJSON(geojson));
     });
-};
-
-module.exports = Layer;
+});

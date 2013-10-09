@@ -26,8 +26,8 @@
         "less-middleware": "*",
         "grand-central-junction": "*",
         "topojson": "1.2.2",
-        "grand-central-records": "0.0.32",
-        "mysql": "2.0.0-alpha8",
+        "grand-central-records": "~0.0.65",
+        "mysql": "~2.0.0-alpha8",
         "pg": "~2.0.0"
     }
 }
