@@ -1,43 +1,40 @@
-var atlastory = require('node-api'),
-    Step = require('step'),
-    gis = atlastory.gis,
-    LayerDB = atlastory.db.Layer;
+var postgis = require('../lib/postgis'),
+    db = require('../db/db'),
+    gis = require('../lib/gis.utilities');
 
-function Layer() {}
 
-var fn = Layer.prototype;
+var Layer = module.exports = db.mysql.model("layers", {
+    map: true,
+    schema: {
+        map_id: { type: Number, default: 1 },
+        name: { type: String, allowNull: false },
+        color: String,
+        level: Number,
+        shape: { type: String, allowNull: false },
+        short_name: String,
+        created_at: Date,
+        updated_at: Date
+    },
+    getters: {
+        table: function() {
+            return this.short_name + '_' + this.id;
+        }
+    }
+});
 
-fn.find = function(id, callback) {
-    return atlastory.getLayerData(id, callback);
+Layer._all = Layer.all;
+Layer.all = function(mapId, callback) {
+    return this.where({map_id: mapId}, callback);
 };
 
-fn.all = function(mapId, callback) {
-    return LayerDB.where({map_id: mapId}, callback);
-};
-
-fn.create = function(data, callback) {
-    return LayerDB.create(data, callback);
-};
-
-fn.update = function(id, data, callback) {
-    return LayerDB.update(id, data, callback);
-};
-
-fn.remove = function(id, callback) {
-    return LayerDB.remove(id, callback);
-};
-
-fn.getGeoJSON = function(options, callback) {
+Layer.addMethod('getGeoJSON', function(options, callback) {
     /* Get's GeoJSON for a layer
-     * id   INT   layer id
      * pid  INT   period id
      * p1   ARRAY [x,y] bottom left (optional)
      * p2   ARRAY [x,y] top right   (optional)
      * zoom INT   zoom level        (optional)
      */
-    var Layer = this,
-        id = options.id,
-        pid = options.pid,
+    var pid = options.pid,
         p1 = options.p1 || null,
         p2 = options.p2 || null,
         z = options.hasOwnProperty('zoom') ? parseFloat(options.zoom) : null,
@@ -57,25 +54,22 @@ fn.getGeoJSON = function(options, callback) {
         geom = gis.simplify(geom, z);
     }
 
-    atlastory.getShapes({
-        layer: id,
+    postgis.getShapes({
+        table: this.table,
+        type: this.shape,
         period: pid,
         properties: ["gid", "name"],
         geom: gis.asGeoJSON(geom),
         where: [box]
-    }, function(err, shapes, lyr) {
+    }, function(err, shapes) {
         if (err) callback(err);
-        else callback(null, gis.buildGeoJSON(shapes, {
-            table: lyr.table
-        }));
+        else callback(null, gis.buildGeoJSON(shapes));
     });
-};
+});
 
-fn.getTopoJSON = function(options, callback) {
+Layer.addMethod('getTopoJSON', function(options, callback) {
     this.getGeoJSON(options, function(err, geojson) {
         if (err) callback(err);
         else callback(null, gis.convertTopoJSON(geojson));
     });
-};
-
-module.exports = new Layer();
+});

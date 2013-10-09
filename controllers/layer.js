@@ -31,15 +31,15 @@ exports.show = function(req, res) {
 // exports.destroy
 
 var getJSON = function(type, req, res) {
-    var ops = {
-            id: parseFloat(req.param("id")),
+    var id = parseFloat(req.param("id")),
+        ops = {
             pid: parseFloat(req.param("pid")),
             z: parseFloat(req.param("z"))
         },
         box = req.param("bbox");
 
     if (box) box = box.replace(/\s/g,'').split(',');
-    if (!ops.id || isNaN(ops.id))   res.send(500, "Need Layer ID (id)");
+    if (!id || isNaN(id)) res.send(500, "Need Layer ID (id)");
     if (!ops.pid || isNaN(ops.pid)) res.send(500, "Need Period ID (pid)");
     if (box && box.length < 4)
         res.send(500, "Box needs 2 points (x1, y1, x2, y2)");
@@ -50,9 +50,12 @@ var getJSON = function(type, req, res) {
     if (type == 'geojson') type = 'getGeoJSON';
     if (type == 'topojson') type = 'getTopoJSON';
 
-    Layer[type](ops, function(err, geojson) {
+    Layer.find(id, function(err, layer) {
         if (err) res.send(500, err);
-        else res.jsonp(geojson);
+        else layer[type](ops, function(err, geojson) {
+            if (err) res.send(500, err);
+            else res.jsonp(geojson);
+        });
     });
 };
 
