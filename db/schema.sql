@@ -39,6 +39,8 @@ CREATE TABLE point (
 
 CREATE TABLE changesets (
   gid serial NOT NULL,
+  changeset character varying,
+  user_id integer,
   action character varying(50),
   object character varying(50),
   map integer,
@@ -49,8 +51,9 @@ CREATE TABLE changesets (
   data_old text,
   type character varying(255),
   geom_diff text,
+  created_at timestamp with time zone,
   CONSTRAINT changesets_pkey PRIMARY KEY (gid)
-)
+);
 
 INSERT INTO geometry_columns (
   f_table_catalog,
