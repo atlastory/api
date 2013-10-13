@@ -3,7 +3,7 @@ var Step = require('step');
 var fs = require('fs');
 var request = require('supertest');
 
-var app = require('../app');
+var app = require('../../app');
 request = request(app);
 
 var lyr = 64, shp = 2;
