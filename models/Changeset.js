@@ -65,3 +65,15 @@ Changeset.create = function(directives, id, callback) {
     });
     else callback(null, hash);
 };
+
+// Gets all directives for a layer
+// Changeset.getLayer
+
+// Gets all directives for a shape
+// Changeset.getShape
+
+// TODO: Checks directive if it's the most recent change
+Changeset.addMethod('checkConflict', function(callback) {
+    this.inConflict = false;
+    callback(null, this);
+});

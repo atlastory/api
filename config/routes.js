@@ -11,5 +11,7 @@ module.exports = function(match, resources) {
     match('/layer/:lid/s/:id', 'shape#show');
 
     resources('/changeset', 'changeset');
+    match('/changeset/:id/commit', 'changeset#commit', {via: 'post'});
+    match('/changeset/:id/finish', 'changeset#commit', {via: 'post'});
 
 };

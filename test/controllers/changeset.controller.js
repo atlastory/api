@@ -91,6 +91,22 @@ describe('GET /changeset/:id', function() {
     });
 });
 
+describe('POST /changeset/:id/commit', function() {
+    this.timeout(0);
+    it('should commit changeset & return checks', function(done) {
+        request.post('/changeset/'+hash+'/commit')
+          .set('Accept', 'application/json')
+          .expect('Content-Type', /json/)
+          .expect(200)
+          .end(function(err, res) {
+            assert.equal(res.body.length, 2);
+            assert.equal(res.body[0].parsed, true);
+            assert.equal(res.body[0].response, '');
+            done();
+          });
+    });
+});
+
 describe('DELETE /changeset/:id', function() {
     this.timeout(1000);
     it('should delete changeset', function(done) {

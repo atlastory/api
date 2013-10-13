@@ -1,4 +1,6 @@
-var Changeset = require('../models/Changeset');
+var Changeset = require('../models/Changeset'),
+    wiki = require('../lib/wiki'),
+    Step = require('step');
 
 // GET /changeset/:id
 exports.show = function(req, res) {
@@ -49,5 +51,49 @@ exports.destroy = function(req, res) {
     Changeset.where({changeset: id}).remove(function(err) {
         if (err) res.send(500, err);
         else res.send(200);
+    });
+};
+
+// POST /changeset/:id/commit
+exports.commit = function(req, res) {
+    var id = req.param("id"),
+        result = [];
+
+    function checkDirective(d) {
+        var parse = true,
+            response = '';
+
+        if (d.inConflict) {
+            parse = false;
+            response = 'Newer change already commited';
+        }
+
+        if (parse) wiki.parse(d);
+        result.push({
+            id: d.gid,
+            parsed: parse,
+            response: response
+        });
+    }
+
+    Step(function getChangeset() {
+        Changeset.get(id, this);
+
+    }, function checkConflict(err, changeset) {
+        if (err) res.send(500, err);
+        else if (!changeset.length) res.send(500, 'No changeset found');
+        else {
+            var group = this.group();
+            changeset.forEach(function(d) {
+                d.checkConflict(group());
+            });
+        }
+
+    }, function parseDirectives(err, changeset) {
+        if (err) res.send(500, err);
+        else {
+            changeset.forEach(checkDirective);
+            res.jsonp(result);
+        }
     });
 };
