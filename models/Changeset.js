@@ -44,14 +44,15 @@ Changeset.create = function(directives, id, callback) {
         hash = id;
 
     // If no id, create one
+    if (typeof id === 'function') callback = id;
     if (!id || typeof id === 'function') {
-        callback = id;
         hash = crypto.createHash('md5')
             .update(now.toString()).digest("hex");
     }
     if (!Array.isArray(directives)) directives = [directives];
 
     directives.forEach(function(d) {
+        if (d.toJSON) d = d.toJSON();
         d.changeset = hash;
         d.created_at = now;
         db.pg.queue(Changeset.insert(d));

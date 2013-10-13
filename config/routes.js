@@ -10,4 +10,6 @@ module.exports = function(match, resources) {
 
     match('/layer/:lid/s/:id', 'shape#show');
 
+    resources('/changeset', 'changeset');
+
 };
