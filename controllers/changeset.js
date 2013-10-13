@@ -42,3 +42,12 @@ exports.create = function(req, res) {
         });
     }
 };
+
+// DELETE /changeset/:id
+exports.destroy = function(req, res) {
+    var id = req.param("id");
+    Changeset.where({changeset: id}).remove(function(err) {
+        if (err) res.send(500, err);
+        else res.send(200);
+    });
+};

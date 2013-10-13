@@ -91,4 +91,13 @@ describe('GET /changeset/:id', function() {
     });
 });
 
+describe('DELETE /changeset/:id', function() {
+    this.timeout(1000);
+    it('should delete changeset', function(done) {
+        request.del('/changeset/'+hash)
+          .expect(200)
+          .end(done);
+    });
+});
+
 });
