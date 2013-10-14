@@ -1,5 +1,4 @@
 var assert = require('assert');
-var Step = require('step');
 var fs = require('fs');
 var request = require('supertest');
 
@@ -10,7 +9,7 @@ var directives = [
   {
     user_id: 4,
     action: 'delete',
-    object: 'shape',
+    object: 'test',
     layer: 64,
     period: 1,
     shape: 53,
@@ -19,7 +18,7 @@ var directives = [
   },{
     user_id: 4,
     action: 'edit',
-    object: 'shape',
+    object: 'test',
     layer: 64,
     period: 1,
     shape: 54,
@@ -49,7 +48,7 @@ describe('POST /changeset', function() {
     });
 
     it('should replace old changeset', function(done) {
-        directives[0].object = 'layer';
+        directives[0].layer = 88;
         request.post('/changeset')
           .send({id: hash, directives: directives})
           .set('Accept', 'application/json')
@@ -85,7 +84,7 @@ describe('GET /changeset/:id', function() {
             assert.ifError(err);
             assert.equal(res.body.length, 2);
             assert.equal(res.body[0].action, 'delete');
-            assert.equal(res.body[0].object, 'layer');
+            assert.equal(res.body[0].layer, 88);
             done();
           });
     });

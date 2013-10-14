@@ -32,6 +32,18 @@ var Changeset = module.exports = db.pg.model("changesets", {
         type: function() {
             if (this.type) return this.type.replace(/\\/g,'');
         }
+    },
+    methods: {
+        toString: function() {
+            return [
+                this.action,
+                this.object,
+                'm' + (this.map || 'X'),
+                'l' + (this.layer || 'X'),
+                'p' + (this.period || 'X'),
+                's' + (this.shape || 'X')
+            ].join(' ');
+        }
     }
 });
 
