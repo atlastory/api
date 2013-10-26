@@ -22,10 +22,9 @@ cd gdal-1.10.1
 ./configure && make && sudo make install
 cd ..
 # https://github.com/json-c/json-c/releases
-# Use 0.10
-wget https://github.com/json-c/json-c/archive/json-c-0.10-20120530.tar.gz
-tar xvfz json-c-0.10-20120530.tar.gz
-cd json-c-0.10-20120530
+wget https://github.com/json-c/json-c/archive/json-c-0.11-20130402.tar.gz
+tar xvfz json-c-0.11-20130402.tar.gz
+cd json-c-json-c-0.11-20130402/
 ./configure && make && sudo make install
 cd ..
 
@@ -34,8 +33,7 @@ cd ..
 wget http://download.osgeo.org/postgis/source/postgis-$POSTGIS_VERSION.tar.gz
 tar xvfz postgis-$POSTGIS_VERSION.tar.gz
 cd postgis-$POSTGIS_VERSION
-./configure
-make && sudo make install
+./configure && make && sudo make install
 
 sudo -u postgres psql template1
 # \password postgres
