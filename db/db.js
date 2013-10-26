@@ -18,6 +18,10 @@ fn.Layer = mysql.model("layers");
 fn.Period = mysql.model("periods");
 fn.Source = mysql.model("sources");
 
+fn.Polygon = pg.model("polygon");
+fn.Point = pg.model("point");
+fn.Line = pg.model("line");
+
 /*
 fn.Period = mysql.define('period', {
     map_id: fn.s.INTEGER,
