@@ -1,3 +1,12 @@
+CREATE TABLE spatial_ref_sys (
+  srid integer NOT NULL,
+  auth_name character varying(256),
+  auth_srid integer,
+  srtext character varying(2048),
+  proj4text character varying(2048),
+  CONSTRAINT spatial_ref_sys_pkey PRIMARY KEY (srid)
+);
+
 CREATE TABLE polygon (
   gid serial NOT NULL,
   lat double precision,
@@ -53,6 +62,21 @@ CREATE TABLE changesets (
   geom_diff text,
   created_at timestamp with time zone,
   CONSTRAINT changesets_pkey PRIMARY KEY (gid)
+);
+
+# Testing table (schema for all layers)
+CREATE TABLE l_0 (
+  gid serial NOT NULL,
+  period int8,
+  shape int8,
+  type character varying(20),
+  name character varying(250),
+  description text,
+  datestart character varying(20),
+  dateend character varying(20),
+  tags integer[],
+  data hstore,
+  CONSTRAINT l_0_pkey PRIMARY KEY (gid)
 );
 
 INSERT INTO geometry_columns (

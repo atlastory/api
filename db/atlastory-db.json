@@ -17,7 +17,7 @@
         "adapter": "postgres",
         "host": "54.245.88.44",
         "port": 5432,
-        "database": "postgis",
+        "database": "atlastory",
         "username": "postgres",
         "password": "historywhitelionjump"
     }
