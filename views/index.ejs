@@ -14,18 +14,18 @@
 
     <h2>Layer</h2>
 
-    <h3>GET /map/:id/layer</h3>
+    <h3>GET /layers</h3>
 
-    <p>Gets layers for given map ID.</p>
+    <p>Gets all layers for the base map.</p>
 
-    <h3>GET /map/:id/layer/:id</h3>
+    <h3>GET /layers/:id</h3>
 
     <p>Get individual layer for given layer ID.</p>
 
     <h3>GeoJSON</h3>
 
     <p>
-        <strong>/map/:id/layer/:id/geojson</strong><br/>
+        <strong>/layers/:id/geojson</strong><br/>
         <strong>/geojson?id=:id</strong>
     </p>
 
@@ -36,29 +36,29 @@
         <li><strong>z</strong> (optional) -- zoom level of map for geometry simplification</li>
     </ul>
     <code>
-        GET api.atlastory.com/map/1/layer/61/geojson?pid=1&bbox=-86.309,16.805,-71.631,25.324
+        GET api.atlastory.com/layers/61/geojson?pid=1&bbox=-86.309,16.805,-71.631,25.324
     </code>
 
     <p>
-        <em>Example:</em> <a href="/map/1/layer/61/geojson?pid=1&z=0">GeoJSON with zoom</a><br/>
-        <em>Example:</em> <a href="/map/1/layer/61/geojson?pid=1&bbox=-86.30859375,16.804541076383455,-71.630859375,25.3241665257384">GeoJSON with bounding box</a>
+        <em>Example:</em> <a href="/layers/61/geojson?pid=1&z=0">GeoJSON with zoom</a><br/>
+        <em>Example:</em> <a href="/layers/61/geojson?pid=1&bbox=-86.30859375,16.804541076383455,-71.630859375,25.3241665257384">GeoJSON with bounding box</a>
     </p>
 
     <h3>TopoJSON</h3>
 
     <p>
-        <strong>/map/:id/layer/:id/topojson</strong><br/>
+        <strong>/layers/:id/topojson</strong><br/>
         <strong>/topojson?id=:id</strong>
     </p>
 
     Options: same as GeoJSON
     <p>
-        <em>Example:</em> <a href="/map/1/layer/61/topojson?pid=1&bbox=-86.309,16.805,-71.631,25.324">TopoJSON with bounding box</a>
+        <em>Example:</em> <a href="/layers/61/topojson?pid=1&bbox=-86.309,16.805,-71.631,25.324">TopoJSON with bounding box</a>
     </p>
 
     <h2>Shape</h2>
 
-    <h3>GET /layer/:id/s/:id</h3>
+    <h3>GET /layers/:id/shapes/:id</h3>
 
     <p>Gets full GeoJSON for an individual shape with the given layer and shape IDs.</p>
 

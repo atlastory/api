@@ -1,3 +1,8 @@
+
+CREATE EXTENSION postgis;
+CREATE EXTENSION hstore;
+CREATE EXTENSION intarray;
+
 CREATE TABLE spatial_ref_sys (
   srid integer NOT NULL,
   auth_name character varying(256),
@@ -67,8 +72,8 @@ CREATE TABLE changesets (
 # Testing table (schema for all layers)
 CREATE TABLE l_0 (
   gid serial NOT NULL,
-  period int8,
-  shape int8,
+  period bigint,
+  shape bigint,
   type character varying(20),
   name character varying(250),
   description text,

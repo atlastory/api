@@ -1,6 +1,15 @@
 var Shape = require('../models/Shape');
 
-// GET /layer/:lid/s/:id
+// GET /layer/:lid/shapes
+exports.show = function(req, res) {
+    var lid = req.param("lid"),
+        pid = req.param("pid");
+
+    // Shape.getData(lid, pid, function(err, json) {});
+    res.send("Not implemented yet");
+};
+
+// GET /layer/:lid/shapes/:id
 exports.show = function(req, res) {
     var lid = req.param("lid"),
         id  = req.param("id");
@@ -10,15 +19,3 @@ exports.show = function(req, res) {
         else res.jsonp(json);
     });
 };
-
-// POST /layer/:lid/s/:id
-// wiki model
-// exports.create
-
-// PUT /layer/:lid/s/:id
-// wiki model
-// exports.update
-
-// DELETE /layer/:lid/s/:id
-// wiki model
-// exports.destroy

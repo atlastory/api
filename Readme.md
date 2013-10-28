@@ -6,20 +6,18 @@ RESTful API with HTTP interface for reading and editing a map. Used by Atlastory
 
 For the current beta version, all editing routes bypass the Wiki and make map edits directly.
 ```
-GET     /map/:id/layer          all layers for map
-GET     /map/:id/layer/:id      single layer
-POST    /map/:id/layer/:id      creates layer in Wiki
-PUT     /map/:id/layer/:id      updates layer in Wiki
-DELETE  /map/:id/layer/:id      deletes layer in Wiki
+GET     /layers          all layers for base map
+GET     /layers/:id      single layer
+POST    /layers/:id      creates layer in Wiki
+PUT     /layers/:id      updates layer in Wiki
+DELETE  /layers/:id      deletes layer in Wiki
 
-GET     /map/:id/layer/:id/geojson
+GET     /layers/:id/geojson
         /geojson                GeoJSON of layer
-GET     /map/:id/layer/:id/topojson
+GET     /layers/:id/topojson
         /topojson               TopoJSON of layer
 
-GET     /layer/:id/s/:id        full GeoJSON for shape
-POST    /layer/:id/s/:id        creates shape in Wiki (accepts GeoJSON)
-PUT     /layer/:id/s/:id        updates shape in Wiki (accepts GeoJSON)
-DELETE  /layer/:id/s/:id        deletes shape in Wiki (accepts GeoJSON)
+GET     /layers/:id/shapes/:id  full GeoJSON for shape
+GET		/layers/:id/shapes		gets all shapes for a specified period
 
 ```
