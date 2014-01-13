@@ -74,7 +74,6 @@ CREATE TABLE l_0 (
   gid serial NOT NULL,
   period bigint,
   shape bigint,
-  type character varying(20),
   name character varying(250),
   description text,
   datestart character varying(20),
