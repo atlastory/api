@@ -17,7 +17,7 @@ var Layer = module.exports = db.mysql.model("layers", {
     },
     getters: {
         table: function() {
-            return this.short_name + '_' + this.id;
+            return 'l_' + this.id;
         }
     }
 });
@@ -55,9 +55,9 @@ Layer.addMethod('getGeoJSON', function(options, callback) {
     }
 
     postgis.getShapes({
-        table: this.table,
-        type: this.shape,
+        layer: this.id,
         period: pid,
+        type: this.shape,
         properties: ["gid", "name"],
         geom: gis.asGeoJSON(geom),
         where: [box]

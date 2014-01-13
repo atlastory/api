@@ -2,7 +2,7 @@ var assert = require('assert');
 var Step = require('step');
 var fs = require('fs');
 
-var Layer = require('../models/Layer');
+var Layer = require('../../models/Layer');
 
 var lyr = 64,
     lName = "places",
@@ -16,7 +16,7 @@ describe('#find()', function() {
         Layer.find(lyr, function(err, l) {
             assert.ifError(err);
             assert.equal(l.id, lyr);
-            assert.equal(l.table, lName+'_'+lyr);
+            assert.equal(l.table, 'l_'+lyr);
             layer = l;
             done();
         });

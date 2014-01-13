@@ -10,10 +10,10 @@ var lyr = 64;
 
 describe('Layer controller', function() {
 
-describe('GET /map/:mid/layer', function() {
+describe('GET /layers', function() {
     this.timeout(1000);
     it('should respond with layers json', function(done) {
-        request.get('/map/1/layer')
+        request.get('/layers')
           .set('Accept', 'application/json')
           .expect('Content-Type', /json/)
           .expect(200)
@@ -25,10 +25,10 @@ describe('GET /map/:mid/layer', function() {
     });
 });
 
-describe('GET /map/:mid/layer/:id', function() {
+describe('GET /layers/:id', function() {
     this.timeout(1000);
     it('should respond with layer json', function(done) {
-        request.get('/map/1/layer/'+lyr)
+        request.get('/layers/'+lyr)
           .set('Accept', 'application/json')
           .expect('Content-Type', /json/)
           .expect(200, done);
