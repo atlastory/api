@@ -30,8 +30,10 @@ exports.show = function(req, res) {
 // wiki model
 // exports.destroy
 
-var getJSON = function(type, req, res) {
-    var ops = {
+// GET /layers/:id/shapes.:type
+exports.shapes = function(req, res, t) {
+    var type = req.param("type") || t,
+        ops = {
             lid: parseFloat(req.param("id")),
             pid: parseFloat(req.param("pid")),
             z: parseFloat(req.param("z"))
@@ -47,6 +49,8 @@ var getJSON = function(type, req, res) {
     ops.p1 = box ? [box[0], box[1]] : null;
     ops.p2 = box ? [box[2], box[3]] : null;
 
+    // TODO: Impliment 'JSON' to get only data
+
     if (type == 'geojson') type = 'getGeoJSON';
     if (type == 'topojson') type = 'getTopoJSON';
 
@@ -59,14 +63,12 @@ var getJSON = function(type, req, res) {
     });
 };
 
-// GET /layers/:id/geojson
 // GET /geojson
 exports.geojson = function(req, res) {
-    return getJSON("geojson", req, res);
+    return getJSON(req, res, "geojson");
 };
 
-// GET /layers/:id/topojson
 // GET /topojson
 exports.topojson = function(req, res) {
-    return getJSON("topojson", req, res);
+    return getJSON(req, res, "topojson");
 };

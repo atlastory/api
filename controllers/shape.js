@@ -1,4 +1,5 @@
-var Shape = require('../models/Shape');
+var Shape = require('../models/Shape'),
+    util = require('../lib/utilities');
 
 // GET /layer/:lid/shapes
 exports.index = function(req, res) {
@@ -13,9 +14,10 @@ exports.index = function(req, res) {
 // GET /layer/:lid/shapes/:id
 exports.show = function(req, res) {
     var lid = req.param("lid"),
-        id  = req.param("id");
+        id  = req.param("id"),
+        type = req.param("type");
 
-    Shape.find(lid, id, function(err, json) {
+    Shape.find(lid, id, type, function(err, json) {
         if (err) res.send(500, err);
         else res.jsonp(json);
     });

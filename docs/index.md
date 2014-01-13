@@ -18,13 +18,15 @@ Gets all layers for the base map.
 Get an individual layer for given layer ID.
 
 
-### Get the GeoJSON of a layer
+### Get shapes for a layer+period
 
-	http://api.atlastory.com/layers/:id/geojson
+	http://api.atlastory.com/layers/:id/shapes.:type?pid=:pid
 	http://api.atlastory.com/geojson?id=:id
 
 __Required parameters:__
 
+* `id` — layer ID
+* `type` — `json`, `geojson`, or `topojson`. "`json`" will return an array of only shape data with no geometry.
 * `pid` — period ID
 
 __Optional parameters:__
@@ -34,11 +36,11 @@ __Optional parameters:__
 
 Example:
 
-	http://api.atlastory.com/layers/61/geojson?pid=1&bbox=-86.309,16.805,-71.631,25.324
+	http://api.atlastory.com/layers/61/shapes.geojson?pid=1&bbox=-86.309,16.805,-71.631,25.324
 
-Example: [GeoJSON with zoom](/layers/61/geojson?pid=1&z=0)
+Example: [GeoJSON with zoom](/layers/61/shapes.geojson?pid=1&z=0)
 
-Example: [GeoJSON with bounding box](/layers/61/geojson?pid=1&bbox=-86.30859375,16.804541076383455,-71.630859375,25.3241665257384)
+Example: [GeoJSON with bounding box](/layers/61/shapes.geojson?pid=1&bbox=-86.30859375,16.804541076383455,-71.630859375,25.3241665257384)
 
 ### Get the TopoJSON of a layer
 
@@ -54,8 +56,18 @@ Example: [TopoJSON with bounding box](/layers/61/topojson?pid=1&bbox=-86.309,16.
 ## Shape
 
 
-### Get the GeoJSON for a single shape
+### Get's data for a single shape
 
-	http://api.atlastory.com/layers/:id/shapes/:id
+	http://api.atlastory.com/layers/:lid/shapes/:sid.:type
 
-Gets full GeoJSON for an individual shape with the given layer and shape IDs.
+Gets data and/or geometry for an individual shape with the given layer and shape IDs.
+
+__Required parameters:__
+
+* lid — Layer ID
+* sid — Shape ID
+* type — `json`, `geojson`, or `topojson`. "`json`" will return an array of only the shape's data with no geometry.
+
+Example:
+
+	http://api.atlastory.com/layers/6/shapes/462.geojson

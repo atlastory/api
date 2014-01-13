@@ -1,6 +1,6 @@
 var postgis = require('../lib/postgis'),
     db = require('../db/db'),
-    gis = require('../lib/gis.utilities'),
+    util = require('../lib/utilities'),
     crypto = require('crypto');
 
 
