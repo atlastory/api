@@ -1,10 +1,11 @@
 var Shape = require('../models/Shape');
 
 // GET /layer/:lid/shapes
-exports.show = function(req, res) {
+exports.index = function(req, res) {
     var lid = req.param("lid"),
         pid = req.param("pid");
 
+    // Gets non-geometry data from all shapes
     // Shape.getData(lid, pid, function(err, json) {});
     res.send("Not implemented yet");
 };

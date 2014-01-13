@@ -29,6 +29,7 @@
         "grand-central-records": "~0.0.65",
         "mysql": "~2.0.0-alpha8",
         "pg": "~2.0.0",
-        "terraformer-wkt-parser": "*"
+        "terraformer-wkt-parser": "*",
+        "markdown": "*"
     }
 }
