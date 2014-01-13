@@ -2,7 +2,7 @@ var assert = require('assert');
 var Step = require('step');
 var fs = require('fs');
 
-var Shape = require('../models/Shape');
+var Shape = require('../../models/Shape');
 
 var lyr = 64, shp = 2;
 

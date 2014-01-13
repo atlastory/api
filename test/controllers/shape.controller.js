@@ -10,10 +10,10 @@ var lyr = 64, shp = 2;
 
 describe('Shape controller', function() {
 
-describe('GET /layer/:lid/shape/:id', function() {
+describe('GET /layers/:lid/shapes/:id', function() {
     this.timeout(1000);
     it('should respond with shape geojson', function(done) {
-        request.get('/layer/'+lyr+'/s/'+shp)
+        request.get('/layers/'+lyr+'/shapes/'+shp)
           .set('Accept', 'application/json')
           .expect('Content-Type', /json/)
           .expect(200)

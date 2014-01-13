@@ -2,7 +2,7 @@ var assert = require('assert');
 var Step = require('step');
 var fs = require('fs');
 
-var Changeset = require('../models/Changeset');
+var Changeset = require('../../models/Changeset');
 
 var directives = [
     {

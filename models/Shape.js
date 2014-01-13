@@ -11,7 +11,7 @@ fn.find = function(layerId, id, callback) {
     else Layer.find(layerId, function(err,layer) {
         if (err) callback(err);
         else postgis.getShapes({
-            table: layer.table,
+            layer: layer.id,
             type: layer.shape,
             shape: id,
             geom: gis.asGeoJSON("%g")
