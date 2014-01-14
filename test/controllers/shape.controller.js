@@ -6,7 +6,7 @@ var request = require('supertest');
 var app = require('../../app');
 request = request(app);
 
-var lyr = 0, shp = 10;
+var lyr = 0, shp = 1;
 
 describe('Shape controller', function() {
 

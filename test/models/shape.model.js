@@ -4,7 +4,7 @@ var fs = require('fs');
 
 var Shape = require('../../models/Shape');
 
-var lyr = 0, shp = 10;
+var lyr = 0, shp = 1;
 
 describe('Shape model', function() {
 

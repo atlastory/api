@@ -72,6 +72,6 @@ __Required parameters:__
 * `sid` — Shape ID
 * `type` — `json`, `geojson`, or `topojson`. "`json`" will return an array of only the shape's data with no geometry.
 
-[Example](/layers/0/shapes/10.geojson):
+[Example](/layers/0/shapes/1.geojson):
 
-	http://api.atlastory.com/layers/0/shapes/10.geojson
+	http://api.atlastory.com/layers/0/shapes/1.geojson

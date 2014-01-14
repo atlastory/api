@@ -1,16 +1,17 @@
 
+-- Enable PostGIS (includes raster)
 CREATE EXTENSION postgis;
+-- Enable Topology
+CREATE EXTENSION postgis_topology;
+-- fuzzy matching needed for Tiger
+CREATE EXTENSION fuzzystrmatch;
+-- Enable US Tiger Geocoder
+CREATE EXTENSION postgis_tiger_geocoder;
+
 CREATE EXTENSION hstore;
 CREATE EXTENSION intarray;
 
-CREATE TABLE spatial_ref_sys (
-  srid integer NOT NULL,
-  auth_name character varying(256),
-  auth_srid integer,
-  srtext character varying(2048),
-  proj4text character varying(2048),
-  CONSTRAINT spatial_ref_sys_pkey PRIMARY KEY (srid)
-);
+
 
 CREATE TABLE polygon (
   gid serial NOT NULL,
@@ -69,7 +70,7 @@ CREATE TABLE changesets (
   CONSTRAINT changesets_pkey PRIMARY KEY (gid)
 );
 
-# Testing table (schema for all layers)
+-- Testing table (schema for all layers)
 
 CREATE TABLE l_0 (
   gid serial NOT NULL,
@@ -84,7 +85,7 @@ CREATE TABLE l_0 (
   CONSTRAINT l_0_pkey PRIMARY KEY (gid)
 );
 
-# Geometry columns
+-- Geometry columns
 
 INSERT INTO geometry_columns (
   f_table_catalog,
@@ -140,7 +141,7 @@ INSERT INTO geometry_columns (
 	  'POINT'
 );
 
-# Seed TEST layer table
+-- Seed TEST layer table
 
 INSERT INTO point (
   geom,
@@ -148,10 +149,10 @@ INSERT INTO point (
   periods,
   sources
 ) VALUES (
-  "0101000020E6100000C3F5285C8FC22140C3F5285C8FC22140",
-  "{0}",
-  "{1}",
-  "{1}"
+  ST_GeomFromText('POINT(8.88 8.88)', 4326),
+  '{0}',
+  '{1}',
+  '{1}'
 );
 
 INSERT INTO l_0 (
@@ -168,7 +169,7 @@ INSERT INTO l_0 (
   1,
   'mocha',
   'this is a test',
-  '{"red","blue"}',
+  '{1,2}',
   '986-08-08',
   '986-08-08',
   '"a"=>"1", "b"=>"2"'
