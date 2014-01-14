@@ -1,24 +1,15 @@
-var Shape = require('../models/Shape');
+var Shape = require('../models/Shape'),
+    util = require('../lib/utilities');
 
-// GET /layer/:lid/s/:id
+
+// GET /layers/:lid/shapes/:id.:type
 exports.show = function(req, res) {
     var lid = req.param("lid"),
-        id  = req.param("id");
+        id  = req.param("id"),
+        type = req.param("type");
 
-    Shape.find(lid, id, function(err, json) {
+    Shape.find(lid, id, type, function(err, json) {
         if (err) res.send(500, err);
         else res.jsonp(json);
     });
 };
-
-// POST /layer/:lid/s/:id
-// wiki model
-// exports.create
-
-// PUT /layer/:lid/s/:id
-// wiki model
-// exports.update
-
-// DELETE /layer/:lid/s/:id
-// wiki model
-// exports.destroy

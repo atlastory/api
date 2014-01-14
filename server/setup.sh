@@ -1,5 +1,5 @@
 #!/bin/bash
-# Simple setup Ubuntu 12.04 LTS EC2 instance
+# Simple setup Ubuntu 13.04 EC2 instance
 # To run:
 # $ chmod a+x setup.sh
 # $ ./setup.sh
@@ -23,8 +23,8 @@ sudo apt-get install -y nodejs
 # Load nvm and install latest production node
 curl https://raw.github.com/creationix/nvm/master/install.sh | sh
 source $HOME/.nvm/nvm.sh
-nvm install v0.10
-nvm use v0.10
+nvm install v0.10.8 #may need to restart to work
+nvm use v0.10.8
 
 # Install rlwrap to provide libreadline features with node
 # See: http://nodejs.org/api/repl.html#repl_repl
@@ -69,7 +69,7 @@ npm install
 # Server deployment
 chmod a+x run.sh server/update.sh
 export PORT=80
-sudo apt-get install upstart monit
+sudo apt-get install -y upstart monit
 sudo cp $HOME/$APP/server/upstart.conf /etc/init/$APP.conf
 REGEX=s/@@@/$APP/g
 sudo sed -i $REGEX /etc/init/$APP.conf

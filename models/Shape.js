@@ -1,19 +1,39 @@
-var atlastory = require('node-api'),
-    Step = require('step'),
-    gis = atlastory.gis;
+var postgis = require('../lib/postgis'),
+    Layer = require('./Layer'),
+    util = require('../lib/utilities');
 
 function Shape() {}
 
 var fn = Shape.prototype;
 
-fn.find = function(layerId, id, callback) {
-    atlastory.getShapes({
-        layer: layerId,
-        shape: id,
-        geom: gis.asGeoJSON("%g")
-    }, function(err, shapes, lyr) {
+fn.find = function(layerId, id, type, callback) {
+    if (typeof type === 'function') {
+        callback = type;
+        type = 'geojson';
+    }
+
+    if (!layerId && layerId !== 0) callback(new Error('No layer ID!'));
+    else Layer.find(layerId, function(err,layer) {
         if (err) callback(err);
-        else callback(null, gis.buildGeoJSON(shapes));
+        var ops = {
+            layer: layer.id,
+            type: layer.shape,
+            shape: id,
+            geom: util.asGeoJSON("%g")
+        };
+
+        if (type == 'json') postgis.getData(ops, function(err, shape) {
+            if (err) callback(err);
+            else callback(null, shape[0]);
+        });
+        else postgis.getShapes(ops, function(err, shape) {
+            if (err) callback(err);
+            else {
+                shape = util.buildGeoJSON(shape);
+                if (type == 'topojson') shape = util.convertTopoJSON(shape);
+                callback(null, shape);
+            }
+        });
     });
 };
 

@@ -1,4 +1,27 @@
 body {
   padding: 30px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  line-height: 1.4em;
+}
+h2 {
+  line-height: 1.5em;
+  margin-top: 2.2em;
+  margin-bottom: 1.5em;
+  border-bottom: 1px solid #999999;
+}
+h3 {
+  margin-top: 1.8em;
+  margin-bottom: 1em;
+}
+code {
+  color: #333333;
+  font-size: 13px;
+}
+pre {
+  border: 1px solid #999999;
+  background-color: #eeeeee;
+  padding: 6px 10px;
+  overflow: auto;
+  margin: 1em 0;
+  white-space: pre;
 }

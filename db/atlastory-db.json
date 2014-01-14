@@ -1,0 +1,24 @@
+{
+    "development": {
+        "adapter": "mysql",
+        "host": "dev.clkmgruzptvv.us-east-1.rds.amazonaws.com",
+        "database": "atlastory",
+        "username": "maxprogram",
+        "password": "historyorangetigerjump"
+    },
+    "production": {
+        "adapter": "mysql",
+        "host": "atlastory.clkmgruzptvv.us-east-1.rds.amazonaws.com",
+        "database": "atlastory",
+        "username": "maxprogram",
+        "password": "historyisfun"
+    },
+    "postgis": {
+        "adapter": "postgres",
+        "host": "54.245.88.44",
+        "port": 5432,
+        "database": "atlastory",
+        "username": "postgres",
+        "password": "historywhitelionjump"
+    }
+}
