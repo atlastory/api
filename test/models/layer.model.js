@@ -4,7 +4,7 @@ var fs = require('fs');
 
 var Layer = require('../../models/Layer');
 
-var lyr = 64,
+var lyr = 0,
     lName = "places",
     layer;
 
@@ -56,8 +56,8 @@ describe('#getGeoJSON()', function() {
     it('should get geoJSON with bounding box', function(done) {
         layer.getGeoJSON({
             pid: 1,
-            p1: [-13.711,32.842],
-            p2: [37.969,58.263]
+            p1: [7,7],
+            p2: [9,9]
         }, function(err, json) {
             assert.ifError(err);
             assert.equal(json.type, "FeatureCollection");

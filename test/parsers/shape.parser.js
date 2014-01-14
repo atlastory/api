@@ -6,7 +6,7 @@ var shape = require('../../lib/shape');
 var add = {
     layer: 0,
     period: 1,
-    data: '{"name":"mocha","datestart":"8/8/150","a":1,"b":2}',
+    data: '{"name":"mocha","datestart":"986-08-08","a":1,"b":2}',
     type: 'Point,Point',
     geom_diff: '[8.88,8.88]'
 };
@@ -26,7 +26,6 @@ describe('#add()', function() {
             ShapeLayer.find(id, this);
         }, function(err, shape) {
             assert.ifError(err);
-            assert.equal(shape[0].type, 'point');
             assert.equal(shape[0].name, 'mocha');
             db.Point.find(shape[0].shape, this);
         }, function(err, shape) {

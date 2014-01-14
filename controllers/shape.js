@@ -11,7 +11,7 @@ exports.index = function(req, res) {
     res.send("Not implemented yet");
 };
 
-// GET /layer/:lid/shapes/:id
+// GET /layer/:lid/shapes/:id.:type
 exports.show = function(req, res) {
     var lid = req.param("lid"),
         id  = req.param("id"),

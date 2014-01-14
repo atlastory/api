@@ -13,33 +13,28 @@ fn.find = function(layerId, id, type, callback) {
     }
 
     if (!layerId && layerId !== 0) callback(new Error('No layer ID!'));
-    else {
-        // Gets data only
-        if (type == 'json') postgis.getData({
-            layer: layerId,
-            shape: id
-        }, function(err, shape) {
+    else Layer.find(layerId, function(err,layer) {
+        if (err) callback(err);
+        var ops = {
+            layer: layer.id,
+            type: layer.shape,
+            shape: id,
+            geom: util.asGeoJSON("%g")
+        };
+
+        if (type == 'json') postgis.getData(ops, function(err, shape) {
             if (err) callback(err);
             else callback(null, shape[0]);
         });
-        // Gets data + geometry
-        else Layer.find(layerId, function(err,layer) {
+        else postgis.getShapes(ops, function(err, shape) {
             if (err) callback(err);
-            else postgis.getShapes({
-                layer: layer.id,
-                type: layer.shape,
-                shape: id,
-                geom: util.asGeoJSON("%g")
-            }, function(err, shape) {
-                if (err) callback(err);
-                else {
-                    shape = util.buildGeoJSON(shape);
-                    if (type == 'topojson') shape = util.convertTopoJSON(shape);
-                    callback(null, shape);
-                }
-            });
+            else {
+                shape = util.buildGeoJSON(shape);
+                if (type == 'topojson') shape = util.convertTopoJSON(shape);
+                callback(null, shape);
+            }
         });
-    }
+    });
 };
 
 fn.create = function(layerId, data, callback) {};

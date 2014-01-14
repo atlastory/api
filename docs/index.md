@@ -26,7 +26,9 @@ Get an individual layer for given layer ID.
 __Required parameters:__
 
 * `id` — layer ID
-* `type` — `json`, `geojson`, or `topojson`. "`json`" will return an array of only shape data with no geometry.
+* `type` — `json`, `geojson`, or `topojson`.
+	* "`json`" will return an array of only shape data with no geometry.
+	* "`geojson`", "`topojson`" will return a Feature Collection of all geometries with only gid/name data.
 * `pid` — period ID
 
 __Optional parameters:__
