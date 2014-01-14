@@ -70,6 +70,7 @@ CREATE TABLE changesets (
 );
 
 # Testing table (schema for all layers)
+
 CREATE TABLE l_0 (
   gid serial NOT NULL,
   period bigint,
@@ -82,6 +83,8 @@ CREATE TABLE l_0 (
   data hstore,
   CONSTRAINT l_0_pkey PRIMARY KEY (gid)
 );
+
+# Geometry columns
 
 INSERT INTO geometry_columns (
   f_table_catalog,
@@ -136,3 +139,38 @@ INSERT INTO geometry_columns (
 	  4326,
 	  'POINT'
 );
+
+# Seed TEST layer table
+
+INSERT INTO point (
+  geom,
+  layers,
+  periods,
+  sources
+) VALUES (
+  "0101000020E6100000C3F5285C8FC22140C3F5285C8FC22140",
+  "{0}",
+  "{1}",
+  "{1}"
+);
+
+INSERT INTO l_0 (
+  period,
+  shape,
+  name,
+  description,
+  tags,
+  datestart,
+  dateend,
+  data
+) VALUES (
+  1,
+  1,
+  'mocha',
+  'this is a test',
+  '{"red","blue"}',
+  '986-08-08',
+  '986-08-08',
+  '"a"=>"1", "b"=>"2"'
+);
+
