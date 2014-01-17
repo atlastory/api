@@ -4,7 +4,7 @@ var fs = require('fs');
 
 var Shape = require('../../models/Shape');
 
-var lyr = 0, shp = 1;
+var per = 1, shp = 1;
 
 describe('Shape model', function() {
 
@@ -17,7 +17,7 @@ describe('#find()', function() {
     });
 
     it('should get a shape as geoJSON', function(done) {
-        Shape.find(lyr, shp, function(err, json) {
+        Shape.find(per, shp, function(err, json) {
             assert.ifError(err);
             assert.equal(json.type, "FeatureCollection");
             assert.equal(json.features[0].properties.gid, shp);
@@ -26,7 +26,7 @@ describe('#find()', function() {
     });
 
     it('should get a shape as JSON', function(done) {
-        Shape.find(lyr, shp, 'json', function(err, json) {
+        Shape.find(per, shp, 'json', function(err, json) {
             assert.ifError(err);
             assert.equal(json.period, 1);
             assert.equal(typeof json.tags, "object");

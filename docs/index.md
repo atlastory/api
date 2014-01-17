@@ -41,7 +41,7 @@ Example:
 
 	http://api.atlastory.com/layers/61/periods/1/shapes.geojson?bbox=-86.309,16.805,-71.631,25.324
 
-Example: [Shape data JSON](/layers/0/periods/1/shapes.json)
+Example: [Shape data JSON](/layers/1/periods/1/shapes.json)
 
 Example: [GeoJSON with zoom](/layers/61/periods/1/shapes.geojson?z=0)
 

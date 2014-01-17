@@ -51,7 +51,8 @@ Changeset.get = function(id, callback) {
 };
 
 Changeset.create = function(directives, id, callback) {
-    var hash = id;
+    var now = new Date(),
+        hash = id;
 
     // If no id, create one
     if (typeof id === 'function') callback = id;
