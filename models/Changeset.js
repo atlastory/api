@@ -1,7 +1,6 @@
 var postgis = require('../lib/postgis'),
     db = require('../db/db'),
-    util = require('../lib/utilities'),
-    crypto = require('crypto');
+    util = require('../lib/utilities');
 
 
 var Changeset = module.exports = db.pg.model("changesets", {
@@ -52,15 +51,11 @@ Changeset.get = function(id, callback) {
 };
 
 Changeset.create = function(directives, id, callback) {
-    var now = new Date(),
-        hash = id;
+    var hash = id;
 
     // If no id, create one
     if (typeof id === 'function') callback = id;
-    if (!id || typeof id === 'function') {
-        hash = crypto.createHash('md5')
-            .update(now.toString()).digest("hex");
-    }
+    if (!id || typeof id === 'function') hash = util.createHash();
     if (!Array.isArray(directives)) directives = [directives];
 
     directives.forEach(function(d) {
