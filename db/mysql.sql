@@ -122,7 +122,7 @@ INSERT INTO periods (
   created_at,
   updated_at
 ) VALUES (
-  0,
+  1,
   '1990-2010',
   '1990-01-01',
   '2010-01-01',

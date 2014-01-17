@@ -73,6 +73,7 @@ CREATE TABLE changesets (
   CONSTRAINT changesets_pkey PRIMARY KEY (gid)
 );
 
+
 -- Testing table (schema for all layers)
 
 CREATE TABLE l_1 (
@@ -88,6 +89,12 @@ CREATE TABLE l_1 (
   changeset character varying,
   CONSTRAINT l_0_pkey PRIMARY KEY (gid)
 );
+
+CREATE VIEW lv_1 AS
+  SELECT l_1.*, point.geom
+  FROM l_1 JOIN point
+  ON point.gid = l_1.shape;
+
 
 -- Geometry columns
 
@@ -145,6 +152,7 @@ INSERT INTO geometry_columns (
 	  'POINT'
 );
 
+
 -- Seed TEST layer table
 
 INSERT INTO point (
@@ -154,7 +162,7 @@ INSERT INTO point (
   sources
 ) VALUES (
   ST_GeomFromText('POINT(8.88 8.88)', 4326),
-  '{0}',
+  '{1}',
   '{1}',
   '{1}'
 );
