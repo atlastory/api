@@ -21,6 +21,7 @@ CREATE TABLE polygon (
   periods int8[],
   sources int8[],
   ref int8,
+  changeset character varying,
   geom geometry,
   CONSTRAINT polygon_pkey PRIMARY KEY (gid),
   CONSTRAINT enforce_dims_geom CHECK (st_ndims(geom) = 2)
@@ -34,6 +35,7 @@ CREATE TABLE line (
   periods int8[],
   sources int8[],
   ref int8,
+  changeset character varying,
   geom geometry,
   CONSTRAINT line_pkey PRIMARY KEY (gid),
   CONSTRAINT enforce_dims_geom CHECK (st_ndims(geom) = 2)
@@ -47,6 +49,7 @@ CREATE TABLE point (
   periods int8[],
   sources int8[],
   ref int8,
+  changeset character varying,
   geom geometry,
   CONSTRAINT point_pkey PRIMARY KEY (gid),
   CONSTRAINT enforce_dims_geom CHECK (st_ndims(geom) = 2)
@@ -82,6 +85,7 @@ CREATE TABLE l_0 (
   dateend character varying(20),
   tags integer[],
   data hstore,
+  changeset character varying,
   CONSTRAINT l_0_pkey PRIMARY KEY (gid)
 );
 
