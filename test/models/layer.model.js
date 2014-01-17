@@ -4,8 +4,8 @@ var fs = require('fs');
 
 var Layer = require('../../models/Layer');
 
-var lyr = 0,
-    lName = "test",
+var lyr = 1,
+    lName = "Test",
     layer;
 
 describe('Layer model', function() {
@@ -18,6 +18,7 @@ describe('#find()', function() {
             l = l[0];
             assert.equal(l.id, lyr);
             assert.equal(l.table, 'l_'+lyr);
+            assert.equal(l.name, lName);
             layer = l;
             done();
         });

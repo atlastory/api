@@ -6,7 +6,7 @@ var request = require('supertest');
 var app = require('../../app');
 request = request(app);
 
-var lyr = 0;
+var lyr = 1;
 
 describe('Layer controller', function() {
 

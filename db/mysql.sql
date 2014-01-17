@@ -29,7 +29,7 @@ CREATE TABLE `layers` (
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
 
 CREATE TABLE `periods` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -97,7 +97,6 @@ INSERT INTO maps (
 );
 
 INSERT INTO layers (
-  id,
   map_id,
   name,
   level,
@@ -106,7 +105,6 @@ INSERT INTO layers (
   created_at,
   updated_at
 ) VALUES (
-  0,
   1,
   'Test',
   1,

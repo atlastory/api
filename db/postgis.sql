@@ -75,7 +75,7 @@ CREATE TABLE changesets (
 
 -- Testing table (schema for all layers)
 
-CREATE TABLE l_0 (
+CREATE TABLE l_1 (
   gid serial NOT NULL,
   period bigint,
   shape bigint,
@@ -159,7 +159,7 @@ INSERT INTO point (
   '{1}'
 );
 
-INSERT INTO l_0 (
+INSERT INTO l_1 (
   period,
   shape,
   name,
