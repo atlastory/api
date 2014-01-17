@@ -1,16 +1,17 @@
 
+-- Enable PostGIS (includes raster)
 CREATE EXTENSION postgis;
+-- Enable Topology
+CREATE EXTENSION postgis_topology;
+-- fuzzy matching needed for Tiger
+CREATE EXTENSION fuzzystrmatch;
+-- Enable US Tiger Geocoder
+CREATE EXTENSION postgis_tiger_geocoder;
+
 CREATE EXTENSION hstore;
 CREATE EXTENSION intarray;
 
-CREATE TABLE spatial_ref_sys (
-  srid integer NOT NULL,
-  auth_name character varying(256),
-  auth_srid integer,
-  srtext character varying(2048),
-  proj4text character varying(2048),
-  CONSTRAINT spatial_ref_sys_pkey PRIMARY KEY (srid)
-);
+
 
 CREATE TABLE polygon (
   gid serial NOT NULL,
@@ -20,6 +21,7 @@ CREATE TABLE polygon (
   periods int8[],
   sources int8[],
   ref int8,
+  changeset character varying,
   geom geometry,
   CONSTRAINT polygon_pkey PRIMARY KEY (gid),
   CONSTRAINT enforce_dims_geom CHECK (st_ndims(geom) = 2)
@@ -33,6 +35,7 @@ CREATE TABLE line (
   periods int8[],
   sources int8[],
   ref int8,
+  changeset character varying,
   geom geometry,
   CONSTRAINT line_pkey PRIMARY KEY (gid),
   CONSTRAINT enforce_dims_geom CHECK (st_ndims(geom) = 2)
@@ -46,6 +49,7 @@ CREATE TABLE point (
   periods int8[],
   sources int8[],
   ref int8,
+  changeset character varying,
   geom geometry,
   CONSTRAINT point_pkey PRIMARY KEY (gid),
   CONSTRAINT enforce_dims_geom CHECK (st_ndims(geom) = 2)
@@ -69,9 +73,10 @@ CREATE TABLE changesets (
   CONSTRAINT changesets_pkey PRIMARY KEY (gid)
 );
 
-# Testing table (schema for all layers)
 
-CREATE TABLE l_0 (
+-- Testing table (schema for all layers)
+
+CREATE TABLE l_1 (
   gid serial NOT NULL,
   period bigint,
   shape bigint,
@@ -81,10 +86,17 @@ CREATE TABLE l_0 (
   dateend character varying(20),
   tags integer[],
   data hstore,
+  changeset character varying,
   CONSTRAINT l_0_pkey PRIMARY KEY (gid)
 );
 
-# Geometry columns
+CREATE VIEW lv_1 AS
+  SELECT l_1.*, point.geom
+  FROM l_1 JOIN point
+  ON point.gid = l_1.shape;
+
+
+-- Geometry columns
 
 INSERT INTO geometry_columns (
   f_table_catalog,
@@ -140,7 +152,8 @@ INSERT INTO geometry_columns (
 	  'POINT'
 );
 
-# Seed TEST layer table
+
+-- Seed TEST layer table
 
 INSERT INTO point (
   geom,
@@ -148,13 +161,13 @@ INSERT INTO point (
   periods,
   sources
 ) VALUES (
-  "0101000020E6100000C3F5285C8FC22140C3F5285C8FC22140",
-  "{0}",
-  "{1}",
-  "{1}"
+  ST_GeomFromText('POINT(8.88 8.88)', 4326),
+  '{1}',
+  '{1}',
+  '{1}'
 );
 
-INSERT INTO l_0 (
+INSERT INTO l_1 (
   period,
   shape,
   name,
@@ -168,7 +181,7 @@ INSERT INTO l_0 (
   1,
   'mocha',
   'this is a test',
-  '{"red","blue"}',
+  '{1,2}',
   '986-08-08',
   '986-08-08',
   '"a"=>"1", "b"=>"2"'

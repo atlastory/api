@@ -1,23 +1,22 @@
 var postgis = require('../lib/postgis'),
-    Layer = require('./Layer'),
+    Period = require('./Period'),
     util = require('../lib/utilities');
 
 function Shape() {}
 
 var fn = Shape.prototype;
 
-fn.find = function(layerId, id, type, callback) {
+fn.find = function(pid, id, type, callback) {
     if (typeof type === 'function') {
         callback = type;
         type = 'geojson';
     }
 
-    if (!layerId && layerId !== 0) callback(new Error('No layer ID!'));
-    else Layer.find(layerId, function(err,layer) {
+    if (!pid) callback(new Error('No period ID!'));
+    else Period.find(pid, function(err,period) {
         if (err) callback(err);
         var ops = {
-            layer: layer.id,
-            type: layer.shape,
+            layer: period[0].layer_id,
             shape: id,
             geom: util.asGeoJSON("%g")
         };

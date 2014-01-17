@@ -15,10 +15,10 @@
     },
     "postgis": {
         "adapter": "postgres",
-        "host": "54.245.88.44",
+        "host": "postgis.cack9uhqxsgm.us-west-2.rds.amazonaws.com",
         "port": 5432,
         "database": "atlastory",
-        "username": "postgres",
+        "username": "atlastory",
         "password": "historywhitelionjump"
     }
 }

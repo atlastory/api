@@ -6,14 +6,14 @@ var request = require('supertest');
 var app = require('../../app');
 request = request(app);
 
-var lyr = 0, shp = 10;
+var per = 1, shp = 1;
 
 describe('Shape controller', function() {
 
-describe('GET /layers/:lid/shapes/:id.json', function() {
+describe('GET /layers/:lid/periods/:pid/shapes/:id.json', function() {
     this.timeout(1000);
     it('should respond with shape data', function(done) {
-        request.get('/layers/'+lyr+'/shapes/'+shp+'.json')
+        request.get('/layers/1/periods/'+per+'/shapes/'+shp+'.json')
           .set('Accept', 'application/json')
           .expect('Content-Type', /json/)
           .expect(200)
@@ -26,10 +26,10 @@ describe('GET /layers/:lid/shapes/:id.json', function() {
     });
 });
 
-describe('GET /layers/:lid/shapes/:id.geojson', function() {
+describe('GET /layers/:lid/periods/:pid/shapes/:id.geojson', function() {
     this.timeout(1000);
     it('should respond with shape geojson', function(done) {
-        request.get('/layers/'+lyr+'/shapes/'+shp+'.geojson')
+        request.get('/layers/1/periods/'+per+'/shapes/'+shp+'.geojson')
           .set('Accept', 'application/json')
           .expect('Content-Type', /json/)
           .expect(200)
