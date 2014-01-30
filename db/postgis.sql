@@ -91,7 +91,7 @@ CREATE TABLE l_1 (
 );
 
 CREATE VIEW lv_1 AS
-  SELECT l_1.*, point.geom
+  SELECT l_1.*, point.sources, point.geom
   FROM l_1 JOIN point
   ON point.gid = l_1.shape;
 
