@@ -90,3 +90,11 @@ Period.addMethod('getShapeData', function(options, callback) {
         else callback(null, shapes);
     });
 });
+
+// Directly import GeoJSON
+Period.addMethod('importGeoJSON', function() {
+
+});
+
+// Directly import a Shapefile
+Period.addMethod('importShapefile', function() {});
