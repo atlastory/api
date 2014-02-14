@@ -58,6 +58,7 @@ ALTER SEQUENCE changesets_id_seq OWNED BY changesets.id;
 
 CREATE TABLE periods (
     id serial8 NOT NULL,
+    layer_id integer NOT NULL,
     name varchar(1024) DEFAULT NULL,
     start_day varchar(100) NOT NULL DEFAULT '',
     end_day varchar(100) NOT NULL DEFAULT '',
@@ -103,7 +104,6 @@ CREATE TABLE shapes (
     id serial8 NOT NULL,
     period_id bigint NOT NULL,
     changeset_id bigint,
-    layer character varying(50),
     name character varying(250),
     description text,
     datestart character varying(20),

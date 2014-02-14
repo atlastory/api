@@ -7,7 +7,6 @@ var Shape = module.exports = db.pg.model("shapes", {
     schema: {
         period_id: { type: Number, allowNull: false },
         changeset_id: Number,
-        layer: String,
         name: String,
         description: String,
         datestart: String,
