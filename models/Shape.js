@@ -1,45 +1,69 @@
-var postgis = require('../lib/postgis'),
-    Period = require('./Period'),
+var db = require('../db/db'),
     util = require('../lib/utilities');
 
-function Shape() {}
 
-var fn = Shape.prototype;
+var Shape = module.exports = db.pg.model("shapes", {
+    map: true,
+    schema: {
+        period_id: { type: Number, allowNull: false },
+        changeset_id: Number,
+        layer: String,
+        name: String,
+        description: String,
+        datestart: String,
+        dateend: String,
+        tags: [Number],
+        data: { type: 'hstore' }
+    },
+    getters: {}
+});
 
-fn.find = function(pid, id, type, callback) {
-    if (typeof type === 'function') {
-        callback = type;
-        type = 'geojson';
-    }
+Shape.create = function(periodId, data, callback) {
+    var id;
 
-    if (!pid) callback(new Error('No period ID!'));
-    else Period.find(pid, function(err,period) {
-        if (err) callback(err);
-        var ops = {
-            layer: period[0].layer_id,
-            shape: id,
-            geom: util.asGeoJSON("%g")
-        };
+    data.period_id = periodId;
+    data = util.cleanData(data);
 
-        if (type == 'json') postgis.getData(ops, function(err, shape) {
-            if (err) callback(err);
-            else callback(null, shape[0]);
-        });
-        else postgis.getShapes(ops, function(err, shape) {
-            if (err) callback(err);
-            else {
-                shape = util.buildGeoJSON(shape);
-                if (type == 'topojson') shape = util.convertTopoJSON(shape);
-                callback(null, shape);
-            }
-        });
+    this.returning("id").insert(data, function(err, rows) {
+        if (err) callback('Shape.create > '+err);
+        else {
+            id = parseFloat(rows[0].id);
+            callback(null, id);
+        }
     });
 };
 
-fn.create = function(layerId, data, callback) {};
+// Connects a shape with current nodes/ways/shapes
+// (nodes must be created first)
+Shape.connect = function(shapeId, shapes, callback) {
+    var q = "INSERT INTO shape_relations (shape_id, relation_type, relation_id, relation_role, sequence_id) VALUES ",
+        values = [],
+        i = 0;
 
-fn.update = function(layerId, id, data, callback) {};
+    if (!shapes.nodes[0] && !shapes.ways[0] && !shapes.shapes[0]) callback('no nodes/ways/shapes!');
 
-fn.remove = function(layerId, id, callback) {};
+    shapes.nodes.forEach(function(node) {
+        values.push('(' + [shapeId, "'Node'", node, "''", i++].join() + ')');
+    });
+    shapes.ways.forEach(function(way) {
+        values.push('(' + [shapeId, "'Way'", way, "''", i++].join() + ')');
+    });
+    shapes.shapes.forEach(function(shape) {
+        values.push('(' + [shapeId, "'Shape'", shape, "''", i++].join() + ')');
+    });
+    q += values.join();
 
-module.exports = new Shape();
+    db.pg.query(q, function(err) {
+        if (err) callback('Shape.connect > '+err);
+        else callback(null, shapeId);
+    });
+};
+
+Shape.finish = function(periodId, data, shapes, callback) {
+    var _this = this;
+    this.create(periodId, data, function(err, id) {
+        if (err) callback(err);
+        else _this.connect(id, shapes, callback);
+    });
+};
+
