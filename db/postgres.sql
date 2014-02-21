@@ -30,7 +30,7 @@ SET default_with_oids = false;
 
 -- TABLES
 
-DROP TABLE public.changesets CASCASE;
+DROP TABLE public.changesets CASCADE;
 DROP TABLE public.periods CASCADE;
 DROP TABLE public.nodes CASCADE;
 DROP TABLE public.ways CASCADE;
