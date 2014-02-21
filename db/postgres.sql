@@ -30,6 +30,14 @@ SET default_with_oids = false;
 
 -- TABLES
 
+DROP TABLE public.changesets CASCASE;
+DROP TABLE public.periods CASCADE;
+DROP TABLE public.nodes CASCADE;
+DROP TABLE public.ways CASCADE;
+DROP TABLE public.way_nodes CASCADE;
+DROP TABLE public.shapes CASCADE;
+DROP TABLE public.shape_relations CASCADE;
+
 CREATE TABLE changesets (
     id bigint NOT NULL,
     changeset character varying,
@@ -37,8 +45,8 @@ CREATE TABLE changesets (
     action character varying(50),
     object character varying(50),
     --map integer,
-    --layer integer,
-    --period integer,
+    layer integer,
+    period integer,
     --shape integer,
     --data text,
     --data_old text,
@@ -55,6 +63,17 @@ CREATE SEQUENCE changesets_id_seq
     CACHE 1;
 ALTER SEQUENCE changesets_id_seq OWNED BY changesets.id;
 
+CREATE TABLE layers (
+    id serial NOT NULL,
+    name varchar(255) NOT NULL,
+    short_name
+    level integer DEFAULT NULL,
+    color1 varchar(255) NOT NULL DEFAULT '',
+    color2 varchar(255) NOT NULL DEFAULT '',
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    CONSTRAINT layers_pkey PRIMARY KEY (id)
+);
 
 CREATE TABLE periods (
     id serial8 NOT NULL,
@@ -66,12 +85,6 @@ CREATE TABLE periods (
     updated_at timestamp without time zone NOT NULL,
     CONSTRAINT periods_pkey PRIMARY KEY (id)
 );
-
--- DROP TABLE nodes CASCADE;
--- DROP TABLE ways CASCADE;
--- DROP TABLE way_nodes CASCADE;
--- DROP TABLE shapes CASCADE;
--- DROP TABLE shape_relations CASCADE;
 
 CREATE TABLE nodes (
     id serial8 NOT NULL,
