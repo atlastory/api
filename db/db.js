@@ -22,22 +22,3 @@ fn.Node = pg.model("nodes");
 fn.Way = pg.model("ways");
 fn.Shape = pg.model("shapes");
 
-
-
-/*
-fn.Period = mysql.define('period', {
-    map_id: fn.s.INTEGER,
-    name:   fn.s.STRING,
-    start: { type: fn.s.DATE, allowNull: false },
-    end:   { type: fn.s.DATE, allowNull: false },
-    created_at: { type: fn.s.DATE, allowNull: false },
-    updated_at: { type: fn.s.DATE, defaultValue: fn.s.NOW, allowNull: false }
-});
-
-fn.Source = mysql.define('source', {
-    name: fn.s.STRING,
-    source: fn.s.STRING,
-    created_at: { type: fn.s.DATE, allowNull: false },
-    updated_at: { type: fn.s.DATE, defaultValue: fn.s.NOW, allowNull: false }
-});
-*/

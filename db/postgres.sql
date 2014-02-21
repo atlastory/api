@@ -22,6 +22,13 @@ CREATE TYPE nws_enum AS ENUM (
     'Way',
     'Shape'
 );
+CREATE TYPE atlastory_object AS ENUM (
+    'layer',
+    'period',
+    'node',
+    'way',
+    'shape'
+);
 
 
 SET default_tablespace = '';
@@ -31,6 +38,7 @@ SET default_with_oids = false;
 -- TABLES
 
 DROP TABLE public.changesets CASCADE;
+DROP TABLE public.layers CASCADE;
 DROP TABLE public.periods CASCADE;
 DROP TABLE public.nodes CASCADE;
 DROP TABLE public.ways CASCADE;
@@ -39,40 +47,28 @@ DROP TABLE public.shapes CASCADE;
 DROP TABLE public.shape_relations CASCADE;
 
 CREATE TABLE changesets (
-    id bigint NOT NULL,
-    changeset character varying,
-    user_id integer,
+    id serial8 NOT NULL,
+    changeset character varying NOT NULL,
+    user_id integer NOT NULL,
     action character varying(50),
-    object character varying(50),
-    --map integer,
-    layer integer,
-    period integer,
-    --shape integer,
-    --data text,
-    --data_old text,
-    --type character varying(255),
-    --geom_diff text,
-    created_at timestamp without time zone NOT NULL,
+    object atlastory_object,
+    data text,
+    created_at timestamp without time zone NOT NULL DEFAULT NOW(),
     CONSTRAINT changesets_pkey PRIMARY KEY (id)
 );
-CREATE SEQUENCE changesets_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-ALTER SEQUENCE changesets_id_seq OWNED BY changesets.id;
 
 CREATE TABLE layers (
     id serial NOT NULL,
     name varchar(255) NOT NULL,
-    short_name
+    short_name varchar(20) NOT NULL,
     level integer DEFAULT NULL,
     color1 varchar(255) NOT NULL DEFAULT '',
     color2 varchar(255) NOT NULL DEFAULT '',
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    CONSTRAINT layers_pkey PRIMARY KEY (id)
+    changeset_id bigint,
+    created_at timestamp without time zone NOT NULL DEFAULT NOW(),
+    updated_at timestamp without time zone NOT NULL DEFAULT NOW(),
+    CONSTRAINT layers_pkey PRIMARY KEY (id),
+    CONSTRAINT layers_changeset_id_fkey FOREIGN KEY (changeset_id) REFERENCES changesets(id)
 );
 
 CREATE TABLE periods (
@@ -81,9 +77,12 @@ CREATE TABLE periods (
     name varchar(1024) DEFAULT NULL,
     start_day varchar(100) NOT NULL DEFAULT '',
     end_day varchar(100) NOT NULL DEFAULT '',
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    CONSTRAINT periods_pkey PRIMARY KEY (id)
+    changeset_id bigint,
+    created_at timestamp without time zone NOT NULL DEFAULT NOW(),
+    updated_at timestamp without time zone NOT NULL DEFAULT NOW(),
+    CONSTRAINT periods_pkey PRIMARY KEY (id),
+    CONSTRAINT periods_layer_id_fkey FOREIGN KEY (layer_id) REFERENCES layers(id),
+    CONSTRAINT periods_changeset_id_fkey FOREIGN KEY (changeset_id) REFERENCES changesets(id)
 );
 
 CREATE TABLE nodes (
@@ -121,6 +120,7 @@ CREATE TABLE shapes (
     description text,
     datestart character varying(20),
     dateend character varying(20),
+    sources integer[],
     tags integer[],
     data hstore,
     CONSTRAINT shapes_pkey PRIMARY KEY (id),
@@ -141,6 +141,12 @@ CREATE TABLE shape_relations (
 
 -- FUNCTIONS
 
+-- SEED DATA
 
+INSERT INTO changesets (changeset, user_id, action, object, data) VALUES
+    ('first', 1, 'add', 'layer', '{"name":"Countries","short_name":"countries","level":0}')
+    ('first', 1, 'add', 'period', '{"layer_id":1,"name":"1999-2000","start_day":"1999-01-01","end_day":"2000-01-01"}');
+INSERT INTO layers (name, short_name, level) VALUES ('Countries', 'countries', 0);
+INSERT INTO periods (layer_id, name, start_day, end_day) VALUES (1, '1999-2000', '1999-01-01', '2000-01-01');
 
 
