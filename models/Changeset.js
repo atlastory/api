@@ -1,5 +1,4 @@
-var postgis = require('../lib/postgis'),
-    db = require('../db/db'),
+var db = require('../db/db'),
     util = require('../lib/utilities');
 
 
@@ -10,37 +9,28 @@ var Changeset = module.exports = db.pg.model("changesets", {
         user_id:    Number,
         action: { type: String, allowNull: false },
         object:     String,
-        map: { type: Number, default: 1 },
-        layer:      Number,
-        period:     Number,
-        shape:      Number,
         data:       String,
-        data_old:   String,
-        type:       String,
-        geom_diff:  String,
+        geometry:   String,
         created_at: Date
     },
     // Remove '\' on strings to allow JSON.parse
     getters: {
         data: function() {
             if (this.data) return this.data.replace(/\\/g,'');
-        },
-        data_old: function() {
-            if (this.data_old) return this.data_old.replace(/\\/g,'');
-        },
-        type: function() {
-            if (this.type) return this.type.replace(/\\/g,'');
         }
     },
     methods: {
         toString: function() {
+            var keys = [],
+                data = JSON.parse(this.data);
+            for (var key in data) {
+                keys.push(key + ' = ' + data[key]);
+            }
+
             return [
                 this.action,
                 this.object,
-                'm' + (this.map || 'X'),
-                'l' + (this.layer || 'X'),
-                'p' + (this.period || 'X'),
-                's' + (this.shape || 'X')
+                keys.join(', ')
             ].join(' ');
         }
     }
@@ -63,13 +53,13 @@ Changeset.create = function(directives, id, callback) {
         if (d.toJSON) d = d.toJSON();
         d.changeset = hash;
         d.created_at = now;
-        db.pg.queue(Changeset.insert(d));
+        db.pg.queue(Changeset.insert(d).returning('id'));
     });
 
     // Callback returns hash ID of Changeset
     if (directives.length) db.pg.run(function(err, res) {
         if (err || !Array.isArray(res)) callback(err);
-        else callback(null, hash);
+        else callback(null, hash, res[0].id);
     });
     else callback(null, hash);
 };

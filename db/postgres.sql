@@ -37,14 +37,14 @@ SET default_with_oids = false;
 
 -- TABLES
 
-DROP TABLE public.changesets CASCADE;
-DROP TABLE public.layers CASCADE;
-DROP TABLE public.periods CASCADE;
-DROP TABLE public.nodes CASCADE;
-DROP TABLE public.ways CASCADE;
-DROP TABLE public.way_nodes CASCADE;
-DROP TABLE public.shapes CASCADE;
-DROP TABLE public.shape_relations CASCADE;
+DROP TABLE IF EXISTS public.changesets CASCADE;
+DROP TABLE IF EXISTS public.layers CASCADE;
+DROP TABLE IF EXISTS public.periods CASCADE;
+DROP TABLE IF EXISTS public.nodes CASCADE;
+DROP TABLE IF EXISTS public.ways CASCADE;
+DROP TABLE IF EXISTS public.way_nodes CASCADE;
+DROP TABLE IF EXISTS public.shapes CASCADE;
+DROP TABLE IF EXISTS public.shape_relations CASCADE;
 
 CREATE TABLE changesets (
     id serial8 NOT NULL,
@@ -53,6 +53,7 @@ CREATE TABLE changesets (
     action character varying(50),
     object atlastory_object,
     data text,
+    geometry text,
     created_at timestamp without time zone NOT NULL DEFAULT NOW(),
     CONSTRAINT changesets_pkey PRIMARY KEY (id)
 );
@@ -144,9 +145,11 @@ CREATE TABLE shape_relations (
 -- SEED DATA
 
 INSERT INTO changesets (changeset, user_id, action, object, data) VALUES
-    ('first', 1, 'add', 'layer', '{"name":"Countries","short_name":"countries","level":0}')
+    ('first', 1, 'add', 'layer', '{"name":"Countries","short_name":"countries","level":0}'),
     ('first', 1, 'add', 'period', '{"layer_id":1,"name":"1999-2000","start_day":"1999-01-01","end_day":"2000-01-01"}');
-INSERT INTO layers (name, short_name, level) VALUES ('Countries', 'countries', 0);
-INSERT INTO periods (layer_id, name, start_day, end_day) VALUES (1, '1999-2000', '1999-01-01', '2000-01-01');
+INSERT INTO layers (name, short_name, level, changeset_id) VALUES
+    ('Countries', 'countries', 0, 1);
+INSERT INTO periods (layer_id, name, start_day, end_day, changeset_id) VALUES
+    (1, '1999-2000', '1999-01-01', '2000-01-01', 2);
 
 

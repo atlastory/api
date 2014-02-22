@@ -32,19 +32,8 @@ Period.addMethod('getGeoJSON', function(options, callback) {
         z = options.hasOwnProperty('zoom') ? parseFloat(options.zoom) : null,
         geom = "%g", box = "";
 
-    // @TODO: http://trac.osgeo.org/postgis/wiki/UsersWikiSimplifyPreserveTopology
-    if (z !== null && z !== undefined && isNaN(z)) {
-        var s = 0.25; // Simplify intensity
-        if (z/8 > 1) z = 1;
-        else z = z / 8;
-        z = s - z * s;
-        geom = util.simplify(geom, z);
-    }
-
     if (p1 && p2) {
         box = util.box(p1[0], p1[1], p2[0], p2[1]);
-        geom = util.intersection(box, geom);
-        box = "%g && " + box;
     }
 
     postgis.getShapes({

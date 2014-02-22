@@ -11,16 +11,16 @@ var Shape = module.exports = db.pg.model("shapes", {
         description: String,
         datestart: String,
         dateend: String,
+        sources: [Number],
         tags: [Number],
         data: { type: 'hstore' }
     },
     getters: {}
 });
 
-Shape.create = function(periodId, data, callback) {
+Shape.create = function(data, callback) {
     var id;
 
-    data.period_id = periodId;
     data = util.cleanData(data);
 
     this.returning("id").insert(data, function(err, rows) {
@@ -58,11 +58,10 @@ Shape.connect = function(shapeId, shapes, callback) {
     });
 };
 
-Shape.finish = function(periodId, data, shapes, callback) {
-    var _this = this;
-    this.create(periodId, data, function(err, id) {
+Shape.finish = function(data, shapes, callback) {
+    Shape.create(data, function(err, id) {
         if (err) callback(err);
-        else _this.connect(id, shapes, callback);
+        else Shape.connect(id, shapes, callback);
     });
 };
 

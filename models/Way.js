@@ -14,14 +14,23 @@ var ways = [],
     allNodes = Way.nodes = [];
 
 // Creates a way with nodes
-Way.create = function(coords, callback) {
-    var id, _this = this;
-    db.pg.query("INSERT INTO ways (id) VALUES (DEFAULT) RETURNING id", function(err, rows) {
+Way.create = function(options, callback) {
+    /* Creates a way with associated nodes
+     *
+     * coordinates  ARRAY
+     * changeset    INTEGER (optional)
+     */
+
+    var id,
+        coords = options.coordinates,
+        changeset = options.changeset_id || null;
+
+    Way.insert({ changeset_id: changeset }).returning('id', function(err, rows) {
         if (err) callback('insertWay > '+err);
         else {
             id = parseFloat(rows[0].id);
             ways.push(id);
-            Way.createNodes(id, coords, callback);
+            Way.createNodes(id, coords, changeset, callback);
         }
     });
 };
@@ -44,12 +53,18 @@ Way.connectNodes = function(wayId, nodes, callback) {
 };
 
 // Creates nodes + connecting wayNodes
-Way.createNodes = function(wayId, coords, callback) {
+Way.createNodes = function(wayId, coords, changeset, callback) {
     var queries = [],
-        qNode = "INSERT INTO nodes (longitude, latitude) VALUES ",
+        qNode = "INSERT INTO nodes (longitude, latitude, changeset_id) VALUES ",
         qWN = "INSERT INTO way_nodes (node_id, way_id, sequence_id) VALUES ",
         qFind = "(SELECT id FROM nodes WHERE longitude = ",
         nodes = [], q, find;
+
+    if (typeof changeset === 'function') {
+        callback = changeset;
+        changeset = 'NULL';
+    }
+    if (changeset === null) changeset = 'NULL';
 
     coords.forEach(function(coord, i) {
         if (!util.verifyCoord(coord)) return callback('bad coord');
@@ -67,7 +82,7 @@ Way.createNodes = function(wayId, coords, callback) {
             find = qFind + coord[0] + " AND latitude = " + coord[1] + ' ORDER BY created_at DESC LIMIT 1)';
             queries.push(qWN + '(' + [find, wayId, i].join() + ')');
         } else {
-            queries.push(qNode + '(' + coord.join() + ') RETURNING id');
+            queries.push(qNode + '(' + [coord[0], coord[1], changeset].join() + ') RETURNING id');
             queries.push(qWN + '(LASTVAL(),' + [wayId, i].join() + ')');
             nodes.push(coord); // add to master node array
         }
