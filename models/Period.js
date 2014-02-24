@@ -22,6 +22,13 @@ Period.all = function(layerId, callback) {
 };
 
 // Directly import GeoJSON
+Period.importGeoJSON = function(id, options, callback) {
+    if (options.type == 'FeatureCollection') {
+        options = { geojson: options };
+    }
+    options.period = id;
+    geojson.import(options, callback);
+};
 Period.addMethod('importGeoJSON', function(options, callback) {
     if (options.type == 'FeatureCollection') {
         options = { geojson: options };

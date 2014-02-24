@@ -34,6 +34,7 @@ describe('#all()', function() {
     });
 });
 
+/*
 describe('#getGeoJSON()', function() {
     this.timeout(0);
     it('should get geoJSON with zoom', function(done) {
@@ -81,5 +82,6 @@ describe('#getTopoJSON()', function() {
         });
     });
 });
+*/
 
 });

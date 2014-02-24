@@ -1,5 +1,5 @@
 {
-    "development": {
+    "mysql": {
         "adapter": "mysql",
         "host": "dev.clkmgruzptvv.us-east-1.rds.amazonaws.com",
         "database": "atlastory",
@@ -13,11 +13,19 @@
         "username": "maxprogram",
         "password": "historyisfun"
     },
-    "postgis": {
+    "development": {
         "adapter": "postgres",
         "host": "postgis.cack9uhqxsgm.us-west-2.rds.amazonaws.com",
         "port": 5432,
-        "database": "atlastory",
+        "database": "nws",
+        "username": "atlastory",
+        "password": "historywhitelionjump"
+    },
+    "test": {
+        "adapter": "postgres",
+        "host": "postgis.cack9uhqxsgm.us-west-2.rds.amazonaws.com",
+        "port": 5432,
+        "database": "test",
         "username": "atlastory",
         "password": "historywhitelionjump"
     }

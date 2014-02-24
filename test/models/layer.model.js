@@ -5,7 +5,7 @@ var fs = require('fs');
 var Layer = require('../../models/Layer');
 
 var lyr = 1,
-    lName = "Test",
+    lName = "Countries",
     layer;
 
 describe('Layer model', function() {
@@ -17,7 +17,6 @@ describe('#find()', function() {
             assert.ifError(err);
             l = l[0];
             assert.equal(l.id, lyr);
-            assert.equal(l.table, 'l_'+lyr);
             assert.equal(l.name, lName);
             layer = l;
             done();
@@ -28,7 +27,7 @@ describe('#find()', function() {
 describe('#all()', function() {
     this.timeout(1000);
     it('should get map layers', function(done) {
-        Layer.all(1, function(err, layers) {
+        Layer.all(function(err, layers) {
             assert.ifError(err);
             assert(layers.length > 0);
             done();

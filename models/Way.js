@@ -9,9 +9,20 @@ var Way = module.exports = db.pg.model("ways", {
     },
     getters: {}
 });
+var WayNode = db.pg.model("way_nodes");
 
 var ways = [],
     allNodes = Way.nodes = [];
+
+Way.getNodes = function(wayId, callback) {
+    var q = "SELECT nodes.* FROM nodes JOIN way_nodes ON nodes.id = way_nodes.node_id " +
+            "WHERE way_nodes.way_id = :wayId ORDER BY way_nodes.sequence_id";
+
+    db.pg.query(q, { wayId: wayId }, function(err, nodes) {
+        if (err) callback('findNodes > '+err);
+        else callback(null, nodes);
+    });
+};
 
 // Creates a way with nodes
 Way.create = function(options, callback) {
@@ -22,7 +33,7 @@ Way.create = function(options, callback) {
      */
 
     var id,
-        coords = options.coordinates,
+        coords = Array.isArray(options) ? options : options.coordinates,
         changeset = options.changeset_id || null;
 
     Way.insert({ changeset_id: changeset }).returning('id', function(err, rows) {
@@ -97,3 +108,14 @@ Way.createNodes = function(wayId, coords, changeset, callback) {
         }
     });
 };
+
+// Update way_nodes (add/remove node in sequence)
+
+/*
+problem with updating sequence -- duplicate way_nodes unique id
+UPDATE way_nodes SET sequence_id = sequence_id + 1 WHERE way_id = 4 AND sequence_id >= 4;
+INSERT INTO nodes (latitude, longitude) VALUES (16,16) RETURNING id;
+INSERT INTO way_nodes (way_id,node_id,sequence_id) VALUES (4,LASTVAL(),4);
+
+*/
+Way.addNode = function() {};
