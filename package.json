@@ -1,6 +1,6 @@
 {
     "name": "atlastory-api",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "private": true,
     "author": {
         "name": "Atlastory, Inc.",
@@ -27,7 +27,7 @@
         "less-middleware": "*",
         "grand-central-junction": "*",
         "topojson": "1.2.2",
-        "grand-central-records": "~0.0.8",
+        "grand-central-records": "~0.0.82",
         "mysql": "~2.0.0-alpha8",
         "pg": "~2.0.0",
         "markdown": "*",

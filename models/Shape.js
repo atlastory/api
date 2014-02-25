@@ -23,7 +23,7 @@ var Shape = module.exports = db.pg.model("shapes", {
         }
     }
 });
-var ShapeRelation = db.pg.model("shape_relations");
+var ShapeRelation = db.pg.model("shape_relations", { idAttribute: 'sequence_id' });
 
 
 // Gets a single shape with associated nodes/ways
@@ -64,25 +64,41 @@ Shape.create = function(data, callback) {
 // Connects a shape with current nodes/ways/shapes
 // (nodes must be created first)
 Shape.connect = function(shapeId, shapes, callback) {
-    var q = "INSERT INTO shape_relations (shape_id, relation_type, relation_id, relation_role, sequence_id) VALUES ",
-        values = [],
+    var relations = [],
         i = 0;
 
     if (!shapes.nodes[0] && !shapes.ways[0] && !shapes.shapes[0]) callback('no nodes/ways/shapes!');
 
-// TODO: implement relation 'roles': outer, inner, center (node)
+    // TODO: implement relation 'roles': outer, inner, center (node)
     shapes.nodes.forEach(function(node) {
-        values.push('(' + [shapeId, "'Node'", node, "''", i++].join() + ')');
+        relations.push({
+            shape_id: shapeId,
+            relation_type: 'Node',
+            relation_id: node,
+            relation_role: ' ',
+            sequence_id: i++
+        });
     });
     shapes.ways.forEach(function(way) {
-        values.push('(' + [shapeId, "'Way'", way, "''", i++].join() + ')');
+        relations.push({
+            shape_id: shapeId,
+            relation_type: 'Way',
+            relation_id: way,
+            relation_role: ' ',
+            sequence_id: i++
+        });
     });
     shapes.shapes.forEach(function(shape) {
-        values.push('(' + [shapeId, "'Shape'", shape, "''", i++].join() + ')');
+        relations.push({
+            shape_id: shapeId,
+            relation_type: 'Shape',
+            relation_id: shape,
+            relation_role: ' ',
+            sequence_id: i++
+        });
     });
-    q += values.join();
 
-    db.pg.query(q, function(err) {
+    ShapeRelation.insert(relations, function(err) {
         if (err) callback('Shape.connect > '+err);
         else callback(null, shapeId);
     });

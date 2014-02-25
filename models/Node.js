@@ -17,25 +17,25 @@ var Node = module.exports = db.pg.model("nodes", {
 // Creates nodes in DB, adds ids to nodes array
 Node._create = Node.create;
 Node.create = function(coords, changeset, callback) {
-    var q = "INSERT INTO nodes (longitude, latitude, changeset_id) VALUES ",
-        values = [],
-        ids = [],
-        _this = this;
+    var ids = [],
+        nodes = [];
 
     if (typeof changeset === 'function') {
         callback = changeset;
-        changeset = 'NULL';
+        changeset = null;
     }
     if (typeof coords[1] === 'number') coords = [coords];
 
     coords.forEach(function(coord) {
         if (!util.verifyCoord(coord)) return callback('bad coord');
-        values.push('(' + coord.join() + ',' + changeset + ')');
+        nodes.push({
+            longitude: coord[0],
+            latitude: coord[1],
+            changeset_id: changeset
+        });
     });
-    values = values.join();
-    q += values + ' RETURNING id';
 
-    db.pg.query(q, function(err, rows) {
+    Node.insert(nodes, function(err, rows) {
         if (err) callback('createNodes > '+err);
         else rows.forEach(function(row, i) {
             var id = parseFloat(row.id);

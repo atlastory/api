@@ -9,7 +9,8 @@ var Way = module.exports = db.pg.model("ways", {
     },
     getters: {}
 });
-var WayNode = db.pg.model("way_nodes");
+var WayNode = db.pg.model("way_nodes", { idAttribute: 'sequence_id' });
+var Node = db.pg.model("nodes");
 
 var ways = [],
     allNodes = Way.nodes = [];
@@ -48,16 +49,17 @@ Way.create = function(options, callback) {
 
 // Connects a way with nodes (nodes must be created first)
 Way.connectNodes = function(wayId, nodes, callback) {
-    var q = "INSERT INTO way_nodes (node_id, way_id, sequence_id) VALUES ",
-        values = [],
-        _this = this;
+    var wayNodes = [];
 
     nodes.forEach(function(node, i) {
-        values.push('(' + [node, wayId, i].join() + ')');
+        wayNodes.push({
+            node_id: node,
+            way_id: wayId,
+            sequence_id: i
+        });
     });
-    q += values.join();
 
-    db.pg.query(q, function(err) {
+    WayNode.insert(wayNodes, function(err) {
         if (err) callback(err);
         else callback(null);
     });
@@ -65,17 +67,12 @@ Way.connectNodes = function(wayId, nodes, callback) {
 
 // Creates nodes + connecting wayNodes
 Way.createNodes = function(wayId, coords, changeset, callback) {
-    var queries = [],
-        qNode = "INSERT INTO nodes (longitude, latitude, changeset_id) VALUES ",
-        qWN = "INSERT INTO way_nodes (node_id, way_id, sequence_id) VALUES ",
-        qFind = "(SELECT id FROM nodes WHERE longitude = ",
-        nodes = [], q, find;
+    var nodes = [], find;
 
     if (typeof changeset === 'function') {
         callback = changeset;
-        changeset = 'NULL';
+        changeset = null;
     }
-    if (changeset === null) changeset = 'NULL';
 
     coords.forEach(function(coord, i) {
         if (!util.verifyCoord(coord)) return callback('bad coord');
@@ -90,17 +87,24 @@ Way.createNodes = function(wayId, coords, changeset, callback) {
         }
 
         if (duplicate) {
-            find = qFind + coord[0] + " AND latitude = " + coord[1] + ' ORDER BY created_at DESC LIMIT 1)';
-            queries.push(qWN + '(' + [find, wayId, i].join() + ')');
+            find = Node.select('id').where({ longitude: coord[0], latitude: coord[1] }).order('created_at DESC').limit(1);
+            db.pg.queue(WayNode.insert({
+                node_id: [['('+find+')']],
+                way_id: wayId,
+                sequence_id: i
+            }));
         } else {
-            queries.push(qNode + '(' + [coord[0], coord[1], changeset].join() + ') RETURNING id');
-            queries.push(qWN + '(LASTVAL(),' + [wayId, i].join() + ')');
+            db.pg.queue(Node.insert({ longitude: coord[0], latitude: coord[1], changeset_id: changeset }));
+            db.pg.queue(WayNode.insert({
+                node_id: [['LASTVAL()']],
+                way_id: wayId,
+                sequence_id: i
+            }));
             nodes.push(coord); // add to master node array
         }
     });
-    queries = queries.join('; ');
 
-    db.pg.query(queries, function(err) {
+    db.pg.run(function(err) {
         if (err) callback(err);
         else {
             allNodes = allNodes.concat(nodes); // add local nodes to global nodes
