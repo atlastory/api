@@ -1,6 +1,7 @@
 var db = require('../db/db'),
     util = require('../lib/utilities'),
-    async = require('async');
+    async = require('async'),
+    hstore = require('hstore.js');
 
 
 var Shape = module.exports = db.pg.model("shapes", {
@@ -18,23 +19,12 @@ var Shape = module.exports = db.pg.model("shapes", {
     },
     getters: {
         data: function() {
-            if (Array.isArray(this.data))
-                return util.arrayToJson(this.data);
-            else return this.data;
+            return hstore.parse(this.data, { numeric_check: true });
         }
     }
 });
 var ShapeRelation = db.pg.model("shape_relations");
 
-Shape._find = Shape.find;
-Shape.find = function(ids, callback) {
-    return Shape.select([
-        'period_id', 'changeset_id',
-        'name', 'description',
-        'day_start', 'day_end', 'sources', 'tags',
-        '%# data AS data' // Format hstore as key/value arrays
-    ].join())._find(ids, callback);
-};
 
 // Gets a single shape with associated nodes/ways
 Shape.get = function(id, callback) {

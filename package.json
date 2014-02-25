@@ -27,9 +27,10 @@
         "less-middleware": "*",
         "grand-central-junction": "*",
         "topojson": "1.2.2",
-        "grand-central-records": "~0.0.65",
+        "grand-central-records": "~0.0.8",
         "mysql": "~2.0.0-alpha8",
         "pg": "~2.0.0",
-        "markdown": "*"
+        "markdown": "*",
+        "hstore.js": "0.1.0"
     }
 }
