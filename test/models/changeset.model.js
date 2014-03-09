@@ -30,6 +30,7 @@ var id, hash;
 
 describe('Changeset model', function() {
 
+/*
 describe('#create()', function() {
     this.timeout(1000);
     it('should create changeset with multiple directives', function(done) {
@@ -60,5 +61,6 @@ describe('#get()', function() {
         });
     });
 });
+*/
 
 });

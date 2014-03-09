@@ -19,7 +19,9 @@ var Shape = module.exports = db.pg.model("shapes", {
     },
     getters: {
         data: function() {
-            return hstore.parse(this.data, { numeric_check: true });
+            if (this.data)
+                return hstore.parse(this.data, { numeric_check: true });
+            else return null;
         }
     }
 });
@@ -34,7 +36,7 @@ Shape.get = function(id, callback) {
     async.parallel({ properties: function(cb) {
         Shape.find(id, cb);
     }, features: function(cb) {
-        ShapeRelation.where({ shape_id: id }).order('sequence_id', cb);
+        Shape.getRelations(id, cb);
     }}, function(err, res) {
         if (err) return callback('Shape#get > '+err);
         shape.properties = res.properties[0];
@@ -46,6 +48,60 @@ Shape.get = function(id, callback) {
             };
         });
         callback(null, shape);
+    });
+};
+
+Shape.getRelations = function(id, callback) {
+    if (Array.isArray(id)) id = id.join(",");
+    ShapeRelation.where('shape_id IN ('+id+')').order('sequence_id', callback);
+};
+
+Shape.getNodes = function(options, callback) {
+    /* Gets all Nodes for a set of shapes
+     *
+     * shapes   INTEGER|ARRAY
+     * period   INTEGER
+     * box      ARRAY   [west, south, east, north]
+     */
+    var shapes = options.shapes,
+        period = options.period,
+        box = options.box;
+
+    var query, where, order, boxq;
+
+    query = "SELECT shape_relations.shape_id AS shape, way_nodes.way_id AS way, nodes.id AS node, shape_relations.relation_role AS role, " +
+                "nodes.latitude AS lat, nodes.longitude AS lon, shape_relations.sequence_id AS seq1, way_nodes.sequence_id AS seq2 " +
+            "FROM nodes " +
+            "LEFT JOIN way_nodes ON nodes.id = way_nodes.node_id " +
+            "LEFT JOIN shape_relations ON (shape_relations.relation_type = 'Way' AND way_nodes.way_id = shape_relations.relation_id) " +
+                "OR (shape_relations.relation_type = 'Node' AND nodes.id = shape_relations.relation_id) ";
+
+    boxq  = ["lat <= :north", "lat >= :south", "lon >= :west", "lon <= :east"].join(" AND ") + ' ';
+    order = "ORDER BY shape_id, seq1, seq2 ";
+    where = "WHERE shape_relations.shape_id ";
+
+    if (typeof shapes === 'number')
+        where += "= :shape ";
+    else if (Array.isArray(shapes))
+        where += "IN (:shapes) ";
+    else if (typeof period === 'number')
+        where += "IN (SELECT id FROM shapes WHERE period_id = :period) ";
+    else return callback("getNodes needs shapes or a period");
+
+    if (box) where += ' AND ' + boxq;
+    else box = [];
+
+    query += where + order;
+
+    db.pg.query(query, {
+        shape: shapes,
+        shapes: shapes ? shapes.join() : '',
+        period: period,
+        west: box[0], south: box[1],
+        east: box[2], north: box[3]
+    }, function(err, nodes) {
+        if (err) return callback("Shape#getNodes > "+err);
+        else callback(null, nodes);
     });
 };
 
