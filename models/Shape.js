@@ -11,8 +11,8 @@ var Shape = module.exports = db.pg.model("shapes", {
         changeset_id: Number,
         name: String,
         description: String,
-        day_start: String,
-        day_end: String,
+        date_start: String,
+        date_end: String,
         sources: [Number],
         tags: [Number],
         data: { type: 'hstore' }
