@@ -10,9 +10,10 @@ describe('Shape model', function() {
 describe('#create()', function() {
     it('should create a Shape with nodes', function(done) {
         Shape.create({
-            period_id: 1,
+            periods: [1],
+            type_id: 1,
             name: 'Test',
-            day_end: '1492-01-01',
+            date_end: '1492-01-01',
             tags: [12],
             country: 'Spain'
         }, function(err, id) {
@@ -54,12 +55,25 @@ describe('#get()', function() {
     it('should get a shape with nodes/ways', function(done) {
         Shape.get(shape, function(err, s) {
             assert.ifError(err);
-            assert.equal(s.properties.day_end, '1492-01-01');
+            assert.equal(s.properties.date_end, '1492-01-01');
             assert.equal(s.features[0].type, 'Node');
             done();
         });
     });
 });
 
+describe('#getNodes()', function() {
+    it('should get all nodes for a set of shapes', function(done) {
+        Shape.getNodes({
+            period: 1
+        }, function(err, nodes) {
+            assert.ifError(err);
+            if (nodes.length !== 0) {
+                assert(nodes[0].hasOwnProperty('seq1'));
+            }
+            done();
+        });
+    });
+});
 
 });

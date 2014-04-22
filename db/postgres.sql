@@ -128,7 +128,6 @@ CREATE TABLE shapes (
     description text,
     date_start character varying(20),
     date_end character varying(20),
-    sources integer[],
     tags integer[],
     data hstore,
     CONSTRAINT shapes_pkey PRIMARY KEY (id),

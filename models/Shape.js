@@ -7,13 +7,13 @@ var db = require('../db/db'),
 var Shape = module.exports = db.pg.model("shapes", {
     map: true,
     schema: {
-        period_id: { type: Number, allowNull: false },
         changeset_id: Number,
+        type_id: Number,
+        periods: [Number],
         name: String,
         description: String,
         date_start: String,
         date_end: String,
-        sources: [Number],
         tags: [Number],
         data: { type: 'hstore' }
     },
@@ -85,7 +85,7 @@ Shape.getNodes = function(options, callback) {
     else if (Array.isArray(shapes))
         where += "IN (:shapes) ";
     else if (typeof period === 'number')
-        where += "IN (SELECT id FROM shapes WHERE period_id = :period) ";
+        where += "IN (SELECT id FROM shapes WHERE :period = ANY (periods)) ";
     else return callback("getNodes needs shapes or a period");
 
     if (box) where += ' AND ' + boxq;

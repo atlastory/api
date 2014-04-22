@@ -2,7 +2,7 @@ var db = require('../db/db'),
     util = require('../lib/utilities');
 
 
-var Layer = module.exports = db.pg.model("layers", {
+var Type = module.exports = db.pg.model("types", {
     map: true,
     schema: {
         name: { type: String, allowNull: false },
