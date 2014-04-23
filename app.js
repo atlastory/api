@@ -1,33 +1,64 @@
 var express = require('express'),
-    http = require('http'),
     path = require('path'),
+    favicon = require('static-favicon'),
+    logger = require('morgan'),
+    cookieParser = require('cookie-parser'),
+    bodyParser = require('body-parser'),
+    debug = require('debug')('my-application'),
     gcj = require('grand-central-junction'),
     app = express();
 
 app.enable("jsonp callback");
 
-app.configure(function(){
-    app.set('port', process.env.PORT || 3000);
-    app.set('views', __dirname + '/views');
-    app.set('view engine', 'ejs');
-    app.set('json spaces', 0);
-    app.use(express.favicon());
-    app.use(express.logger('dev'));
-    app.use(express.bodyParser());
-    app.use(express.methodOverride());
-    app.use(require('less-middleware')({ src: __dirname + '/assets' }));
-    app.use(express.static(path.join(__dirname, 'assets')));
-});
+app.set('port', process.env.PORT || 3000);
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');
 
-app.configure('development', function(){
-    app.use(express.errorHandler());
-});
+app.use(favicon());
+app.use(logger('dev'));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded());
+app.use(cookieParser());
+
+var assets = path.join(__dirname, 'assets');
+
+app.use(require('less-middleware')(assets));
+app.use(express.static(assets));
 
 gcj.route(app);
 
-http.createServer(app).listen(app.get('port'), function(){
-    console.log("Express server listening on port " + app.get('port'));
+/// catch 404 and forwarding to error handler
+app.use(function(req, res, next) {
+    var err = new Error('Not Found');
+    err.status = 404;
+    next(err);
 });
 
-// Expose app
+/// error handler
+
+app.use(function(err, req, res, next) {
+    var error = (app.get('env') === 'development') ? err : {};
+    res.status(err.status || 500);
+    res.render('error', {
+        message: err.message,
+        error: err
+    });
+});
+
+/// serve
+
+function start() {
+    var port = app.get('port');
+    var server = app.listen(port, function() {
+        debug('Express server listening on port ' + server.address().port);
+        console.log("Server pid %s listening on port %s in %s mode",
+            process.pid,
+            port,
+            app.get('env')
+        );
+    });
+}
+
+if (require.main === module) start();
+
 module.exports = app;

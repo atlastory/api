@@ -1,6 +1,5 @@
 var Changeset = require('../models/Changeset'),
-    wiki = require('../lib/wiki'),
-    Step = require('step');
+    wiki = require('../lib/wiki');
 
 // GET /changeset/:id
 exports.show = function(req, res) {
