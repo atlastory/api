@@ -64,8 +64,8 @@ CREATE TABLE changesets (
 
 CREATE TABLE types (
     id serial NOT NULL,
+    type varchar(25) NOT NULL,
     name varchar(255) NOT NULL,
-    short_name varchar(20) NOT NULL,
     level integer NOT NULL DEFAULT 2,
     color1 varchar(255) DEFAULT '',
     color2 varchar(255) DEFAULT '',
@@ -155,6 +155,6 @@ INSERT INTO changesets (changeset, user_id, action, object, data) VALUES
     ('first', 1, 'add', 'type', '{"name":"Land","short_name:":"land",level:1}');
 INSERT INTO periods (name, start_year, end_year, changeset_id) VALUES
     ('1999-2000', 1999, 2000, 1);
-INSERT INTO types (name, short_name, level, changeset_id) VALUES
-    ('Land', 'land', 1, 2);
+INSERT INTO types (type, name, level, changeset_id) VALUES
+    ('land', 'Land', 1, 2);
 

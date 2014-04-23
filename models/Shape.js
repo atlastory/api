@@ -59,19 +59,31 @@ Shape.getRelations = function(id, callback) {
 Shape.getNodes = function(options, callback) {
     /* Gets all Nodes for a set of shapes
      *
-     * shapes   INTEGER|ARRAY
-     * period   INTEGER
-     * box      ARRAY   [west, south, east, north]
+     * shapes    INTEGER|ARRAY
+     * period    INTEGER
+     * changeset INTEGER
+     * box       ARRAY   [west, south, east, north]
      */
     var shapes = options.shapes,
         period = options.period,
+        changeset = options.changeset,
         box = options.box;
 
-    var query, where, order, boxq;
+    var columns, query, where, order, boxq;
 
-    query = "SELECT shape_relations.shape_id AS shape, way_nodes.way_id AS way, nodes.id AS node, shape_relations.relation_role AS role, " +
-                "nodes.latitude AS lat, nodes.longitude AS lon, shape_relations.sequence_id AS seq1, way_nodes.sequence_id AS seq2 " +
-            "FROM nodes " +
+    columns = util.columnString({
+        shape: "shape_relations.shape_id",
+        way: "way_nodes.way_id",
+        node: "nodes.id",
+        role: "shape_relations.relation_role",
+        lat: "nodes.latitude",
+        lon: "nodes.longitude",
+        seq1: "shape_relations.sequence_id",
+        seq2: "way_nodes.sequence_id"
+    });
+
+    query = "SELECT " + columns +
+            " FROM nodes " +
             "LEFT JOIN way_nodes ON nodes.id = way_nodes.node_id " +
             "LEFT JOIN shape_relations ON (shape_relations.relation_type = 'Way' AND way_nodes.way_id = shape_relations.relation_id) " +
                 "OR (shape_relations.relation_type = 'Node' AND nodes.id = shape_relations.relation_id) ";
@@ -84,9 +96,11 @@ Shape.getNodes = function(options, callback) {
         where += "= :shape ";
     else if (Array.isArray(shapes))
         where += "IN (:shapes) ";
+    else if (typeof changeset === 'number')
+        where += "IN (SELECT id FROM shapes WHERE changeset_id = :changeset) ";
     else if (typeof period === 'number')
         where += "IN (SELECT id FROM shapes WHERE :period = ANY (periods)) ";
-    else return callback("getNodes needs shapes or a period");
+    else return callback("getNodes needs shapes, changeset, or period ID");
 
     if (box) where += ' AND ' + boxq;
     else box = [];
@@ -97,6 +111,7 @@ Shape.getNodes = function(options, callback) {
         shape: shapes,
         shapes: shapes ? shapes.join() : '',
         period: period,
+        changeset: changeset,
         west: box[0], south: box[1],
         east: box[2], north: box[3]
     }, function(err, nodes) {

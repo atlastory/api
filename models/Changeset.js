@@ -59,7 +59,7 @@ Changeset.create = function(directives, id, callback) {
     // Callback returns hash ID of Changeset
     if (directives.length) db.pg.run(function(err, res) {
         if (err || !Array.isArray(res)) callback(err);
-        else callback(null, hash, res[0].id);
+        else callback(null, hash, parseFloat(res[0].id));
     });
     else callback(null, hash);
 };
