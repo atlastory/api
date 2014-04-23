@@ -2,21 +2,24 @@ module.exports = function(match, resources) {
 
     match('/', 'home#index');
 
-    // Layers
-    resources('/layers', 'layer');
+    var v = '/v1';
+
+    // Types
+    // resources('/layers', 'layer');
 
     // Periods
-    resources('/layers/:lid/periods', 'period');
-    match('/layers/:lid/periods/:pid/shapes.:type(json|geojson|topojson)', 'period#shapes');
-    match('/geojson', 'period#geojson');
-    match('/topojson', 'period#topojson');
+    resources(v + '/periods', 'period');
+    // /periods/:pid/:type.:format(json|geojson|topojson)
+    match(v + '/geojson', 'period#geojson');
+    match(v + '/topojson', 'period#topojson');
 
-    // Shapes
-    match('/layers/:lid/periods/:pid/shapes/:id.:type(json|geojson|topojson)', 'shape#show');
+    // /nodes/:id
+    // /ways/:id
+    // /shapes/:id || /shapes/:id.:format(json|geojson|topojson)
 
     // Changesets
-    resources('/changeset', 'changeset');
-    match('/changeset/:id/commit', 'changeset#commit', {via: 'post'});
-    match('/changeset/:id/finish', 'changeset#commit', {via: 'post'});
+    //resources(v + '/changeset', 'changeset');
+    //match(v + '/changeset/:id/commit', 'changeset#commit', {via: 'post'});
+    //match(v + '/changeset/:id/finish', 'changeset#commit', {via: 'post'});
 
 };
