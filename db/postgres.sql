@@ -153,9 +153,9 @@ CREATE TABLE shape_relations (
 
 INSERT INTO changesets (changeset, user_id, action, object, data) VALUES
     ('first', 1, 'add', 'period', '{"name":"1999-2000","start_year":1999,"end_year":2000}'),
-    ('first', 1, 'add', 'type', '{"name":"Land","type:":"land",level:1}');
-INSERT INTO periods (name, start_year, end_year, changeset) VALUES
-    ('1999-2000', 1999, 2000, 'first');
-INSERT INTO types (type, name, level, changeset) VALUES
-    ('land', 'Land', 1, 'first');
+    ('first', 1, 'add', 'type', '{"name":"Land","type:":"land","level":1}');
+INSERT INTO periods (name, start_year, end_year) VALUES
+    ('1999-2000', 1999, 2000);
+INSERT INTO types (type, name, level) VALUES
+    ('land', 'Land', 1);
 

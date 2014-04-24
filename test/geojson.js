@@ -19,12 +19,12 @@ var testSimple = {
     ]
 };
 
-assert.checkNodes = function(geojson, cid, done) {
+assert.checkNodes = function(geojson, hash, done) {
     var prop = geojson.features[0].properties,
         geom = geojson.features[0].geometry,
         coords = geom.coordinates;
 
-    Shape.getNodes({ changeset: cid }, function(err,nodes) {
+    Shape.getNodes({ changeset: hash }, function(err,nodes) {
         assert.ifError(err);
         switch (geom.type) {
         case "Point":
@@ -52,20 +52,27 @@ assert.checkNodes = function(geojson, cid, done) {
 describe('GeoJSON', function() {
 
 describe('#import()', function() {
-    this.timeout(5000);
+    this.timeout(6000);
     it('should import a GeoJSON', function(done) {
         geojson.import({
             geojson: testSimple,
-            period: 1,
-            user: 1,
-            type: 1
-        }, function(err, cid) {
+            period: 1, user: 1, type: 1
+        }, function(err, hash) {
             assert.ifError(err);
-            assert.checkNodes(testSimple, cid, done);
+            assert.checkNodes(testSimple, hash, done);
         });
     });
 
-    // it('shouldn\'t duplicate an existing shape');
+    it('shouldn\'t duplicate an existing shape', function(done) {
+        geojson.import({
+            geojson: testSimple,
+            period: 2, user: 1, type: 1,
+            duplicate: false
+        }, function(err, hash) {
+            assert.ifError(err);
+            assert.checkNodes(testSimple, hash, done);
+        });
+    });
 
     // it('should share existing nodes');
 
