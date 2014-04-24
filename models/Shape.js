@@ -7,7 +7,6 @@ var db = require('../db/db'),
 var Shape = module.exports = db.pg.model("shapes", {
     map: true,
     schema: {
-        changeset_id: Number,
         type_id: Number,
         periods: [Number],
         name: String,
@@ -61,7 +60,7 @@ Shape.getNodes = function(options, callback) {
      *
      * shapes    INTEGER|ARRAY
      * period    INTEGER
-     * changeset INTEGER
+     * changeset HASH STRING
      * box       ARRAY   [west, south, east, north]
      */
     var shapes = options.shapes,
@@ -96,8 +95,8 @@ Shape.getNodes = function(options, callback) {
         where += "= :shape ";
     else if (Array.isArray(shapes))
         where += "IN (:shapes) ";
-    else if (typeof changeset === 'number')
-        where += "IN (SELECT id FROM shapes WHERE changeset_id = :changeset) ";
+    else if (typeof changeset === 'string')
+        where += "IN (SELECT object_id FROM changesets WHERE changeset = :changeset AND object = 'shape') ";
     else if (typeof period === 'number')
         where += "IN (SELECT id FROM shapes WHERE :period = ANY (periods)) ";
     else return callback("getNodes needs shapes, changeset, or period ID");
@@ -115,7 +114,7 @@ Shape.getNodes = function(options, callback) {
         west: box[0], south: box[1],
         east: box[2], north: box[3]
     }, function(err, nodes) {
-        if (err) return callback("Shape#getNodes > "+err);
+        if (err) return callback("Error getting shape nodes: "+err);
         else callback(null, nodes);
     });
 };

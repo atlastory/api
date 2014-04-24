@@ -10,7 +10,7 @@ var Type = module.exports = db.pg.model("types", {
         level: Number,
         color1: { type: String, default: '' },
         color2: { type: String, default: '' },
-        changeset_id: Number,
+        changeset: String,
         created_at: Date,
         updated_at: Date
     },

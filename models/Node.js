@@ -7,7 +7,7 @@ var Node = module.exports = db.pg.model("nodes", {
     schema: {
         latitude: { type: Number, allowNull: false },
         longitude: { type: Number, allowNull: false },
-        changeset_id: Number,
+        changeset: String,
         tile: Number
     },
     getters: {}
@@ -31,7 +31,7 @@ Node.create = function(coords, changeset, callback) {
         nodes.push({
             longitude: coord[0],
             latitude: coord[1],
-            changeset_id: changeset
+            changeset: changeset
         });
     });
 

@@ -5,7 +5,7 @@ var db = require('../db/db'),
 var Way = module.exports = db.pg.model("ways", {
     map: true,
     schema: {
-        changeset_id: Number
+        changeset: String
     },
     getters: {}
 });
@@ -35,9 +35,9 @@ Way.create = function(options, callback) {
 
     var id,
         coords = Array.isArray(options) ? options : options.coordinates,
-        changeset = options.changeset_id || null;
+        changeset = options.changeset || null;
 
-    Way.insert({ changeset_id: changeset }).returning('id', function(err, rows) {
+    Way.insert({ changeset: changeset }).returning('id', function(err, rows) {
         if (err) callback('insertWay > '+err);
         else {
             id = parseFloat(rows[0].id);
@@ -94,7 +94,7 @@ Way.createNodes = function(wayId, coords, changeset, callback) {
                 sequence_id: i
             }));
         } else {
-            db.pg.queue(Node.insert({ longitude: coord[0], latitude: coord[1], changeset_id: changeset }));
+            db.pg.queue(Node.insert({ longitude: coord[0], latitude: coord[1], changeset: changeset }));
             db.pg.queue(WayNode.insert({
                 node_id: [['LASTVAL()']],
                 way_id: wayId,
