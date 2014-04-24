@@ -9,6 +9,7 @@ var Changeset = module.exports = db.pg.model("changesets", {
         user_id:    Number,
         action: { type: String, allowNull: false },
         object:     String,
+        object_id:  Number,
         data:       String,
         geometry:   String,
         created_at: Date
@@ -24,14 +25,15 @@ var Changeset = module.exports = db.pg.model("changesets", {
             var keys = [],
                 data = JSON.parse(this.data);
             for (var key in data) {
-                keys.push(key + ' = ' + data[key]);
+                keys.push(key + ' = ' + db.pg.engine.escape(data[key]));
             }
 
             return [
                 this.action,
                 this.object,
-                keys.join(', ')
-            ].join(' ');
+                this.object_id,
+                (keys.length) ? '('+keys.join(', ')+')' : null
+            ].join(' ').replace(/\s+/g, ' ');
         }
     }
 });
@@ -46,8 +48,8 @@ Changeset.create = function(directives, id, callback) {
 
     // If no id, create one
     if (typeof id === 'function') callback = id;
-    if (!id || typeof id === 'function') hash = util.createHash();
     if (!Array.isArray(directives)) directives = [directives];
+    if (!id || typeof id === 'function') hash = util.createHash(directives[0].user_id);
 
     directives.forEach(function(d) {
         if (d.toJSON) d = d.toJSON();

@@ -15,6 +15,7 @@ SET search_path = public, pg_catalog;
 DROP TYPE IF EXISTS format_enum CASCADE;
 DROP TYPE IF EXISTS nws_enum CASCADE;
 DROP TYPE IF EXISTS atlastory_object CASCADE;
+DROP TYPE IF EXISTS directive CASCADE;
 
 CREATE TYPE format_enum AS ENUM (
     'html',
@@ -32,6 +33,13 @@ CREATE TYPE atlastory_object AS ENUM (
     'node',
     'way',
     'shape'
+);
+CREATE TYPE directive AS ENUM (
+    'add',
+    'edit',
+    'delete',
+    'link',    -- link shape to new period
+    'split'    -- clone shape into new period
 );
 
 
@@ -56,6 +64,7 @@ CREATE TABLE changesets (
     user_id integer NOT NULL,
     action character varying(50),
     object atlastory_object,
+    object_id bigint,
     data text,
     geometry text,
     created_at timestamp without time zone NOT NULL DEFAULT NOW(),
@@ -69,11 +78,9 @@ CREATE TABLE types (
     level integer NOT NULL DEFAULT 2,
     color1 varchar(255) DEFAULT '',
     color2 varchar(255) DEFAULT '',
-    changeset_id bigint,
     created_at timestamp without time zone NOT NULL DEFAULT NOW(),
     updated_at timestamp without time zone NOT NULL DEFAULT NOW(),
-    CONSTRAINT types_pkey PRIMARY KEY (id),
-    CONSTRAINT types_changeset_id_fkey FOREIGN KEY (changeset_id) REFERENCES changesets(id)
+    CONSTRAINT types_pkey PRIMARY KEY (id)
 );
 
 CREATE TABLE periods (
@@ -85,29 +92,25 @@ CREATE TABLE periods (
     end_year int NOT NULL,
     end_month int NOT NULL DEFAULT 1,
     end_day int NOT NULL DEFAULT 1,
-    changeset_id bigint,
     created_at timestamp without time zone NOT NULL DEFAULT NOW(),
     updated_at timestamp without time zone NOT NULL DEFAULT NOW(),
-    CONSTRAINT periods_pkey PRIMARY KEY (id),
-    CONSTRAINT periods_changeset_id_fkey FOREIGN KEY (changeset_id) REFERENCES changesets(id)
+    CONSTRAINT periods_pkey PRIMARY KEY (id)
 );
 
 CREATE TABLE nodes (
     id serial8 NOT NULL,
     latitude numeric NOT NULL,
     longitude numeric NOT NULL,
-    changeset_id bigint,
+    changeset character varying,
     tile bigint,
     created_at timestamp without time zone NOT NULL DEFAULT NOW(),
-    CONSTRAINT nodes_pkey PRIMARY KEY (id),
-    CONSTRAINT nodes_changeset_id_fkey FOREIGN KEY (changeset_id) REFERENCES changesets(id)
+    CONSTRAINT nodes_pkey PRIMARY KEY (id)
 );
 
 CREATE TABLE ways (
     id serial8 NOT NULL,
-    changeset_id bigint,
-    CONSTRAINT ways_pkey PRIMARY KEY (id),
-    CONSTRAINT ways_changeset_id_fkey FOREIGN KEY (changeset_id) REFERENCES changesets(id)
+    changeset character varying,
+    CONSTRAINT ways_pkey PRIMARY KEY (id)
 );
 
 CREATE TABLE way_nodes (
@@ -121,7 +124,6 @@ CREATE TABLE way_nodes (
 
 CREATE TABLE shapes (
     id serial8 NOT NULL,
-    changeset_id bigint,
     type_id int NOT NULL,
     periods bigint[] NOT NULL,
     name character varying(250),
@@ -131,8 +133,7 @@ CREATE TABLE shapes (
     tags integer[],
     data hstore,
     CONSTRAINT shapes_pkey PRIMARY KEY (id),
-    CONSTRAINT shapes_type_id_fkey FOREIGN KEY (type_id) REFERENCES types(id),
-    CONSTRAINT shapes_changeset_id_fkey FOREIGN KEY (changeset_id) REFERENCES changesets(id)
+    CONSTRAINT shapes_type_id_fkey FOREIGN KEY (type_id) REFERENCES types(id)
 );
 
 CREATE TABLE shape_relations (
@@ -152,9 +153,9 @@ CREATE TABLE shape_relations (
 
 INSERT INTO changesets (changeset, user_id, action, object, data) VALUES
     ('first', 1, 'add', 'period', '{"name":"1999-2000","start_year":1999,"end_year":2000}'),
-    ('first', 1, 'add', 'type', '{"name":"Land","short_name:":"land",level:1}');
-INSERT INTO periods (name, start_year, end_year, changeset_id) VALUES
-    ('1999-2000', 1999, 2000, 1);
-INSERT INTO types (type, name, level, changeset_id) VALUES
-    ('land', 'Land', 1, 2);
+    ('first', 1, 'add', 'type', '{"name":"Land","type:":"land",level:1}');
+INSERT INTO periods (name, start_year, end_year, changeset) VALUES
+    ('1999-2000', 1999, 2000, 'first');
+INSERT INTO types (type, name, level, changeset) VALUES
+    ('land', 'Land', 1, 'first');
 

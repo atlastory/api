@@ -10,7 +10,6 @@ var Period = module.exports = db.mysql.model("periods", {
         name: { type: String, allowNull: false },
         start_day: { type: String, allowNull: false, default: '' },
         end_day: { type: String, allowNull: false, default: '' },
-        changeset: String,
         created_at: Date,
         updated_at: Date
     }
