@@ -1,48 +1,49 @@
-var db = require('../db/db'),
+var _ = require('lodash'),
+    pg = require('../db/db').pg,
     util = require('../lib/utilities');
 
 
-var Way = module.exports = db.pg.model("ways", {
+var Way = module.exports = pg.model("ways", {
     map: true,
     schema: {
-        changeset: String
+        created_at: Date
     },
     getters: {}
 });
-var WayNode = db.pg.model("way_nodes", { idAttribute: 'sequence_id' });
-var Node = db.pg.model("nodes");
+var WayNode = pg.model("way_nodes", { idAttribute: 'sequence_id' });
+var Node = require('./Node');
 
-var ways = [],
-    allNodes = Way.nodes = [];
+var ways = [];
+var allNodes = Way.nodes = [];
 
 Way.getNodes = function(wayId, callback) {
     var q = "SELECT nodes.* FROM nodes JOIN way_nodes ON nodes.id = way_nodes.node_id " +
             "WHERE way_nodes.way_id = :wayId ORDER BY way_nodes.sequence_id";
 
-    db.pg.query(q, { wayId: wayId }, function(err, nodes) {
-        if (err) callback('findNodes > '+err);
+    pg.query(q, { wayId: wayId }, function(err, nodes) {
+        if (err) callback('Error getting WayNodes: '+err);
         else callback(null, nodes);
     });
 };
 
 // Creates a way with nodes
-Way.create = function(options, callback) {
-    /* Creates a way with associated nodes
-     *
-     * coordinates  ARRAY
-     * changeset    INTEGER (optional)
-     */
+Way.create = function(coords, data, callback) {
+    var id, wayData, nodeData;
 
-    var id,
-        coords = Array.isArray(options) ? options : options.coordinates,
-        changeset = options.changeset || null;
+    if (typeof data === 'function') {
+        callback = data;
+        data = {};
+    }
+    nodeData = _.pick(data, _.keys(Node._modelOps.schema));
+    wayData  = _.pick(data, _.keys(Way._modelOps.schema));
 
-    Way.insert({ changeset: changeset }).returning('id', function(err, rows) {
-        if (err) callback('insertWay > '+err);
+    Way.insert(_.extend(wayData, { id: [['DEFAULT']] }))
+      .returning('id', function(err, rows) {
+        if (err) callback('Error creating Way: '+err);
         else {
             id = parseFloat(rows[0].id);
             ways.push(id);
-            Way.createNodes(id, coords, changeset, callback);
+            Way.createNodes(id, coords, nodeData, callback);
         }
     });
 };
@@ -66,12 +67,12 @@ Way.connectNodes = function(wayId, nodes, callback) {
 };
 
 // Creates nodes + connecting wayNodes
-Way.createNodes = function(wayId, coords, changeset, callback) {
-    var nodes = [], find;
+Way.createNodes = function(wayId, coords, data, callback) {
+    var nodes = [];
 
-    if (typeof changeset === 'function') {
-        callback = changeset;
-        changeset = null;
+    if (typeof data === 'function') {
+        callback = data;
+        data = {};
     }
 
     coords.forEach(function(coord, i) {
@@ -87,15 +88,20 @@ Way.createNodes = function(wayId, coords, changeset, callback) {
         }
 
         if (duplicate) {
-            find = Node.select('id').where({ longitude: coord[0], latitude: coord[1] }).order('created_at DESC').limit(1);
-            db.pg.queue(WayNode.insert({
+            var find = Node.select('id')
+                .where({ longitude: coord[0], latitude: coord[1] })
+                .order('created_at DESC').limit(1);
+            pg.queue(WayNode.insert({
                 node_id: [['('+find+')']],
                 way_id: wayId,
                 sequence_id: i
             }));
         } else {
-            db.pg.queue(Node.insert({ longitude: coord[0], latitude: coord[1], changeset: changeset }));
-            db.pg.queue(WayNode.insert({
+            pg.queue(Node.insert(_.extend(data, {
+                longitude: coord[0],
+                latitude: coord[1]
+            })));
+            pg.queue(WayNode.insert({
                 node_id: [['LASTVAL()']],
                 way_id: wayId,
                 sequence_id: i
@@ -104,8 +110,8 @@ Way.createNodes = function(wayId, coords, changeset, callback) {
         }
     });
 
-    db.pg.run(function(err) {
-        if (err) callback(err);
+    pg.run(function(err) {
+        if (err) callback('Error creating WayNodes: '+err);
         else {
             allNodes = allNodes.concat(nodes); // add local nodes to global nodes
             callback(null, wayId);

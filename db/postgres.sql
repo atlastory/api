@@ -75,7 +75,6 @@ CREATE TABLE types (
     id serial NOT NULL,
     type varchar(25) NOT NULL,
     name varchar(255) NOT NULL,
-    level integer NOT NULL DEFAULT 2,
     color1 varchar(255) DEFAULT '',
     color2 varchar(255) DEFAULT '',
     created_at timestamp without time zone NOT NULL DEFAULT NOW(),
@@ -101,7 +100,6 @@ CREATE TABLE nodes (
     id serial8 NOT NULL,
     latitude numeric NOT NULL,
     longitude numeric NOT NULL,
-    changeset character varying,
     tile bigint,
     created_at timestamp without time zone NOT NULL DEFAULT NOW(),
     CONSTRAINT nodes_pkey PRIMARY KEY (id)
@@ -109,7 +107,7 @@ CREATE TABLE nodes (
 
 CREATE TABLE ways (
     id serial8 NOT NULL,
-    changeset character varying,
+    created_at timestamp without time zone NOT NULL DEFAULT NOW(),
     CONSTRAINT ways_pkey PRIMARY KEY (id)
 );
 
@@ -153,9 +151,9 @@ CREATE TABLE shape_relations (
 
 INSERT INTO changesets (changeset, user_id, action, object, data) VALUES
     ('first', 1, 'add', 'period', '{"name":"1999-2000","start_year":1999,"end_year":2000}'),
-    ('first', 1, 'add', 'type', '{"name":"Land","type:":"land","level":1}');
+    ('first', 1, 'add', 'type', '{"name":"Land","type:":"land"}');
 INSERT INTO periods (name, start_year, end_year) VALUES
     ('1999-2000', 1999, 2000);
-INSERT INTO types (type, name, level) VALUES
-    ('land', 'Land', 1);
+INSERT INTO types (type, name) VALUES
+    ('land', 'Land');
 

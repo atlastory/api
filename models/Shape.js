@@ -137,7 +137,8 @@ Shape.connect = function(shapeId, shapes, callback) {
     var relations = [],
         i = 0;
 
-    if (!shapes.nodes[0] && !shapes.ways[0] && !shapes.shapes[0]) callback('no nodes/ways/shapes!');
+    if (!shapes.nodes[0] && !shapes.ways[0] && !shapes.shapes[0])
+        callback('Error connecting shape: no nodes, ways, or shapes');
 
     // TODO: implement relation 'roles': outer, inner, center (node)
     shapes.nodes.forEach(function(node) {

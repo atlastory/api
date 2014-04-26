@@ -1,14 +1,15 @@
-var db = require('../db/db'),
+var _ = require('lodash'),
+    pg = require('../db/db').pg,
     util = require('../lib/utilities');
 
 
-var Node = module.exports = db.pg.model("nodes", {
+var Node = module.exports = pg.model("nodes", {
     map: true,
     schema: {
         latitude: { type: Number, allowNull: false },
         longitude: { type: Number, allowNull: false },
-        changeset: String,
-        tile: Number
+        tile: Number,
+        created_at: Date
     },
     getters: {}
 });
@@ -16,23 +17,23 @@ var Node = module.exports = db.pg.model("nodes", {
 
 // Creates nodes in DB, adds ids to nodes array
 Node._create = Node.create;
-Node.create = function(coords, changeset, callback) {
+Node.create = function(coords, data, callback) {
     var ids = [],
         nodes = [];
 
-    if (typeof changeset === 'function') {
-        callback = changeset;
-        changeset = null;
-    }
     if (typeof coords[1] === 'number') coords = [coords];
+    if (typeof data === 'function') {
+        callback = data;
+        data = {};
+    }
+    data = _.pick(data, _.keys(Node._modelOps.schema));
 
     coords.forEach(function(coord) {
-        if (!util.verifyCoord(coord)) return callback('bad coord');
-        nodes.push({
+        if (!util.verifyCoord(coord)) return callback('Error creating Node: bad coord');
+        nodes.push(_.extend(data, {
             longitude: coord[0],
-            latitude: coord[1],
-            changeset: changeset
-        });
+            latitude: coord[1]
+        }));
     });
 
     Node.insert(nodes, function(err, rows) {

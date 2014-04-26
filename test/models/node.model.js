@@ -9,7 +9,7 @@ describe('Node model', function() {
 
 describe('#create()', function() {
     it('should create a node in database', function(done) {
-        Node.create([8.88, 8.88], function(err, ids) {
+        Node.create([8.88, 8.88], { tile: 12, error: 2 }, function(err, ids) {
             assert.ifError(err);
             assert(typeof ids[0] === 'number');
             node = ids[0];

@@ -9,7 +9,7 @@ describe('Way model', function() {
 
 describe('#create()', function() {
     it('should create a Way with nodes', function(done) {
-        Way.create([[1, 1],[2, 2],[3, 3]], function(err, id) {
+        Way.create([[1, 1],[2, 2],[3, 3]], { created_at: new Date(), error: 5 }, function(err, id) {
             assert.ifError(err);
             assert(typeof id === 'number');
             way = id;
