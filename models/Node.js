@@ -18,8 +18,7 @@ var Node = module.exports = pg.model("nodes", {
 // Creates nodes in DB, adds ids to nodes array
 Node._create = Node.create;
 Node.create = function(coords, data, callback) {
-    var ids = [],
-        nodes = [];
+    var nodes = [];
 
     if (typeof coords[1] === 'number') coords = [coords];
     if (typeof data === 'function') {
@@ -37,11 +36,11 @@ Node.create = function(coords, data, callback) {
     });
 
     Node.insert(nodes, function(err, rows) {
-        if (err) callback('createNodes > '+err);
-        else rows.forEach(function(row, i) {
-            var id = parseFloat(row.id);
-            ids.push(id);
+        if (err) return callback('createNodes > '+err);
+        nodes = [];
+        rows.forEach(function(row, i) {
+            nodes.push({ id: parseFloat(row.id) });
         });
-        callback(null, ids);
+        callback(null, nodes);
     });
 };

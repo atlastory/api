@@ -22,8 +22,14 @@ var Changeset = module.exports = db.pg.model("changesets", {
     },
     methods: {
         toString: function() {
-            var keys = [],
+            var keys = [], data;
+
+            try {
                 data = JSON.parse(this.data);
+            } catch(err) {
+                data = {};
+            }
+
             for (var key in data) {
                 keys.push(key + ' = ' + db.pg.engine.escape(data[key]));
             }

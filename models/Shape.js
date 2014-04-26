@@ -1,4 +1,5 @@
-var db = require('../db/db'),
+var _ = require('lodash'),
+    db = require('../db/db'),
     util = require('../lib/utilities'),
     async = require('async'),
     hstore = require('hstore.js');
@@ -25,28 +26,43 @@ var Shape = module.exports = db.pg.model("shapes", {
     }
 });
 var ShapeRelation = db.pg.model("shape_relations", { idAttribute: 'sequence_id' });
+var Changeset = require('./Changeset');
 
 
 // Gets a single shape with associated nodes/ways
 Shape.get = function(id, callback) {
     var shape = {};
-    if (typeof id !== 'number') return callback('Shape id must be a number');
+    id = parseFloat(id);
+    if (isNaN(id)) return callback('Error getting shape: ID must be a number');
 
     async.parallel({ properties: function(cb) {
         Shape.find(id, cb);
-    }, features: function(cb) {
+    }, objects: function(cb) {
         Shape.getRelations(id, cb);
     }}, function(err, res) {
-        if (err) return callback('Shape#get > '+err);
-        shape.properties = res.properties[0];
-        shape.features = res.features.map(function(feature) {
+        if (err) return callback('Error getting shape: '+err);
+        shape.properties = res.properties[0].toJSON();
+        shape.objects = res.objects.map(function(object) {
             return {
-                type: feature.relation_type,
-                id: feature.relation_id,
-                role: feature.relation_role
+                type: object.relation_type,
+                id: object.relation_id,
+                role: object.relation_role
             };
         });
         callback(null, shape);
+    });
+};
+
+Shape.inChangeset = function(hash, callback) {
+    Changeset.where({
+        changeset: hash,
+        object: 'shape'
+    }).select('object_id', function(err, ids) {
+        if (err) callback('Error getting changeset shapes: '+err);
+        else if (ids.length === 0) callback(null, []);
+        else async.map(ids, function(directive, next) {
+            Shape.get(directive.object_id, next);
+        }, callback);
     });
 };
 
@@ -58,9 +74,9 @@ Shape.getRelations = function(id, callback) {
 Shape.getNodes = function(options, callback) {
     /* Gets all Nodes for a set of shapes
      *
-     * shapes    INTEGER|ARRAY
-     * period    INTEGER
-     * changeset HASH STRING
+     * shapes    INT|INT[]
+     * period    INT
+     * changeset STR(HASH)
      * box       ARRAY   [west, south, east, north]
      */
     var shapes = options.shapes,
@@ -133,38 +149,21 @@ Shape.create = function(data, callback) {
 
 // Connects a shape with current nodes/ways/shapes
 // (nodes must be created first)
-Shape.connect = function(shapeId, shapes, callback) {
+Shape.connect = function(shapeId, objects, callback) {
     var relations = [],
         i = 0;
 
-    if (!shapes.nodes[0] && !shapes.ways[0] && !shapes.shapes[0])
+    if (objects.length === 0)
         callback('Error connecting shape: no nodes, ways, or shapes');
 
-    // TODO: implement relation 'roles': outer, inner, center (node)
-    shapes.nodes.forEach(function(node) {
+    // Roles: outer, inner, center (node)
+
+    objects.forEach(function(obj) {
         relations.push({
             shape_id: shapeId,
-            relation_type: 'Node',
-            relation_id: node,
-            relation_role: ' ',
-            sequence_id: i++
-        });
-    });
-    shapes.ways.forEach(function(way) {
-        relations.push({
-            shape_id: shapeId,
-            relation_type: 'Way',
-            relation_id: way,
-            relation_role: ' ',
-            sequence_id: i++
-        });
-    });
-    shapes.shapes.forEach(function(shape) {
-        relations.push({
-            shape_id: shapeId,
-            relation_type: 'Shape',
-            relation_id: shape,
-            relation_role: ' ',
+            relation_type: obj.type,
+            relation_id: obj.id,
+            relation_role: obj.role || ' ',
             sequence_id: i++
         });
     });

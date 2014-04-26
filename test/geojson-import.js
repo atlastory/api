@@ -91,11 +91,13 @@ assert.checkNodes = function(geojson, hash, done) {
     });
 };
 
+var shapeHash;
+
 describe('GeoJSON', function() {
 
 describe('#import()', function() {
     this.timeout(6000);
-
+/*
     it('should import a point', function(done) {
         geojson.import({
             geojson: point,
@@ -126,16 +128,6 @@ describe('#import()', function() {
         });
     });
 
-    it('should import a multipolygon', function(done) {
-        geojson.import({
-            geojson: multiPolygon,
-            period: 1, user: 1, type: 1
-        }, function(err, hash) {
-            assert.ifError(err);
-            assert.checkNodes(multiPolygon, hash, done);
-        });
-    });
-
     it('shouldn\'t duplicate an existing shape', function(done) {
         geojson.import({
             geojson: polygon,
@@ -146,16 +138,44 @@ describe('#import()', function() {
             assert.checkNodes(polygon, hash, done);
         });
     });
+*/
+    it('should import a multipolygon', function(done) {
+        geojson.import({
+            geojson: multiPolygon,
+            period: 1, user: 1, type: 1
+        }, function(err, hash) {
+            assert.ifError(err);
+            shapeHash = hash;
+            assert.checkNodes(multiPolygon, hash, done);
+        });
+    });
 
-    // TODO: it('should import correct data');
+    it('should import correct data', function(done) {
+        Shape.inChangeset(shapeHash, function(err, shapes) {
+            assert.ifError(err);
+            var data = shapes[0].properties;
+            assert.equal(data.name, 'multi poly');
+            assert.equal(data.periods[0], 1);
+            assert.equal(data.type_id, 1);
+            assert.equal(data.data.a, 55);
+            done();
+        });
+    });
 
-    // TODO: it('should import polygon roles');
+    it('should import polygon roles', function(done) {
+        Shape.inChangeset(shapeHash, function(err, shapes) {
+            assert.ifError(err);
+            var objects = shapes[0].objects;
+            assert.equal(objects[0].role, 'outer');
+            assert.equal(objects[1].role, 'inner');
+            assert.equal(objects[2].role, 'outer');
+            done();
+        });
+    });
 
     // TODO: it('should share existing nodes');
 
     // TODO: it('should fail if GeoJSON isn\'t valid');
 });
-
-// #export()
 
 });

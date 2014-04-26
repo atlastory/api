@@ -28,13 +28,12 @@ Way.getNodes = function(wayId, callback) {
 
 // Creates a way with nodes
 Way.create = function(coords, data, callback) {
-    var id, wayData, nodeData;
+    var id, wayData;
 
     if (typeof data === 'function') {
         callback = data;
         data = {};
     }
-    nodeData = _.pick(data, _.keys(Node._modelOps.schema));
     wayData  = _.pick(data, _.keys(Way._modelOps.schema));
 
     Way.insert(_.extend(wayData, { id: [['DEFAULT']] }))
@@ -43,7 +42,7 @@ Way.create = function(coords, data, callback) {
         else {
             id = parseFloat(rows[0].id);
             ways.push(id);
-            Way.createNodes(id, coords, nodeData, callback);
+            Way.createNodes(id, coords, data, callback);
         }
     });
 };
@@ -68,12 +67,17 @@ Way.connectNodes = function(wayId, nodes, callback) {
 
 // Creates nodes + connecting wayNodes
 Way.createNodes = function(wayId, coords, data, callback) {
-    var nodes = [];
+    var nodes = [],
+        way = { id: wayId };
 
     if (typeof data === 'function') {
         callback = data;
         data = {};
     }
+    nodeData = _.pick(data, _.keys(Node._modelOps.schema));
+
+    // If role is included, add it to return object
+    if (data.role) way.role = data.role;
 
     coords.forEach(function(coord, i) {
         if (!util.verifyCoord(coord)) return callback('bad coord');
@@ -97,7 +101,7 @@ Way.createNodes = function(wayId, coords, data, callback) {
                 sequence_id: i
             }));
         } else {
-            pg.queue(Node.insert(_.extend(data, {
+            pg.queue(Node.insert(_.extend(nodeData, {
                 longitude: coord[0],
                 latitude: coord[1]
             })));
@@ -114,7 +118,7 @@ Way.createNodes = function(wayId, coords, data, callback) {
         if (err) callback('Error creating WayNodes: '+err);
         else {
             allNodes = allNodes.concat(nodes); // add local nodes to global nodes
-            callback(null, wayId);
+            callback(null, way);
         }
     });
 };
