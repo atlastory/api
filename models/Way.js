@@ -68,7 +68,7 @@ Way.connectNodes = function(wayId, nodes, callback) {
 // Creates nodes + connecting wayNodes
 Way.createNodes = function(wayId, coords, data, callback) {
     var nodes = [],
-        way = { id: wayId };
+        relation = { id: wayId };
 
     if (typeof data === 'function') {
         callback = data;
@@ -76,8 +76,8 @@ Way.createNodes = function(wayId, coords, data, callback) {
     }
     nodeData = _.pick(data, _.keys(Node._modelOps.schema));
 
-    // If role is included, add it to return object
-    if (data.role) way.role = data.role;
+    // If role is included, add it to returned relation
+    if (data.role) relation.role = data.role;
 
     coords.forEach(function(coord, i) {
         if (!util.verifyCoord(coord)) return callback('bad coord');
@@ -118,7 +118,7 @@ Way.createNodes = function(wayId, coords, data, callback) {
         if (err) callback('Error creating WayNodes: '+err);
         else {
             allNodes = allNodes.concat(nodes); // add local nodes to global nodes
-            callback(null, way);
+            callback(null, relation);
         }
     });
 };

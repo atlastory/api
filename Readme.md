@@ -1,23 +1,44 @@
 # Atlastory API
 
-RESTful API with HTTP interface for reading and editing a map. Used by Atlastory map editor, but can be used by any third party editor with an API key.
+## Data structure
 
-## Routes
+Nodes
 
-For the current beta version, all editing routes bypass the Wiki and make map edits directly.
+Ways
+
+Shapes
+
+Periods
+
+Types
+
+## Codebase concepts
+
+#### Relations
+
+Connects a shape to a Node or Way. Used to create (finish) a new Shape, or to retrieve which objects a Shape is connected to.
+
+In the API codebase:
+```js
+relation = {
+    type: 'Node' | 'Way',
+    id: 23411,
+    role: 'outer' | 'inner' | 'point' | 'center',
+    sequence: 4
+};
 ```
-GET     /layers          all layers for base map
-GET     /layers/:id      single layer
-POST    /layers/:id      creates layer in Wiki
-PUT     /layers/:id      updates layer in Wiki
-DELETE  /layers/:id      deletes layer in Wiki
 
-GET     /layers/:id/geojson
-        /geojson                GeoJSON of layer
-GET     /layers/:id/topojson
-        /topojson               TopoJSON of layer
-
-GET     /layers/:id/shapes/:id  full GeoJSON for shape
-GET		/layers/:id/shapes		gets all shapes for a specified period
-
+In the `shape_relations` database table:
 ```
+shape_id: 1233
+relation_type: 'Node' | 'Way'
+relation_id: 23411
+relation_role: 'outer' | 'inner' | 'point' | 'center'
+sequence_id: 4
+```
+
+The NWS Class (located at `lib/NWS.js`) is a simple helper for storing and retrieving relation objects.
+
+#### Directives
+
+Each Changeset has a list of directives. 

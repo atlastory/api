@@ -42,11 +42,12 @@ Shape.get = function(id, callback) {
     }}, function(err, res) {
         if (err) return callback('Error getting shape: '+err);
         shape.properties = res.properties[0].toJSON();
-        shape.objects = res.objects.map(function(object) {
+        shape.objects = res.objects.map(function(rel) {
             return {
-                type: object.relation_type,
-                id: object.relation_id,
-                role: object.relation_role
+                type: rel.relation_type,
+                id: rel.relation_id,
+                role: rel.relation_role,
+                sequence: rel.sequence_id
             };
         });
         callback(null, shape);
@@ -149,35 +150,33 @@ Shape.create = function(data, callback) {
 
 // Connects a shape with current nodes/ways/shapes
 // (nodes must be created first)
-Shape.connect = function(shapeId, objects, callback) {
-    var relations = [],
+Shape.connect = function(shapeId, relations, callback) {
+    var rels = [],
         i = 0;
 
-    if (objects.length === 0)
+    if (relations.length === 0)
         callback('Error connecting shape: no nodes, ways, or shapes');
 
-    // Roles: outer, inner, center (node)
-
-    objects.forEach(function(obj) {
-        relations.push({
+    relations.forEach(function(rel) {
+        rels.push({
             shape_id: shapeId,
-            relation_type: obj.type,
-            relation_id: obj.id,
-            relation_role: obj.role || ' ',
-            sequence_id: i++
+            relation_type: rel.type,
+            relation_id: rel.id,
+            relation_role: rel.role || ' ',
+            sequence_id: rel.sequence || i++
         });
     });
 
-    ShapeRelation.insert(relations, function(err) {
-        if (err) callback('Shape.connect > '+err);
+    ShapeRelation.insert(rels, function(err) {
+        if (err) callback('Error connecting shape: '+err);
         else callback(null, shapeId);
     });
 };
 
-Shape.finish = function(data, shapes, callback) {
+Shape.finish = function(data, relations, callback) {
     Shape.create(data, function(err, id) {
         if (err) callback(err);
-        else Shape.connect(id, shapes, callback);
+        else Shape.connect(id, relations, callback);
     });
 };
 

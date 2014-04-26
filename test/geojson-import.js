@@ -97,7 +97,7 @@ describe('GeoJSON', function() {
 
 describe('#import()', function() {
     this.timeout(6000);
-/*
+
     it('should import a point', function(done) {
         geojson.import({
             geojson: point,
@@ -138,7 +138,7 @@ describe('#import()', function() {
             assert.checkNodes(polygon, hash, done);
         });
     });
-*/
+
     it('should import a multipolygon', function(done) {
         geojson.import({
             geojson: multiPolygon,
