@@ -1,7 +1,6 @@
 var assert = require('assert');
-var Step = require('step');
-var fs = require('fs');
 
+process.env.ENV_VARIABLE = 'test';
 var Type = require('../../models/Type');
 
 var testId = 1,

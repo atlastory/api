@@ -40,11 +40,10 @@ describe('#find()', function() {
 
 describe('#connect()', function() {
     it('should connect a Shape to nodes/ways', function(done) {
-        Shape.connect(shape, {
-            nodes: [1, 2],
-            ways: [1],
-            shapes: []
-        }, function(err) {
+        Shape.connect(shape, [
+            {type: 'Node', id: 1}, {type: 'Node', id: 2},
+            {type: 'Way', id: 1}
+        ], function(err) {
             assert.ifError(err);
             done();
         });
@@ -56,17 +55,15 @@ describe('#get()', function() {
         Shape.get(shape, function(err, s) {
             assert.ifError(err);
             assert.equal(s.properties.date_end, '1492-01-01');
-            assert.equal(s.features[0].type, 'Node');
+            assert.equal(s.objects[0].type, 'Node');
             done();
         });
     });
 });
 
 describe('#getNodes()', function() {
-    it('should get all nodes for a set of shapes', function(done) {
-        Shape.getNodes({
-            period: 1
-        }, function(err, nodes) {
+    it('should get nodes for shapes in a period', function(done) {
+        Shape.getNodes({ period: 1 }, function(err, nodes) {
             assert.ifError(err);
             if (nodes.length !== 0) {
                 assert(nodes[0].hasOwnProperty('seq1'));

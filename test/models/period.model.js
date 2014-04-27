@@ -1,7 +1,6 @@
 var assert = require('assert');
-var Step = require('step');
-var fs = require('fs');
 
+process.env.ENV_VARIABLE = 'test';
 var Period = require('../../models/Period');
 
 var per = 1,

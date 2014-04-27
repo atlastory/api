@@ -9,19 +9,19 @@ describe('Node model', function() {
 
 describe('#create()', function() {
     it('should create a node in database', function(done) {
-        Node.create([8.88, 8.88], { tile: 12, error: 2 }, function(err, ids) {
+        Node.create([8.88, 8.88], { tile: 12, error: 2 }, function(err, nodes) {
             assert.ifError(err);
-            assert(typeof ids[0] === 'number');
-            node = ids[0];
+            assert(typeof nodes[0].id === 'number');
+            node = nodes[0].id;
             done();
         });
     });
 
     it('should create multiple nodes', function(done) {
-        Node.create([[8.88, 8.88],[7.77, 7.77]], function(err, ids) {
+        Node.create([[8.88, 8.88],[7.77, 7.77]], function(err, nodes) {
             assert.ifError(err);
-            assert(typeof ids[0] === 'number');
-            assert(typeof ids[1] === 'number');
+            assert(typeof nodes[0].id === 'number');
+            assert(typeof nodes[1].id === 'number');
             done();
         });
     });
