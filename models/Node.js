@@ -8,6 +8,7 @@ var Node = module.exports = pg.model("nodes", {
     schema: {
         latitude: { type: Number, allowNull: false },
         longitude: { type: Number, allowNull: false },
+        source_id: Number,
         tile: Number,
         created_at: Date
     },

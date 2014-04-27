@@ -52,6 +52,7 @@ SET default_with_oids = false;
 DROP TABLE IF EXISTS public.changesets CASCADE;
 DROP TABLE IF EXISTS public.types CASCADE;
 DROP TABLE IF EXISTS public.periods CASCADE;
+DROP TABLE IF EXISTS public.sources CASCADE;
 DROP TABLE IF EXISTS public.nodes CASCADE;
 DROP TABLE IF EXISTS public.ways CASCADE;
 DROP TABLE IF EXISTS public.way_nodes CASCADE;
@@ -96,13 +97,24 @@ CREATE TABLE periods (
     CONSTRAINT periods_pkey PRIMARY KEY (id)
 );
 
+CREATE TABLE sources (
+    id serial NOT NULL,
+    name varchar(1024) DEFAULT NULL,
+    source varchar(1024) DEFAULT NULL,
+    created_at timestamp without time zone NOT NULL DEFAULT NOW(),
+    updated_at timestamp without time zone NOT NULL DEFAULT NOW(),
+    CONSTRAINT sources_pkey PRIMARY KEY (id)
+);
+
 CREATE TABLE nodes (
     id serial8 NOT NULL,
     latitude numeric NOT NULL,
     longitude numeric NOT NULL,
+    source_id int DEFAULT 1,
     tile bigint,
     created_at timestamp without time zone NOT NULL DEFAULT NOW(),
-    CONSTRAINT nodes_pkey PRIMARY KEY (id)
+    CONSTRAINT nodes_pkey PRIMARY KEY (id),
+    CONSTRAINT nodes_source_id_fkey FOREIGN KEY (source_id) REFERENCES sources(id)
 );
 
 CREATE TABLE ways (
@@ -156,4 +168,7 @@ INSERT INTO periods (name, start_year, end_year) VALUES
     ('1999-2000', 1999, 2000);
 INSERT INTO types (type, name) VALUES
     ('land', 'Land');
+
+INSERT INTO sources (name, source) VALUES
+    ('Atlastory Contributors', 'http://forum.atlastory.com/');
 
