@@ -12,10 +12,11 @@
     },
     "scripts": {
         "start": "node app",
-        "test": "mocha -R spec"
+        "test": "mocha test/* test/models/* -R spec"
     },
     "devDependencies": {
         "mocha": "~1.18.0",
+        "chai": "~1.9.1",
         "supertest": "0.7.1"
     },
     "dependencies": {
@@ -25,16 +26,19 @@
         "cookie-parser": "~1.0.1",
         "body-parser": "~1.0.0",
         "debug": "~0.7.4",
-        "lodash": "*",
-        "async": "*",
         "ejs": "*",
         "less-middleware": "*",
+
+        "lodash": "*",
+        "async": "*",
         "grand-central-junction": "*",
         "grand-central-records": "~0.0.85",
-        "topojson": "1.2.2",
         "mysql": "~2.0.0-alpha8",
         "pg": "~2.0.0",
+
+        "topojson": "1.2.2",
         "markdown": "*",
-        "hstore.js": "0.1.0"
+        "hstore.js": "~0.1.0",
+        "geojsonhint": "~0.3.1"
     }
 }

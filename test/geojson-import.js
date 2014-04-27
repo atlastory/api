@@ -1,9 +1,24 @@
 process.env.ENV_VARIABLE = 'test';
 
 var assert = require('assert');
+var expect = require('chai').expect;
 
 var geojson = require('../lib/geojson'),
     Shape = require('../models/Shape');
+
+var invalid = {
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "properties": { "name": "line", "a": "b" },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [[[0.5212, 4.1789]]]
+            }
+        }
+    ]
+};
 
 var point = {
     "type": "FeatureCollection",
@@ -61,12 +76,12 @@ var multiPolygon = {
     ]
 };
 
-assert.checkNodes = function(geojson, hash, done) {
+assert.checkNodes = function(geojson, cs, done) {
     var prop = geojson.features[0].properties,
         geom = geojson.features[0].geometry,
         coords = geom.coordinates;
 
-    Shape.getNodes({ changeset: hash }, function(err,nodes) {
+    Shape.getNodes({ changeset: cs }, function(err,nodes) {
         assert.ifError(err);
         switch (geom.type) {
         case "Point":
@@ -91,20 +106,30 @@ assert.checkNodes = function(geojson, hash, done) {
     });
 };
 
-var shapeHash;
+var shapeCS;
 
 describe('GeoJSON', function() {
 
 describe('#import()', function() {
     this.timeout(6000);
 
+    it('should fail if GeoJSON isn\'t valid', function(done) {
+        geojson.import({
+            geojson: invalid,
+            period: 1, user: 1, type: 1
+        }, function(err, cs) {
+            expect(err+'').to.contain('GeoJSON has 1 error');
+            done();
+        });
+    });
+
     it('should import a point', function(done) {
         geojson.import({
             geojson: point,
             period: 1, user: 1, type: 1
-        }, function(err, hash) {
-            assert.ifError(err);
-            assert.checkNodes(point, hash, done);
+        }, function(err, cs) {
+            expect(err).to.not.be.ok;
+            assert.checkNodes(point, cs, done);
         });
     });
 
@@ -112,9 +137,9 @@ describe('#import()', function() {
         geojson.import({
             geojson: line,
             period: 1, user: 1, type: 1
-        }, function(err, hash) {
+        }, function(err, cs) {
             assert.ifError(err);
-            assert.checkNodes(line, hash, done);
+            assert.checkNodes(line, cs, done);
         });
     });
 
@@ -122,9 +147,9 @@ describe('#import()', function() {
         geojson.import({
             geojson: polygon,
             period: 1, user: 1, type: 1
-        }, function(err, hash) {
+        }, function(err, cs) {
             assert.ifError(err);
-            assert.checkNodes(polygon, hash, done);
+            assert.checkNodes(polygon, cs, done);
         });
     });
 
@@ -133,9 +158,9 @@ describe('#import()', function() {
             geojson: polygon,
             period: 2, user: 1, type: 1,
             duplicate: false
-        }, function(err, hash) {
+        }, function(err, cs) {
             assert.ifError(err);
-            assert.checkNodes(polygon, hash, done);
+            assert.checkNodes(polygon, cs, done);
         });
     });
 
@@ -143,15 +168,15 @@ describe('#import()', function() {
         geojson.import({
             geojson: multiPolygon,
             period: 1, user: 1, type: 1
-        }, function(err, hash) {
+        }, function(err, cs) {
             assert.ifError(err);
-            shapeHash = hash;
-            assert.checkNodes(multiPolygon, hash, done);
+            shapeCS = cs;
+            assert.checkNodes(multiPolygon, cs, done);
         });
     });
 
     it('should import correct data', function(done) {
-        Shape.inChangeset(shapeHash, function(err, shapes) {
+        Shape.inChangeset(shapeCS, function(err, shapes) {
             assert.ifError(err);
             var data = shapes[0].properties;
             assert.equal(data.name, 'multi poly');
@@ -163,7 +188,7 @@ describe('#import()', function() {
     });
 
     it('should import polygon roles', function(done) {
-        Shape.inChangeset(shapeHash, function(err, shapes) {
+        Shape.inChangeset(shapeCS, function(err, shapes) {
             assert.ifError(err);
             var objects = shapes[0].objects;
             assert.equal(objects[0].role, 'outer');
@@ -175,7 +200,6 @@ describe('#import()', function() {
 
     // TODO: it('should share existing nodes');
 
-    // TODO: it('should fail if GeoJSON isn\'t valid');
 });
 
 });
