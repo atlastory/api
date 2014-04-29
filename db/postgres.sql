@@ -43,13 +43,11 @@ CREATE TYPE directive AS ENUM (
 );
 
 
-SET default_tablespace = '';
-SET default_with_oids = false;
-
 
 -- TABLES
 
 DROP TABLE IF EXISTS public.changesets CASCADE;
+DROP TABLE IF EXISTS public.directives CASCADE;
 DROP TABLE IF EXISTS public.types CASCADE;
 DROP TABLE IF EXISTS public.periods CASCADE;
 DROP TABLE IF EXISTS public.sources CASCADE;
@@ -61,15 +59,24 @@ DROP TABLE IF EXISTS public.shape_relations CASCADE;
 
 CREATE TABLE changesets (
     id serial8 NOT NULL,
-    changeset character varying NOT NULL,
     user_id integer NOT NULL,
-    action character varying(50),
+    message text,
+    created_at timestamp without time zone NOT NULL DEFAULT NOW(),
+    CONSTRAINT changesets_pkey PRIMARY KEY (id)
+);
+
+CREATE TABLE directives (
+    id serial8 NOT NULL,
+    changeset_id bigint NOT NULL,
+    action directive NOT NULL,
     object atlastory_object,
     object_id bigint,
     data text,
     geometry text,
+    way_nodes text,
+    shape_relations text,
     created_at timestamp without time zone NOT NULL DEFAULT NOW(),
-    CONSTRAINT changesets_pkey PRIMARY KEY (id)
+    CONSTRAINT directives_pkey PRIMARY KEY (id)
 );
 
 CREATE TABLE types (
@@ -177,9 +184,11 @@ $$  LANGUAGE plpgsql;
 
 -- SEED DATA
 
-INSERT INTO changesets (changeset, user_id, action, object, data) VALUES
-    ('first', 1, 'add', 'period', '{"name":"1999-2000","start_year":1999,"end_year":2000}'),
-    ('first', 1, 'add', 'type', '{"name":"Land","type:":"land"}');
+INSERT INTO changesets (user_id, message) VALUES
+    (1, 'Initial commit');
+INSERT INTO directives (changeset_id, action, object, object_id, data) VALUES
+    (1, 'add', 'period', 1, '{"name":"1999-2000","start_year":1999,"end_year":2000}'),
+    (1, 'add', 'type', 1, '{"name":"Land","type:":"land"}');
 INSERT INTO periods (name, start_year, end_year) VALUES
     ('1999-2000', 1999, 2000);
 INSERT INTO types (type, name) VALUES

@@ -39,10 +39,8 @@ Node.create = function(coords, data, callback) {
 
     Node.insert(nodes, function(err, rows) {
         if (err) return callback('createNodes > '+err);
-        nodes = [];
-        rows.forEach(function(row, i) {
-            nodes.push({ id: parseFloat(row.id) });
-        });
-        callback(null, nodes);
+        else callback(null, rows.map(function(r) {
+            return { id: parseFloat(r.id) };
+        }));
     });
 };
