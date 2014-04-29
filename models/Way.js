@@ -67,8 +67,8 @@ Way.connectNodes = function(wayId, nodes, callback) {
 
 // Creates nodes + connecting wayNodes
 Way.createNodes = function(wayId, coords, data, callback) {
-    var nodes = [],
-        relation = { id: wayId };
+    var relation = { id: wayId },
+        nodes = [];
 
     if (typeof data === 'function') {
         callback = data;
@@ -82,45 +82,36 @@ Way.createNodes = function(wayId, coords, data, callback) {
     coords.forEach(function(coord, i) {
         if (!util.verifyCoord(coord)) return callback('bad coord');
 
-        // Check to see if Node already exists
-        var duplicate = false, combo = allNodes.concat(nodes);
-        for (var n in combo) {
-            if (combo[n].toString() == coord.toString()) {
-                duplicate = true;
-                break;
-            }
-        }
+        var esc = pg.engine.escape;
+        var nodeData = [
+            esc(coord[0]), esc(coord[1]),
+            esc(data.source_id), esc(data.tile)
+        ].join(',');
 
-        if (duplicate) {
-            var find = Node.select('id')
-                .where({ longitude: coord[0], latitude: coord[1] })
-                .order('created_at DESC').limit(1);
-            pg.queue(WayNode.insert({
-                node_id: [['('+find+')']],
-                way_id: wayId,
-                sequence_id: i
-            }));
-        } else {
-            pg.queue(Node.insert(_.extend(nodeData, {
-                longitude: coord[0],
-                latitude: coord[1]
-            })));
-            pg.queue(WayNode.insert({
-                node_id: [['LASTVAL()']],
-                way_id: wayId,
-                sequence_id: i
-            }));
-            nodes.push(coord); // add to master node array
-        }
+        nodes.push({
+            node_id: [['create_node('+nodeData+')']],
+            way_id: wayId,
+            sequence_id: i
+        });
     });
 
-    pg.run(function(err) {
+    WayNode.insert(nodes, function(err) {
         if (err) callback('Error creating WayNodes: '+err);
-        else {
-            allNodes = allNodes.concat(nodes); // add local nodes to global nodes
-            callback(null, relation);
-        }
+        else callback(null, relation);
     });
+
+    /* Create unique non-duplicate node
+        pg.queue(Node.insert(_.extend(_.clone(nodeData), {
+            longitude: coord[0],
+            latitude: coord[1]
+        })));
+        pg.queue(WayNode.insert({
+            node_id: [['LASTVAL()']],
+            way_id: wayId,
+            sequence_id: i
+        }));
+        pg.run();
+    */
 };
 
 // Update way_nodes (add/remove node in sequence)

@@ -18,7 +18,7 @@ describe('#create()', function() {
     });
 
     it('should create multiple nodes', function(done) {
-        Node.create([[8.88, 8.88],[7.77, 7.77]], function(err, nodes) {
+        Node.create([[8.88, 8.88],[7.77, 7.86]], function(err, nodes) {
             assert.ifError(err);
             assert(typeof nodes[0].id === 'number');
             assert(typeof nodes[1].id === 'number');
@@ -33,6 +33,7 @@ describe('#find()', function() {
             assert.ifError(err);
             n = n[0];
             assert.equal(n.longitude, 8.88);
+            assert.equal(n.latitude, 8.88);
             done();
         });
     });

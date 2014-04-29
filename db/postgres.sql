@@ -159,6 +159,22 @@ CREATE TABLE shape_relations (
 
 -- FUNCTIONS
 
+DROP FUNCTION IF EXISTS create_node(numeric, numeric, int, bigint);
+
+CREATE FUNCTION create_node(lon numeric, lat numeric, source int, tile bigint)
+  RETURNS bigint AS
+$$  DECLARE new_id BIGINT;
+    BEGIN
+      SELECT id FROM nodes WHERE longitude = lon AND latitude = lat
+        ORDER BY created_at DESC LIMIT 1 INTO new_id;
+      IF new_id IS NULL THEN
+        INSERT INTO nodes (longitude, latitude, source_id, tile)
+          VALUES (lon, lat, source, tile) RETURNING id INTO new_id;
+      END IF;
+      RETURN new_id;
+    END;
+$$  LANGUAGE plpgsql;
+
 -- SEED DATA
 
 INSERT INTO changesets (changeset, user_id, action, object, data) VALUES
