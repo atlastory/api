@@ -1,21 +1,6 @@
 # Atlastory API Documentation
 
 
-## Layer
-
-
-### Get the list of layers
-
-	http://api.atlastory.com/layers
-
-Gets all layers for the base map.
-
-
-### Get a single layer
-
-	http://api.atlastory.com/layers/:id
-
-Get an individual layer for given layer ID.
 
 
 ### Get shapes for a layer+period

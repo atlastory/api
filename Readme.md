@@ -2,15 +2,25 @@
 
 ## Data structure
 
-Nodes
+![](./docs/structure.png?raw=true)
 
-Ways
+#### Nodes
 
-Shapes
+#### Ways
 
-Periods
+#### Shapes
 
-Types
+#### Periods
+
+#### Types
+
+
+### Changesets
+
+#### Directives
+
+Each Changeset has a list of directives. 
+
 
 ## Codebase concepts
 
@@ -23,7 +33,7 @@ In the API codebase:
 relation = {
     type: 'Node' | 'Way',
     id: 23411,
-    role: 'outer' | 'inner' | 'point' | 'center',
+    role: 'outer' | 'inner' | 'line' | 'point' | 'center',
     sequence: 4
 };
 ```
@@ -33,12 +43,8 @@ In the `shape_relations` database table:
 shape_id: 1233
 relation_type: 'Node' | 'Way'
 relation_id: 23411
-relation_role: 'outer' | 'inner' | 'point' | 'center'
+relation_role: 'outer' | 'inner' | 'line' | 'point' | 'center',
 sequence_id: 4
 ```
 
 The NWS Class (located at `lib/NWS.js`) is a simple helper for storing and retrieving relation objects.
-
-#### Directives
-
-Each Changeset has a list of directives. 
