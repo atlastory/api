@@ -27,6 +27,7 @@ var Shape = module.exports = db.pg.model("shapes", {
 });
 var ShapeRelation = db.pg.model("shape_relations", { idAttribute: 'sequence_id' });
 var Changeset = require('./Changeset');
+var Directive = require('./Directive');
 
 
 // Gets a single shape with associated nodes/ways
@@ -54,9 +55,9 @@ Shape.get = function(id, callback) {
     });
 };
 
-Shape.inChangeset = function(hash, callback) {
-    Changeset.where({
-        changeset: hash,
+Shape.inChangeset = function(id, callback) {
+    Directive.where({
+        changeset_id: id,
         object: 'shape'
     }).select('object_id', function(err, ids) {
         if (err) callback('Error getting changeset shapes: '+err);
@@ -77,7 +78,7 @@ Shape.getNodes = function(options, callback) {
      *
      * shapes    INT|INT[]
      * period    INT
-     * changeset STR(HASH)
+     * changeset INT
      * box       ARRAY   [west, south, east, north]
      */
     var shapes = options.shapes,
@@ -112,8 +113,8 @@ Shape.getNodes = function(options, callback) {
         where += "= :shape ";
     else if (Array.isArray(shapes))
         where += "IN (:shapes) ";
-    else if (typeof changeset === 'string')
-        where += "IN (SELECT object_id FROM changesets WHERE changeset = :changeset AND object = 'shape') ";
+    else if (typeof changeset === 'number')
+        where += "IN (SELECT object_id FROM directives WHERE changeset_id = :changeset AND object = 'shape') ";
     else if (typeof period === 'number')
         where += "IN (SELECT id FROM shapes WHERE :period = ANY (periods)) ";
     else return callback("getNodes needs shapes, changeset, or period ID");

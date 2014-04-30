@@ -75,10 +75,10 @@ Way.createNodes = function(wayId, coords, data, callback) {
         callback = data;
         data = {};
     }
-    data = _.pick(data, _.keys(Node._modelOps.schema));
-
     // If role is included, add it to returned relation
     if (data.role) relation.role = data.role;
+
+    data = _.pick(data, _.keys(Node._modelOps.schema));
 
     for (var i=0; i < coords.length; i++) {
         var coord = coords[i];
