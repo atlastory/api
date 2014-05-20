@@ -33,7 +33,7 @@ Changeset.get = function(id, callback) {
 
 Changeset.create = function(changeset, callback) {
     var directives = changeset.directives || [];
-    changeset = _.pick(changeset, _.keys(Changeset._modelOps.schema));
+    changeset = _.pick(changeset, _.keys(Changeset._schema));
 
     if (!changeset.user_id) return callback('Error: changeset needs user ID!');
 

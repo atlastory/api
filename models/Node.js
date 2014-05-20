@@ -26,7 +26,7 @@ Node.create = function(coords, data, callback) {
         callback = data;
         data = {};
     }
-    data = _.pick(data, _.keys(Node._modelOps.schema));
+    data = _.pick(data, _.keys(Node._schema));
 
     for (var c in coords) {
         coord = coords[c];

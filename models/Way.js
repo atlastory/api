@@ -34,7 +34,7 @@ Way.create = function(coords, data, callback) {
         callback = data;
         data = {};
     }
-    wayData  = _.pick(data, _.keys(Way._modelOps.schema));
+    wayData  = _.pick(data, _.keys(Way._schema));
 
     Way.insert(_.extend(wayData, { id: [['DEFAULT']] }))
       .returning('id', function(err, rows) {
@@ -78,7 +78,7 @@ Way.createNodes = function(wayId, coords, data, callback) {
     // If role is included, add it to returned relation
     if (data.role) relation.role = data.role;
 
-    data = _.pick(data, _.keys(Node._modelOps.schema));
+    data = _.pick(data, _.keys(Node._schema));
 
     for (var i=0; i < coords.length; i++) {
         var coord = coords[i];

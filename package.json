@@ -32,7 +32,7 @@
         "lodash": "*",
         "async": "*",
         "grand-central-junction": "*",
-        "grand-central-records": "~0.0.85",
+        "grand-central-records": "~0.0.9",
         "mysql": "~2.0.0-alpha8",
         "pg": "~2.0.0",
 
