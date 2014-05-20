@@ -25,7 +25,7 @@ var point = {
     "features": [
         {
             "type": "Feature",
-            "properties": { "name": "line", "a": "b" },
+            "properties": { "name": "line", "a": "b", "type": "Country", "ABBREV": "ln" },
             "geometry": {
                 "type": "Point",
                 "coordinates": [0.5212, 4.1789]
@@ -109,6 +109,15 @@ assert.checkNodes = function(geojson, cs, done) {
 var shapeCS;
 
 describe('GeoJSON', function() {
+
+describe('#normalize()', function() {
+    it('should normalize GeoJSON properties', function() {
+        var normal = geojson.normalize(point);
+        var props = normal.features[0].properties;
+        expect(props).to.have.property('name_sm');
+        expect(props.type).to.equal('country');
+    });
+});
 
 describe('#import()', function() {
     this.timeout(6000);
