@@ -25,10 +25,24 @@ var point = {
     "features": [
         {
             "type": "Feature",
-            "properties": { "name": "line", "a": "b", "type": "Country", "ABBREV": "ln" },
+            "properties": { "name": "point", "a": "b", "type": "Country", "ABBREV": "ln" },
             "geometry": {
                 "type": "Point",
                 "coordinates": [0.5212, 4.1789]
+            }
+        }
+    ]
+};
+
+var multipoint = {
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "properties": { "name": "multi point" },
+            "geometry": {
+                "type": "MultiPoint",
+                "coordinates": [[60, 60], [40, 40]]
             }
         }
     ]
@@ -43,6 +57,20 @@ var line = {
             "geometry": {
                 "type": "LineString",
                 "coordinates": [[1,1], [2,2], [3,3], [4,4], [10,10]]
+            }
+        }
+    ]
+};
+
+var multiline = {
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "properties": { "name": "multi line", "a": "b" },
+            "geometry": {
+                "type": "MultiLineString",
+                "coordinates": [[[10,10], [14,14], [18,28]], [[22,22], [11,11], [14,14]]]
             }
         }
     ]
@@ -83,6 +111,7 @@ assert.checkNodes = function(geojson, cs, done) {
 
     Shape.getNodes({ changeset: cs }, function(err,nodes) {
         assert.ifError(err);
+
         switch (geom.type) {
         case "Point":
             assert.equal(coords[0], nodes[0].lon);
@@ -135,27 +164,47 @@ describe('#import()', function() {
     it('should import a point', function(done) {
         geojson.import({
             geojson: point,
-            period: 1, user: 1, type: 1
+            period: 101, user: 1, type: 1
         }, function(err, cs) {
             expect(err).to.not.be.ok;
             assert.checkNodes(point, cs, done);
         });
     });
 
+    it('should import a multipoint', function(done) {
+        geojson.import({
+            geojson: multipoint,
+            period: 106, user: 1, type: 1
+        }, function(err, cs) {
+            expect(err).to.not.be.ok;
+            assert.checkNodes(multipoint, cs, done);
+        });
+    });
+
     it('should import a line', function(done) {
         geojson.import({
             geojson: line,
-            period: 1, user: 1, type: 1
+            period: 102, user: 1, type: 1
         }, function(err, cs) {
             assert.ifError(err);
             assert.checkNodes(line, cs, done);
         });
     });
 
+    it('should import a multiline', function(done) {
+        geojson.import({
+            geojson: multiline,
+            period: 105, user: 1, type: 1
+        }, function(err, cs) {
+            assert.ifError(err);
+            assert.checkNodes(multiline, cs, done);
+        });
+    });
+
     it('should import a polygon', function(done) {
         geojson.import({
             geojson: polygon,
-            period: 1, user: 1, type: 1
+            period: 103, user: 1, type: 1
         }, function(err, cs) {
             assert.ifError(err);
             assert.checkNodes(polygon, cs, done);
@@ -176,7 +225,7 @@ describe('#import()', function() {
     it('should import a multipolygon', function(done) {
         geojson.import({
             geojson: multiPolygon,
-            period: 1, user: 1, type: 1
+            period: 104, user: 1, type: 1
         }, function(err, cs) {
             assert.ifError(err);
             shapeCS = cs;
@@ -189,7 +238,7 @@ describe('#import()', function() {
             assert.ifError(err);
             var data = shapes[0].properties;
             assert.equal(data.name, 'multi poly');
-            assert.equal(data.periods[0], 1);
+            assert.equal(data.periods[0], 104);
             assert.equal(data.type_id, 1);
             assert.equal(data.data.a, 55);
             done();
