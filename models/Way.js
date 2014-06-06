@@ -10,11 +10,11 @@ var Way = module.exports = pg.model("ways", {
     },
     getters: {}
 });
-var WayNode = pg.model("way_nodes", { idAttribute: 'sequence_id' });
+var WayNode = Way.Node = pg.model("way_nodes", { idAttribute: 'sequence_id' });
 var Node = require('./Node');
 
 var ways = [];
-var allNodes = Way.nodes = [];
+var allNodes = [];
 
 Way.getNodes = function(wayId, callback) {
     var q = "SELECT nodes.* FROM nodes JOIN way_nodes ON nodes.id = way_nodes.node_id " +
@@ -90,7 +90,7 @@ Way.createNodes = function(wayId, coords, data, callback) {
         ].join(',');
 
         nodes.push({
-            node_id: [['create_node('+nodeData+')']],
+            node_id: [['cn('+nodeData+')']],
             way_id: wayId,
             sequence_id: i
         });

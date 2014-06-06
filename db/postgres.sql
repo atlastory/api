@@ -166,9 +166,8 @@ CREATE TABLE shape_relations (
 
 -- FUNCTIONS
 
-DROP FUNCTION IF EXISTS create_node(numeric, numeric, int, bigint);
-
-CREATE FUNCTION create_node(lon numeric, lat numeric, source int, tile bigint)
+DROP FUNCTION IF EXISTS cn(numeric, numeric, int, bigint);
+CREATE FUNCTION cn(lon numeric, lat numeric, source int, tile bigint)
   RETURNS bigint AS
 $$  DECLARE new_id BIGINT;
     BEGIN
@@ -178,6 +177,33 @@ $$  DECLARE new_id BIGINT;
         INSERT INTO nodes (longitude, latitude, source_id, tile)
           VALUES (lon, lat, source, tile) RETURNING id INTO new_id;
       END IF;
+      RETURN new_id;
+    END;
+$$  LANGUAGE plpgsql;
+
+-- Accepts nodes in the format of ARRAY[[45,12],[8.64,27.111]]
+DROP FUNCTION IF EXISTS create_way_nodes(numeric[][], int, bigint);
+CREATE FUNCTION create_way_nodes(nodes numeric[][], source int, way bigint)
+  RETURNS bigint AS
+$$  DECLARE
+      len int;
+    BEGIN
+      len = array_length(nodes,1);
+      FOR i IN 1..len LOOP
+        -- TODO: make this faster (all values in 1 INSERT)
+        INSERT INTO way_nodes (node_id,way_id,sequence_id) VALUES
+          (cn(nodes[i][1], nodes[i][2], source, NULL), way, i-1);
+      END LOOP;
+      RETURN way;
+    END;
+$$  LANGUAGE plpgsql;
+
+DROP FUNCTION IF EXISTS cw();
+CREATE FUNCTION cw()
+  RETURNS bigint AS
+$$  DECLARE new_id BIGINT;
+    BEGIN
+        INSERT INTO ways (id) VALUES (DEFAULT) RETURNING id INTO new_id;
       RETURN new_id;
     END;
 $$  LANGUAGE plpgsql;

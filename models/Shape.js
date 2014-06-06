@@ -25,7 +25,7 @@ var Shape = module.exports = db.pg.model("shapes", {
         }
     }
 });
-var ShapeRelation = db.pg.model("shape_relations", { idAttribute: 'sequence_id' });
+var ShapeRelation = Shape.Relation = db.pg.model("shape_relations", { idAttribute: 'sequence_id' });
 var Changeset = require('./Changeset');
 var Directive = require('./Directive');
 
@@ -180,7 +180,8 @@ Shape.create = function(data, callback) {
 
     data = util.cleanData(data);
 
-    this.returning("id").insert(data, function(err, rows) {
+    if (!callback) return this.returning("id").insert(data);
+    else this.returning("id").insert(data, function(err, rows) {
         if (err) return callback('Shape.create > '+err);
         id = parseFloat(rows[0].id);
         callback(null, id);

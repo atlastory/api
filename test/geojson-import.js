@@ -150,7 +150,7 @@ describe('#normalize()', function() {
 
 describe('#import()', function() {
     this.timeout(6000);
-/*
+
     it('should fail if GeoJSON isn\'t valid', function(done) {
         geojson.import({
             geojson: invalid,
@@ -221,7 +221,7 @@ describe('#import()', function() {
             assert.checkNodes(polygon, cs, done);
         });
     });
-*/
+
     it('should import a multipolygon', function(done) {
         geojson.import({
             geojson: multiPolygon,
