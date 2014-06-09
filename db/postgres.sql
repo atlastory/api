@@ -1,3 +1,6 @@
+-- Partly based on OpenStreetMap data structure:
+-- https://github.com/openstreetmap/openstreetmap-website/blob/master/db/structure.sql
+
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET client_encoding = 'UTF8';
@@ -123,6 +126,9 @@ CREATE TABLE nodes (
     CONSTRAINT nodes_pkey PRIMARY KEY (id),
     CONSTRAINT nodes_source_id_fkey FOREIGN KEY (source_id) REFERENCES sources(id)
 );
+CREATE INDEX latitude_idx ON nodes (latitude);
+CREATE INDEX longitude_idx ON nodes (longitude);
+CREATE INDEX nodes_created_at_idx ON nodes (created_at);
 
 CREATE TABLE ways (
     id serial8 NOT NULL,
@@ -138,6 +144,9 @@ CREATE TABLE way_nodes (
     CONSTRAINT way_nodes_nid_fkey FOREIGN KEY (node_id) REFERENCES nodes(id),
     CONSTRAINT way_nodes_wid_fkey FOREIGN KEY (way_id) REFERENCES ways(id)
 );
+CREATE INDEX way_nodes_way_idx ON way_nodes (way_id);
+CREATE INDEX way_nodes_node_idx ON way_nodes (node_id);
+CREATE INDEX way_nodes_sequence_idx ON way_nodes (sequence_id);
 
 CREATE TABLE shapes (
     id serial8 NOT NULL,
@@ -152,6 +161,7 @@ CREATE TABLE shapes (
     CONSTRAINT shapes_pkey PRIMARY KEY (id),
     CONSTRAINT shapes_type_id_fkey FOREIGN KEY (type_id) REFERENCES types(id)
 );
+CREATE INDEX shapes_periods_idx ON shapes (periods);
 
 CREATE TABLE shape_relations (
     shape_id bigint DEFAULT 0 NOT NULL,
@@ -162,12 +172,29 @@ CREATE TABLE shape_relations (
     CONSTRAINT shape_relations_pkey PRIMARY KEY (shape_id, relation_type, relation_id, relation_role, sequence_id),
     CONSTRAINT shape_relations_id_fkey FOREIGN KEY (shape_id) REFERENCES shapes(id)
 );
+CREATE INDEX relations_shape_idx ON shape_relations (shape_id);
+CREATE INDEX relations_id_idx ON shape_relations (relation_id);
+CREATE INDEX relations_sequence_idx ON shape_relations (sequence_id);
 
 
 -- FUNCTIONS
 
-DROP FUNCTION IF EXISTS cn(numeric, numeric, int, bigint);
-CREATE FUNCTION cn(lon numeric, lat numeric, source int, tile bigint)
+-- CREATE NODE
+DROP FUNCTION IF EXISTS create_node(numeric, numeric, int, bigint);
+CREATE FUNCTION create_node(lon numeric, lat numeric, source int, tile bigint)
+  RETURNS bigint AS
+$$  DECLARE new_id BIGINT;
+    BEGIN
+      INSERT INTO nodes (longitude, latitude, source_id, tile)
+        VALUES (lon, lat, source, tile) RETURNING id INTO new_id;
+      RETURN new_id;
+    END;
+$$  LANGUAGE plpgsql;
+
+-- CREATE NODE IF NEW
+-- Checks if coordinate exists first, if not creates it
+DROP FUNCTION IF EXISTS create_node_if_new(numeric, numeric, int, bigint);
+CREATE FUNCTION create_node_if_new(lon numeric, lat numeric, source int, tile bigint)
   RETURNS bigint AS
 $$  DECLARE new_id BIGINT;
     BEGIN
@@ -181,23 +208,35 @@ $$  DECLARE new_id BIGINT;
     END;
 $$  LANGUAGE plpgsql;
 
+-- CREATE WAY NODES
+-- Creates nodes + way_node relations
+-- check_nodes: 0 = don't check; 1 = check duplicates; 2 = check everything
 -- Accepts nodes in the format of ARRAY[[45,12],[8.64,27.111]]
-DROP FUNCTION IF EXISTS create_way_nodes(numeric[][], int, bigint);
-CREATE FUNCTION create_way_nodes(nodes numeric[][], source int, way bigint)
+DROP FUNCTION IF EXISTS create_way_nodes(int, numeric[][], int[], int, bigint);
+CREATE FUNCTION create_way_nodes(check_nodes int, nodes numeric[][], duplicates int[], source int, way bigint)
   RETURNS bigint AS
 $$  DECLARE
       len int;
     BEGIN
       len = array_length(nodes,1);
       FOR i IN 1..len LOOP
-        -- TODO: make this faster (all values in 1 INSERT)
-        INSERT INTO way_nodes (node_id,way_id,sequence_id) VALUES
-          (cn(nodes[i][1], nodes[i][2], source, NULL), way, i-1);
+        IF check_nodes = 0 THEN
+          INSERT INTO way_nodes (node_id,way_id,sequence_id) VALUES
+            (create_node(nodes[i][1], nodes[i][2], source, NULL), way, i-1);
+        ELSIF check_nodes = 1 AND i = ANY (duplicates) THEN
+          -- TODO: make this faster (all values in 1 INSERT)
+          INSERT INTO way_nodes (node_id,way_id,sequence_id) VALUES
+            (create_node_if_new(nodes[i][1], nodes[i][2], source, NULL), way, i-1);
+        ELSE
+          INSERT INTO way_nodes (node_id,way_id,sequence_id) VALUES
+            (create_node_if_new(nodes[i][1], nodes[i][2], source, NULL), way, i-1);
+        END IF;
       END LOOP;
       RETURN way;
     END;
 $$  LANGUAGE plpgsql;
 
+-- CREATE WAY
 DROP FUNCTION IF EXISTS cw();
 CREATE FUNCTION cw()
   RETURNS bigint AS
