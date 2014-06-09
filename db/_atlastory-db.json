@@ -1,0 +1,33 @@
+{
+    "mysql": {
+        "adapter": "mysql",
+        "host": "",
+        "database": "",
+        "username": "",
+        "password": ""
+    },
+    "production": {
+        "adapter": "postgres",
+        "host": "",
+        "port": 5432,
+        "database": "atlastory",
+        "username": "",
+        "password": ""
+    },
+    "development": {
+        "adapter": "postgres",
+        "host": "",
+        "port": 5432,
+        "database": "nws",
+        "username": "",
+        "password": ""
+    },
+    "test": {
+        "adapter": "postgres",
+        "host": "",
+        "port": 5432,
+        "database": "test",
+        "username": "",
+        "password": ""
+    }
+}
