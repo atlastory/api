@@ -80,6 +80,7 @@ Directive.create = function(id, directives, callback) {
         return d;
     });
 
+    if (!callback) return Directive.insert(directives);
     if (directives.length) Directive.insert(directives, function(err, res) {
         if (err || !Array.isArray(res)) callback(err);
         else callback(null, id, res.map(function(r) {

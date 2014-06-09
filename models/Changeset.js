@@ -12,7 +12,7 @@ var Changeset = module.exports = pg.model("changesets", {
         created_at: Date
     }
 });
-var Directive = require('./Directive');
+var Directive = Changeset.Directive = require('./Directive');
 
 Changeset.get = function(id, callback) {
     async.parallel({ changeset: function(end) {
