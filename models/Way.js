@@ -10,21 +10,20 @@ var Way = module.exports = pg.model("ways", {
     },
     getters: {}
 });
-var WayNode = Way.Node = pg.model("way_nodes", { idAttribute: 'sequence_id' });
+
+Way.Node = pg.model("way_nodes", {
+    idAttribute: 'sequence_id'
+});
 var Node = require('./Node');
 
-var ways = [];
-var allNodes = [];
 
-Way.getNodes = function(wayId, callback) {
+// Gets all nodes in a way
+Way.addChain('getNodes', function(wayId) {
     var q = "SELECT nodes.* FROM nodes JOIN way_nodes ON nodes.id = way_nodes.node_id " +
             "WHERE way_nodes.way_id = :wayId ORDER BY way_nodes.sequence_id";
 
-    pg.query(q, { wayId: wayId }, function(err, nodes) {
-        if (err) callback('Error getting WayNodes: '+err);
-        else callback(null, nodes);
-    });
-};
+    return this._replace(q, { wayId: wayId });
+});
 
 // Creates a way with nodes
 Way.create = function(coords, data, callback) {
@@ -41,32 +40,24 @@ Way.create = function(coords, data, callback) {
         if (err) callback('Error creating Way: '+err);
         else {
             id = parseFloat(rows[0].id);
-            ways.push(id);
             Way.createNodes(id, coords, data, callback);
         }
     });
 };
 
 // Connects a way with nodes (nodes must be created first)
-Way.connectNodes = function(wayId, nodes, callback) {
-    var wayNodes = [];
-
-    nodes.forEach(function(node, i) {
-        wayNodes.push({
+Way.addChain('connectNodes', function(wayId, nodes) {
+    return Way.Node.insert(nodes.map(function(node, i) {
+        return {
             node_id: node,
             way_id: wayId,
             sequence_id: i
-        });
-    });
-
-    WayNode.insert(wayNodes, function(err) {
-        if (err) callback(err);
-        else callback(null);
-    });
+        };
+    }));
 };
 
 // Creates nodes + connecting wayNodes
-Way.createNodes = function(wayId, coords, data, callback) {
+Way.addChain('createNodes', function(wayId, coords, data) {
     var esc = pg.engine.escape,
         relation = { id: wayId },
         nodes = [];
@@ -90,38 +81,53 @@ Way.createNodes = function(wayId, coords, data, callback) {
         ].join(',');
 
         nodes.push({
-            node_id: [['cn('+nodeData+')']],
+            node_id: [['create_node('+nodeData+')']],
             way_id: wayId,
             sequence_id: i
         });
     };
 
-    WayNode.insert(nodes, function(err) {
-        if (err) callback('Error creating WayNodes: '+err);
-        else callback(null, relation);
+    return Way.Node.insert(nodes);
+});
+
+
+Way.addChain('addNodes', function(wayId, position, nodes) {
+    /* Adds new or existing nodes into sequence
+     *
+     * wayId     INT
+     * position  INT  postion of nodes in sequence
+     * nodes     INT[] {}[] array of nodes ids or objects to add
+     */
+    if (!_.isNumber(wayId) || !_.isNumber(position)) return new Error('way#addNodes: Invalid way ID or position');
+    if (!_.isArray(nodes)) nodes = [nodes];
+
+    var esc = pg.engine.escape;
+
+    nodes = _.compact(nodes.map(function(n) {
+        if (_.isNumber(n)) {
+            return n;
+        } else if (_.isPlainObject(n) && _.isNumber(n.latitude)) {
+            n = [esc(n.longitude), esc(n.latitude), esc(n.source_id), esc(n.tile)];
+            return 'create_node(' + n.join() + ')';
+        } else return null;
+    })).map(function(n, i) {
+        return {
+            way_id: wayId,
+            node_id: [[n]],
+            sequence_id: position + i
+        }
     });
 
-    /* Create unique non-duplicate node
-        pg.queue(Node.insert(_.extend(_.clone(nodeData), {
-            longitude: coord[0],
-            latitude: coord[1]
-        })));
-        pg.queue(WayNode.insert({
-            node_id: [['LASTVAL()']],
-            way_id: wayId,
-            sequence_id: i
-        }));
-        pg.run();
-    */
-};
+    var queue = pg.queue()
+        .add(Way.Node.update({
+            sequence_id: [['sequence_id + ' + nodes.length]]
+        }).where('way_id = :way AND sequence_id >= :seq', {
+            way: wayId,
+            seq: position
+        }))
+        .add(Way.Node.insert(nodes));
 
-// Update way_nodes (add/remove node in sequence)
+    return queue;
+}, function(seq) { return parseFloat(seq.sequence_id); });
 
-/*
-problem with updating sequence -- duplicate way_nodes unique id
-UPDATE way_nodes SET sequence_id = sequence_id + 1 WHERE way_id = 4 AND sequence_id >= 4;
-INSERT INTO nodes (latitude, longitude) VALUES (16,16) RETURNING id;
-INSERT INTO way_nodes (way_id,node_id,sequence_id) VALUES (4,LASTVAL(),4);
-
-*/
-Way.addNode = function() {};
+Way.removeNode = function() {};

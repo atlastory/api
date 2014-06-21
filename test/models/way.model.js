@@ -5,15 +5,28 @@ var Way = require('../../models/Way');
 
 var wayId;
 
+var coords = [[1, 1],[2, 2],[3, 3],[4, 4]];
+
 describe('Way model', function() {
 this.timeout(4000);
 
 describe('#create()', function() {
     it('should create a Way with nodes', function(done) {
-        Way.create([[1, 1],[2, 2],[3, 3]], { created_at: new Date(), error: 5 }, function(err, way) {
+        Way.create(coords, { created_at: new Date(), error: 5 }, function(err, way) {
             assert.ifError(err);
             assert(typeof way.id === 'number');
             wayId = way.id;
+            done();
+        });
+    });
+});
+
+describe('#getNodes()', function() {
+    it('should get nodes from way', function(done) {
+        Way.getNodes(wayId, function(err, nodes) {
+            assert.ifError(err);
+            assert.equal(nodes[0].longitude, coords[0][0]);
+            assert.equal(nodes[3].longitude, coords[3][0]);
             done();
         });
     });
@@ -33,20 +46,22 @@ describe('#find()', function() {
         });
     });
 });
-/*
-describe('#update()', function() {
-    it('should update an existing node', function(done) {
-        Node.update(node, {
-            longitude: 4.44
-        }, function(err, n) {
+
+describe('#addNodes()', function() {
+    it('should add new nodes to way', function(done) {
+        Way.addNodes(wayId, 1, [
+            { longitude: 5, latitude: -3 },
+            { longitude: 4, latitude: -2 }
+        ]).run().then(function(sequence) {
+            return Way.getNodes(wayId).run();
+        }).then(function(nodes) {
+            assert.equal(nodes[1].latitude, -3);
+            assert.equal(nodes[2].latitude, -2);
+        }).then(done)
+        .fail(function(err) {
             assert.ifError(err);
-            Node.find(node, function(err, n) {
-                assert.equal(n[0].longitude, 4.44);
-                done();
-            });
         });
     });
 });
-*/
 
 });

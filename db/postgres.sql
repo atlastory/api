@@ -140,7 +140,7 @@ CREATE TABLE way_nodes (
     way_id bigint NOT NULL,
     node_id bigint NOT NULL,
     sequence_id bigint NOT NULL,
-    CONSTRAINT way_nodes_pkey PRIMARY KEY (way_id, sequence_id),
+    CONSTRAINT way_nodes_pkey PRIMARY KEY (way_id, sequence_id) DEFERRABLE INITIALLY IMMEDIATE,
     CONSTRAINT way_nodes_nid_fkey FOREIGN KEY (node_id) REFERENCES nodes(id),
     CONSTRAINT way_nodes_wid_fkey FOREIGN KEY (way_id) REFERENCES ways(id)
 );
@@ -169,7 +169,7 @@ CREATE TABLE shape_relations (
     relation_id bigint NOT NULL,
     relation_role character varying(255) NOT NULL,
     sequence_id integer DEFAULT 0 NOT NULL,
-    CONSTRAINT shape_relations_pkey PRIMARY KEY (shape_id, relation_type, relation_id, relation_role, sequence_id),
+    CONSTRAINT shape_relations_pkey PRIMARY KEY (shape_id, relation_type, relation_id, relation_role, sequence_id) DEFERRABLE INITIALLY IMMEDIATE,
     CONSTRAINT shape_relations_id_fkey FOREIGN KEY (shape_id) REFERENCES shapes(id)
 );
 CREATE INDEX relations_shape_idx ON shape_relations (shape_id);
