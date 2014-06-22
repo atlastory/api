@@ -12,10 +12,10 @@
     },
     "scripts": {
         "start": "node app",
-        "test": "mocha test/* test/models/* -R spec"
+        "test": "mocha --reporter list --bail ./test/reset.js ./test/*/**.js ./test/*.js"
     },
     "devDependencies": {
-        "mocha": "~1.18.0",
+        "mocha": "~1.20.1",
         "chai": "~1.9.1",
         "supertest": "0.7.1"
     },

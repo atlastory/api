@@ -4,105 +4,9 @@ var assert = require('assert');
 var expect = require('chai').expect;
 
 var geojson = require('../lib/geojson'),
-    Shape = require('../models/Shape');
+    Shape = require('../models/Shape')
+    gj = require('./helpers/geojson');
 
-var invalid = {
-    "type": "FeatureCollection",
-    "features": [
-        {
-            "type": "Feature",
-            "properties": { "name": "line", "a": "b" },
-            "geometry": {
-                "type": "Point",
-                "coordinates": [[[0.5212, 4.1789]]]
-            }
-        }
-    ]
-};
-
-var point = {
-    "type": "FeatureCollection",
-    "features": [
-        {
-            "type": "Feature",
-            "properties": { "name": "point", "a": "b", "type": "Country", "ABBREV": "ln" },
-            "geometry": {
-                "type": "Point",
-                "coordinates": [0.5212, 4.1789]
-            }
-        }
-    ]
-};
-
-var multipoint = {
-    "type": "FeatureCollection",
-    "features": [
-        {
-            "type": "Feature",
-            "properties": { "name": "multi point" },
-            "geometry": {
-                "type": "MultiPoint",
-                "coordinates": [[60, 60], [40, 40]]
-            }
-        }
-    ]
-};
-
-var line = {
-    "type": "FeatureCollection",
-    "features": [
-        {
-            "type": "Feature",
-            "properties": { "name": "line", "a": "b" },
-            "geometry": {
-                "type": "LineString",
-                "coordinates": [[1,1], [2,2], [3,3], [4,4], [10,10]]
-            }
-        }
-    ]
-};
-
-var multiline = {
-    "type": "FeatureCollection",
-    "features": [
-        {
-            "type": "Feature",
-            "properties": { "name": "multi line", "a": "b" },
-            "geometry": {
-                "type": "MultiLineString",
-                "coordinates": [[[10,10], [14,14], [18,28]], [[22,22], [11,11], [14,14]]]
-            }
-        }
-    ]
-};
-
-var polygon = {
-    "type": "FeatureCollection",
-    "features": [
-        {
-            "type": "Feature",
-            "properties": { "name": "poly", "a": 2.88 },
-            "geometry": {
-                "type": "Polygon",
-                "coordinates": [[[20.1, 20.1], [16.9, 16.9], [10, 10], [20.1, 20.1]]]
-            }
-        }
-    ]
-};
-
-var multiPolygon = {
-    "type": "FeatureCollection",
-    "features": [
-        {
-            "type": "Feature",
-            "properties": { "name": "multi poly", "a": 55 },
-            "geometry": {
-                "type": "MultiPolygon",
-                "coordinates": [[[[6.6,6.6],[7.7,7.7],[6.6,2.2],[6.6,6.6]], [[1.1, 1.1],[2.2,2.2],[2.2,0.54321],[1.1,1.1]]],[[[6.6,6.6],[7.7,7.7],[7.7,2],[6.6,6.6]]]]
-            }
-        }
-    ]
-};
 
 assert.checkNodes = function(geojson, cs, done) {
     var prop = geojson.features[0].properties,
@@ -141,7 +45,7 @@ describe('GeoJSON', function() {
 
 describe('#normalize()', function() {
     it('should normalize GeoJSON properties', function() {
-        var normal = geojson.normalize(point);
+        var normal = geojson.normalize(gj.point);
         var props = normal.features[0].properties;
         expect(props).to.have.property('name_sm');
         expect(props.type).to.equal('country');
@@ -153,7 +57,7 @@ describe('#import()', function() {
 
     it('should fail if GeoJSON isn\'t valid', function(done) {
         geojson.import({
-            geojson: invalid,
+            geojson: gj.invalid,
             period: 1, user: 1, type: 1
         }, function(err, cs) {
             expect(err+'').to.contain('GeoJSON has 1 error');
@@ -163,73 +67,73 @@ describe('#import()', function() {
 
     it('should import a point', function(done) {
         geojson.import({
-            geojson: point,
-            period: 101, user: 1, type: 1
+            geojson: gj.point,
+            period: gj.point.period, user: 1, type: 1
         }, function(err, cs) {
             expect(err).to.not.be.ok;
-            assert.checkNodes(point, cs, done);
+            assert.checkNodes(gj.point, cs, done);
         });
     });
 
     it('should import a multipoint', function(done) {
         geojson.import({
-            geojson: multipoint,
-            period: 106, user: 1, type: 1
+            geojson: gj.multiPoint,
+            period: gj.multiPoint.period, user: 1, type: 1
         }, function(err, cs) {
             expect(err).to.not.be.ok;
-            assert.checkNodes(multipoint, cs, done);
+            assert.checkNodes(gj.multiPoint, cs, done);
         });
     });
 
     it('should import a line', function(done) {
         geojson.import({
-            geojson: line,
-            period: 102, user: 1, type: 1
+            geojson: gj.line,
+            period: gj.line.period, user: 1, type: 1
         }, function(err, cs) {
             assert.ifError(err);
-            assert.checkNodes(line, cs, done);
+            assert.checkNodes(gj.line, cs, done);
         });
     });
 
     it('should import a multiline', function(done) {
         geojson.import({
-            geojson: multiline,
-            period: 105, user: 1, type: 1
+            geojson: gj.multiline,
+            period: gj.multiline.period, user: 1, type: 1
         }, function(err, cs) {
             assert.ifError(err);
-            assert.checkNodes(multiline, cs, done);
+            assert.checkNodes(gj.multiline, cs, done);
         });
     });
 
     it('should import a polygon', function(done) {
         geojson.import({
-            geojson: polygon,
-            period: 103, user: 1, type: 1
+            geojson: gj.polygon,
+            period: gj.polygon.period, user: 1, type: 1
         }, function(err, cs) {
             assert.ifError(err);
-            assert.checkNodes(polygon, cs, done);
+            assert.checkNodes(gj.polygon, cs, done);
         });
     });
 
     it('shouldn\'t duplicate an existing shape', function(done) {
         geojson.import({
-            geojson: polygon,
+            geojson: gj.polygon,
             period: 2, user: 1, type: 1,
             duplicate: false
         }, function(err, cs) {
             assert.ifError(err);
-            assert.checkNodes(polygon, cs, done);
+            assert.checkNodes(gj.polygon, cs, done);
         });
     });
 
     it('should import a multipolygon', function(done) {
         geojson.import({
-            geojson: multiPolygon,
-            period: 104, user: 1, type: 1
+            geojson: gj.multiPolygon,
+            period: gj.multiPolygon.period, user: 1, type: 1
         }, function(err, cs) {
             assert.ifError(err);
             shapeCS = cs;
-            assert.checkNodes(multiPolygon, cs, done);
+            assert.checkNodes(gj.multiPolygon, cs, done);
         });
     });
 
@@ -238,7 +142,7 @@ describe('#import()', function() {
             assert.ifError(err);
             var data = shapes[0].properties;
             assert.equal(data.name, 'multi poly');
-            assert.equal(data.periods[0], 104);
+            assert.equal(data.periods[0], 106);
             assert.equal(data.type_id, 1);
             assert.equal(data.data.a, 55);
             done();
