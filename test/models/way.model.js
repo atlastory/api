@@ -5,7 +5,7 @@ var Way = require('../../models/Way');
 
 var wayId;
 
-var coords = [[1, 1],[2, 2],[3, 3],[4, 4]];
+var coords = [[1.234, 5.678],[2.345, 6.789],[3.456, 7.891],[4.567, 8.9101]];
 
 describe('Way model', function() {
 this.timeout(4000);
@@ -39,8 +39,8 @@ describe('#find()', function() {
             assert.equal(n[0].id, wayId);
             Way.getNodes(wayId, function(err, nodes) {
                 assert.ifError(err);
-                assert.equal(nodes[0].longitude, 1);
-                assert.equal(nodes[2].longitude, 3);
+                assert.equal(nodes[0].longitude, coords[0][0]);
+                assert.equal(nodes[2].longitude, coords[2][0]);
                 done();
             });
         });

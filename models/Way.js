@@ -18,35 +18,41 @@ var Node = require('./Node');
 
 
 // Gets all nodes in a way
-Way.addChain('getNodes', function(wayId) {
+Way.addQueryMethod('getNodes', function(wayId) {
     var q = "SELECT nodes.* FROM nodes JOIN way_nodes ON nodes.id = way_nodes.node_id " +
             "WHERE way_nodes.way_id = :wayId ORDER BY way_nodes.sequence_id";
 
     return this._replace(q, { wayId: wayId });
 });
 
-// Creates a way with nodes
+// Creates a new way with nodes
 Way.create = function(coords, data, callback) {
-    var id, wayData;
+    var wayData;
 
     if (typeof data === 'function') {
         callback = data;
         data = {};
     }
-    wayData  = _.pick(data, _.keys(Way._schema));
+
+    wayData = _.pick(data, _.keys(Way._schema));
+    coords = coords.map(function(coord) {
+        return {
+            longitude: coord[0],
+            latitude: coord[1],
+            source_id: data.source_id,
+            tile: data.tile
+        };
+    });
 
     Way.insert(_.extend(wayData, { id: [['DEFAULT']] }))
       .returning('id', function(err, rows) {
-        if (err) callback('Error creating Way: '+err);
-        else {
-            id = parseFloat(rows[0].id);
-            Way.createNodes(id, coords, data, callback);
-        }
+        if (err) return callback('Error creating Way: ' + err);
+        Way.addNodes(parseFloat(rows[0].id), 0, coords, callback);
     });
 };
 
 // Connects a way with nodes (nodes must be created first)
-Way.addChain('connectNodes', function(wayId, nodes) {
+Way.addQueryMethod('connectNodes', function(wayId, nodes) {
     return Way.Node.insert(nodes.map(function(node, i) {
         return {
             node_id: node,
@@ -56,47 +62,7 @@ Way.addChain('connectNodes', function(wayId, nodes) {
     }));
 });
 
-// Creates nodes + connecting wayNodes
-Way.addChain('createNodes', function(wayId, coords, data) {
-    var esc = pg.engine.escape,
-        relation = { id: wayId },
-        nodes = [];
-
-    if (typeof data === 'function') {
-        callback = data;
-        data = {};
-    }
-    // If role is included, add it to returned relation
-    if (data.role) relation.role = data.role;
-
-    data = _.pick(data, _.keys(Node._schema));
-
-    for (var i=0; i < coords.length; i++) {
-        var coord = coords[i];
-        if (!util.verifyCoord(coord)) return callback('bad coord');
-
-        var nodeData = [
-            esc(coord[0]), esc(coord[1]),
-            esc(data.source_id), esc(data.tile)
-        ].join(',');
-
-        nodes.push({
-            node_id: [['create_node('+nodeData+')']],
-            way_id: wayId,
-            sequence_id: i
-        });
-    };
-
-    return Way.Node.insert(nodes).returning('*');
-}, function(wayNode) {
-    return {
-        way_id: parseFloat(wayNode.way_id),
-        node_id: parseFloat(wayNode.node_id),
-    };
-});
-
-
-Way.addChain('addNodes', function(wayId, position, nodes) {
+Way.addQueryMethod('addNodes', function(wayId, position, nodes) {
     /* Adds new or existing nodes into sequence
      *
      * wayId     INT
@@ -112,7 +78,11 @@ Way.addChain('addNodes', function(wayId, position, nodes) {
         if (_.isNumber(n)) {
             return n;
         } else if (_.isPlainObject(n) && _.isNumber(n.latitude)) {
-            n = [esc(n.longitude), esc(n.latitude), esc(n.source_id), esc(n.tile)];
+            if (!util.verifyCoord([n.longitude, n.latitude])) return null;
+            n = [
+                esc(n.longitude), esc(n.latitude),
+                esc(n.source_id), esc(n.tile)
+            ];
             return 'create_node(' + n.join() + ')';
         } else return null;
     })).map(function(n, i) {
@@ -130,9 +100,17 @@ Way.addChain('addNodes', function(wayId, position, nodes) {
             way: wayId,
             seq: position
         }))
-        .add(Way.Node.insert(nodes));
+        .add(Way.Node.insert(nodes).returning('*'));
 
     return queue;
-}, function(seq) { return parseFloat(seq.sequence_id); });
+}, function(wayNode) {
+    return {
+        way_id: parseFloat(wayNode.way_id),
+        node_id: parseFloat(wayNode.node_id),
+        sequence_id: parseFloat(wayNode.sequence_id)
+    };
+});
 
-Way.removeNode = function() {};
+Way.addQueryMethod('removeNodes', function() {
+
+});
