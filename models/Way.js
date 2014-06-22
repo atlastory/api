@@ -54,7 +54,7 @@ Way.addChain('connectNodes', function(wayId, nodes) {
             sequence_id: i
         };
     }));
-};
+});
 
 // Creates nodes + connecting wayNodes
 Way.addChain('createNodes', function(wayId, coords, data) {
@@ -87,7 +87,12 @@ Way.addChain('createNodes', function(wayId, coords, data) {
         });
     };
 
-    return Way.Node.insert(nodes);
+    return Way.Node.insert(nodes).returning('*');
+}, function(wayNode) {
+    return {
+        way_id: parseFloat(wayNode.way_id),
+        node_id: parseFloat(wayNode.node_id),
+    };
 });
 
 

@@ -12,10 +12,10 @@ this.timeout(4000);
 
 describe('#create()', function() {
     it('should create a Way with nodes', function(done) {
-        Way.create(coords, { created_at: new Date(), error: 5 }, function(err, way) {
+        Way.create(coords, { created_at: new Date(), error: 5 }, function(err, nodes) {
             assert.ifError(err);
-            assert(typeof way.id === 'number');
-            wayId = way.id;
+            assert(typeof nodes[0].way_id === 'number');
+            wayId = nodes[0].way_id;
             done();
         });
     });
