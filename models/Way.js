@@ -63,7 +63,7 @@ Way.addQueryMethod('connectNodes', function(wayId, nodes) {
 });
 
 Way.addQueryMethod('addNodes', function(wayId, position, nodes) {
-    /* Adds new or existing nodes into sequence
+    /* Adds new or existing nodes into way (must be sequential)
      *
      * wayId     INT
      * position  INT  postion of nodes in sequence
@@ -111,6 +111,26 @@ Way.addQueryMethod('addNodes', function(wayId, position, nodes) {
     };
 });
 
-Way.addQueryMethod('removeNodes', function() {
+// Removes nodes from way (must be sequential)
+Way.addQueryMethod('removeNodes', function(wayId, nodeIds) {
+    if (!_.isArray(nodeIds)) nodeIds = [nodeIds];
+    nodeIds = nodeIds.map(function(n) { return parseFloat(n); });
 
+    var sequence = _.uniqueId('way_seq_'),
+        queue = pg.queue()
+        .add(Way.Node.where({ way_id: wayId, node_id: nodeIds }).remove());
+
+    queue.add('CREATE SEQUENCE ' + sequence);
+
+    queue.add("UPDATE way_nodes SET sequence_id = newseq FROM (" +
+        "SELECT node_id, (nextval(%2) - 1) AS newseq FROM " +
+            "(SELECT node_id FROM way_nodes WHERE way_id = %1 ORDER BY sequence_id) AS sub" +
+        ") AS new_table WHERE " +
+        "way_nodes.way_id = %1 AND " +
+        "way_nodes.node_id = new_table.node_id"
+    , [wayId, sequence]);
+
+    queue.add('DROP SEQUENCE ' + sequence);
+
+    return queue;
 });

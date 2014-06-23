@@ -3,7 +3,7 @@ var assert = require('assert');
 process.env.ENV_VARIABLE = 'test';
 var Way = require('../../models/Way');
 
-var wayId;
+var wayId, node1, node2;
 
 var coords = [[1.234, 5.678],[2.345, 6.789],[3.456, 7.891],[4.567, 8.9101]];
 
@@ -52,14 +52,31 @@ describe('#addNodes()', function() {
         Way.addNodes(wayId, 1, [
             { longitude: 5, latitude: -3 },
             { longitude: 4, latitude: -2 }
-        ]).run().then(function(sequence) {
+        ]).run().then(function(wayNodes) {
             return Way.getNodes(wayId).run();
         }).then(function(nodes) {
+            node1 = nodes[1].id;
+            node2 = nodes[2].id;
             assert.equal(nodes[1].latitude, -3);
             assert.equal(nodes[2].latitude, -2);
-        }).then(done)
-        .fail(function(err) {
+            return done();
+        }).fail(function(err) {
             assert.ifError(err);
+        });
+    });
+});
+
+describe('#removeNodes()', function() {
+    it('should remove nodes from way', function(done) {
+        Way.removeNodes(wayId, [node1, node2]).run().then(function(wayNodes) {
+            return Way.getNodes(wayId).run();
+        }).then(function(nodes) {
+            assert.equal(nodes.length, coords.length);
+            assert.equal(nodes[1].latitude, coords[1][1]);
+            return done();
+        }).fail(function(err) {
+            assert.ifError(err);
+            done();
         });
     });
 });
