@@ -120,17 +120,16 @@ Way.addQueryMethod('removeNodes', function(wayId, nodeIds) {
         queue = pg.queue()
         .add(Way.Node.where({ way_id: wayId, node_id: nodeIds }).remove());
 
-    queue.add('CREATE SEQUENCE ' + sequence);
-
-    queue.add("UPDATE way_nodes SET sequence_id = newseq FROM (" +
-        "SELECT node_id, (nextval(%2) - 1) AS newseq FROM " +
-            "(SELECT node_id FROM way_nodes WHERE way_id = %1 ORDER BY sequence_id) AS sub" +
+    // Re-numbers sequence without losing order
+    queue.add('CREATE SEQUENCE ' + sequence)
+      .add("UPDATE way_nodes SET sequence_id = newseq FROM (" +
+        "SELECT node_id, (nextval(:seq) - 1) AS newseq FROM " +
+            "(SELECT node_id FROM way_nodes WHERE way_id = :way ORDER BY sequence_id) AS sub" +
         ") AS new_table WHERE " +
-        "way_nodes.way_id = %1 AND " +
+        "way_nodes.way_id = :way AND " +
         "way_nodes.node_id = new_table.node_id"
-    , [wayId, sequence]);
-
-    queue.add('DROP SEQUENCE ' + sequence);
+    , { way: wayId, seq: sequence })
+      .add('DROP SEQUENCE ' + sequence);
 
     return queue;
 });
