@@ -1,6 +1,6 @@
-var assert = require('assert');
-
 process.env.ENV_VARIABLE = 'test';
+
+var assert = require('assert');
 var Type = require('../../models/Type');
 
 var testId = 1,

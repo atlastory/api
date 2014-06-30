@@ -3,7 +3,6 @@ var db = require('../db/db'),
 
 
 var Type = module.exports = db.pg.model("types", {
-    map: true,
     schema: {
         name: { type: String, allowNull: false },
         short_name: { type: String, allowNull: false },
