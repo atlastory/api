@@ -1,9 +1,11 @@
 module.exports = function(match, resources) {
 
-    match('/', 'home#index');
+match('/', 'home#index');
 
-    var v = '/v1';
+apiVersion1('');    // Most recent version
+apiVersion1('/v1');
 
+function apiVersion1(v) {
     // Types
     // resources('/layers', 'layer');
 
@@ -21,5 +23,9 @@ module.exports = function(match, resources) {
     //resources(v + '/changeset', 'changeset');
     //match(v + '/changeset/:id/commit', 'changeset#commit', {via: 'post'});
     //match(v + '/changeset/:id/finish', 'changeset#commit', {via: 'post'});
+
+    // Sources
+    resources(v + '/sources', 'source');
+}
 
 };

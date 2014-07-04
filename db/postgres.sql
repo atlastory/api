@@ -33,6 +33,7 @@ CREATE TYPE nws_enum AS ENUM (
 CREATE TYPE atlastory_object AS ENUM (
     'period',
     'type',
+    'source',
     'node',
     'way',
     'shape'

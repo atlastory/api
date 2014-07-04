@@ -4,8 +4,8 @@ var db = require('../db/db'),
 
 var Source = module.exports = db.pg.model("sources", {
     schema: {
-        name: String,
-        source: String,
+        name: { type: String, length: 1024, allowNull: false },
+        source: { type: String, length: 1024 },
         created_at: Date,
         updated_at: Date
     }

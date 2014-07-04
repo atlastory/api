@@ -27,7 +27,6 @@ describe('#create()', function() {
 describe('#find()', function() {
     this.timeout(1000);
     it('should get a single source', function(done) {
-console.log("ID=",testId);
         Source.find(testId, function(err, s) {
             assert.ifError(err);
             s = s[0];
