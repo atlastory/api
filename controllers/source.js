@@ -1,14 +1,15 @@
 var Source = require('../models/Source'),
     util = require('../lib/utilities');
 
+function send500(res) {
+    return function(err) { res.send(500, util.err(err)); };
+}
 
 // GET /sources
 exports.index = function(req, res) {
     Source.all().then(function(sources) {
         res.jsonp(sources);
-    }).fail(function(err) {
-        res.send(500, err)
-    });
+    }).fail(send500(res));
 };
 
 // GET /sources/:id
@@ -16,9 +17,7 @@ exports.show = function(req, res) {
     var id = req.param("id");
     Source.find(id).then(function(source) {
         res.jsonp(source[0]);
-    }).fail(function(err) {
-        res.send(500, err);
-    });
+    }).fail(send500(res));
 };
 
 //**********************************************
@@ -33,9 +32,7 @@ exports.create = function(req, res) {
 
     source.save().then(function(source) {
         res.jsonp(source[0]);
-    }).fail(function(err) {
-        res.send(500, err);
-    });
+    }).fail(send500(res));
 };
 
 // PUT /sources/:id
@@ -56,9 +53,7 @@ exports.update = function(req, res) {
         return source.save().run();
     }).then(function(source) {
         res.jsonp(source);
-    }).fail(function(err) {
-        res.send(500, err);
-    });
+    }).fail(send500(res));
 };
 
 // DELETE /sources/:id
@@ -72,7 +67,5 @@ exports.destroy = function(req, res) {
         return source[0].remove().run();
     }).then(function(source) {
         res.jsonp(source);
-    }).fail(function(err) {
-        res.send(500, err);
-    });
+    }).fail(send500(res));
 };

@@ -153,8 +153,8 @@ CREATE TABLE shapes (
     id serial8 NOT NULL,
     type_id int NOT NULL,
     periods bigint[] NOT NULL,
-    name character varying(250),
-    description text,
+    name character varying(250),  -- Move to 'data'?
+    description text,             -- Move to 'data'?
     date_start character varying(20),
     date_end character varying(20),
     tags integer[],
