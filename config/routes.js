@@ -24,6 +24,9 @@ function apiVersion1(v) {
     //match(v + '/changeset/:id/commit', 'changeset#commit', {via: 'post'});
     //match(v + '/changeset/:id/finish', 'changeset#commit', {via: 'post'});
 
+    // Types
+    resources(v + '/types', 'type');
+
     // Sources
     resources(v + '/sources', 'source');
 }
