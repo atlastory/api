@@ -4,21 +4,18 @@ var db = require('../db/db'),
 
 
 var Period = module.exports = db.mysql.model("periods", {
-    map: true,
     schema: {
-        layer_id: { type: Number, allowNull: false },
-        name: { type: String, allowNull: false },
-        start_day: { type: String, allowNull: false, default: '' },
-        end_day: { type: String, allowNull: false, default: '' },
+        name: String,
+        start_day:   { type: Number, allowNull: false, default: 1 },
+        start_month: { type: Number, allowNull: false, default: 1 },
+        start_year:  { type: Number, allowNull: false },
+        end_day:     { type: Number, allowNull: false, default: 1 },
+        end_month:   { type: Number, allowNull: false, default: 1 },
+        end_year:    { type: Number, allowNull: false },
         created_at: Date,
         updated_at: Date
     }
 });
-
-Period._all = Period.all;
-Period.all = function(layerId, callback) {
-    return this.where({layer_id: layerId}, callback);
-};
 
 // Directly import GeoJSON
 Period.importGeoJSON = function(id, options, callback) {
