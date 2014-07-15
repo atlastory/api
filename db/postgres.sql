@@ -162,7 +162,6 @@ CREATE TABLE shapes (
     CONSTRAINT shapes_pkey PRIMARY KEY (id),
     CONSTRAINT shapes_type_id_fkey FOREIGN KEY (type_id) REFERENCES types(id)
 );
-CREATE INDEX shapes_periods_idx ON shapes (periods);
 
 CREATE TABLE shape_relations (
     shape_id bigint DEFAULT 0 NOT NULL,

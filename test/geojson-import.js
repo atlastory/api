@@ -4,7 +4,7 @@ var assert = require('assert');
 var expect = require('chai').expect;
 
 var geojson = require('../lib/geojson'),
-    Shape = require('../models/Shape')
+    Shape = require('../models/Shape'),
     gj = require('./helpers/geojson');
 
 
