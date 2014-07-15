@@ -20,16 +20,17 @@ Changeset.get = function(id, callback) {
     }, directives: function(end) {
         Directive.where({ changeset_id: id }, end);
     } }, function(err, res) {
-        if (err) callback('Error getting changeset: '+err);
+        if (err) callback(util.err(err, 'getting changeset'));
         else callback(null, {
             id: id,
             user_id: res.changeset[0].user_id,
             message: res.changeset[0].message,
-            directives: res.directives,
+            directives: res.directives.map(function(d) { return d.toJSON(); }),
             created_at: res.changeset[0].created_at
         });
     });
 };
+Changeset.get = util.addPromisesTo(Changeset.get);
 
 Changeset.create = function(changeset, callback) {
     var directives = changeset.directives || [];
@@ -42,4 +43,5 @@ Changeset.create = function(changeset, callback) {
         else Directive.create(parseFloat(cs[0].id), directives, callback);
     });
 };
+Changeset.create = util.addPromisesTo(Changeset.create);
 
