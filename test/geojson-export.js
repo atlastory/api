@@ -19,7 +19,7 @@ describe('#export()', function() {
 
     it('should export a point', function(done) {
         geojson.export({
-            period: gj.point.period
+            period: gj.point.period, type: 1
         }, function(err, json) {
             expect(err).to.not.be.ok;
             var shape = json.features[0];
@@ -32,7 +32,7 @@ describe('#export()', function() {
 
     it('should export a line', function(done) {
         geojson.export({
-            period: gj.line.period
+            period: gj.line.period, type: 1
         }, function(err, json) {
             expect(err).to.not.be.ok;
             var shape = json.features[0];
@@ -44,7 +44,7 @@ describe('#export()', function() {
 
     it('should export a multiline', function(done) {
         geojson.export({
-            period: gj.multiline.period
+            period: gj.multiline.period, type: 1
         }, function(err, json) {
             expect(err).to.not.be.ok;
             var shape = json.features[0];
@@ -56,7 +56,7 @@ describe('#export()', function() {
 
     it('should export a polygon', function(done) {
         geojson.export({
-            period: gj.polygon.period
+            period: gj.polygon.period, type: 1
         }, function(err, json) {
             expect(err).to.not.be.ok;
             var shape = json.features[0];
@@ -68,7 +68,7 @@ describe('#export()', function() {
 
     it('should export a multipolygon', function(done) {
         geojson.export({
-            period: gj.multiPolygon.period
+            period: gj.multiPolygon.period, type: 1
         }, function(err, json) {
             expect(err).to.not.be.ok;
             var shape = json.features[0];

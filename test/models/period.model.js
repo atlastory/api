@@ -43,7 +43,7 @@ describe('#importGeoJSON()', function() {
 describe('#getGeoJSON()', function() {
     this.timeout(6000);
     it('should get a GeoJSON', function(done) {
-        Period.getGeoJSON(per, { type: 1 }).then(function(json) {
+        Period.getGeoJSON(42, { type: 1 }).then(function(json) {
             expect(json.type).to.equal('FeatureCollection');
             expect(json.features[0].geometry).to.deep.equal(gj.point.features[0].geometry);
             done();

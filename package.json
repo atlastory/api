@@ -12,7 +12,7 @@
     },
     "scripts": {
         "start": "node app",
-        "test": "mocha --reporter list --bail ./test/reset.js ./test/*/**.js ./test/*.js"
+        "test": "mocha --reporter list --bail ./test/reset.js ./test/models/*.js ./test/*/**.js ./test/*.js"
     },
     "devDependencies": {
         "mocha": "~1.20.1",
