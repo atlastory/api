@@ -1,7 +1,10 @@
-var assert = require('assert');
-
 process.env.ENV_VARIABLE = 'test';
-var Period = require('../../models/Period');
+
+var assert = require('assert');
+var expect = require('chai').expect;
+var Period = require('../../models/Period'),
+    Changeset = require('../../models/Changeset'),
+    gj = require('../helpers/geojson');
 
 var per = 1,
     period;
@@ -11,76 +14,52 @@ describe('Period model', function() {
 describe('#find()', function() {
     this.timeout(1000);
     it('should get a single period', function(done) {
-        Period.find(per, function(err, p) {
-            assert.ifError(err);
+        Period.find(per).then(function(p) {
             p = p[0];
             assert.equal(p.id, per);
-            assert.equal(p.layer_id, 1);
+            assert.equal(p.end_year, 2000);
             period = p;
             done();
-        });
+        }).fail(done);
     });
 });
 
-describe('#all()', function() {
-    this.timeout(1000);
-    it('should get layer periods', function(done) {
-        Period.all(1, function(err, periods) {
-            assert.ifError(err);
-            assert(periods.length > 0);
+describe('#importGeoJSON()', function() {
+    this.timeout(6000);
+    it('should import a point', function(done) {
+        Period.importGeoJSON(42, {
+            geojson: gj.point,
+            user: 1, type: 1
+        }).then(function(cs) {
+            expect(cs).to.be.a('number');
+            return Changeset.get(cs).run();
+        }).then(function(cs) {
+            expect(cs.directives[0].data.name).to.equal('point');
             done();
-        });
+        }).fail(done);
     });
 });
 
-/*
 describe('#getGeoJSON()', function() {
-    this.timeout(0);
-    it('should get geoJSON with zoom', function(done) {
-        period.getGeoJSON({ z: 0 }, function(err, json) {
-            assert.ifError(err);
-            assert.equal(json.type, "FeatureCollection");
-            assert.equal(json.features[0].type, "Feature");
+    this.timeout(6000);
+    it('should get a GeoJSON', function(done) {
+        Period.getGeoJSON(per, { type: 1 }).then(function(json) {
+            expect(json.type).to.equal('FeatureCollection');
+            expect(json.features[0].geometry).to.deep.equal(gj.point.features[0].geometry);
             done();
-        });
-    });
-
-    it('should get geoJSON with bounding box', function(done) {
-        period.getGeoJSON({
-            p1: [7,7],
-            p2: [9,9]
-        }, function(err, json) {
-            assert.ifError(err);
-            assert.equal(json.type, "FeatureCollection");
-            assert.equal(json.features[0].type, "Feature");
-            done();
-        });
+        }).fail(done);
     });
 });
 
 describe('#getTopoJSON()', function() {
-    this.timeout(0);
-    it('should get topoJSON with zoom', function(done) {
-        period.getTopoJSON({ z: 0 }, function(err, json) {
-            assert.ifError(err);
-            assert.equal(json.type, "Topology");
-            assert(typeof json.bbox[0] === "number");
+    this.timeout(6000);
+    it('should get a TopoJSON', function(done) {
+        Period.getTopoJSON(per, { type: 1 }).then(function(json) {
+            expect(json.type).to.equal('Topology');
+            expect(json.bbox[0]).to.be.a('number');
             done();
-        });
-    });
-
-    it('should get topoJSON with bounding box', function(done) {
-        period.getTopoJSON({
-            p1: [7,7],
-            p2: [9,9]
-        }, function(err, json) {
-            assert.ifError(err);
-            assert.equal(json.type, "Topology");
-            assert(typeof json.bbox[0] === "number");
-            done();
-        });
+        }).fail(done);
     });
 });
-*/
 
 });

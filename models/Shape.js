@@ -6,7 +6,6 @@ var _ = require('lodash'),
 
 
 var Shape = module.exports = db.pg.model("shapes", {
-    map: true,
     schema: {
         type_id: Number,
         periods: [Number],
@@ -150,7 +149,7 @@ Shape.getNodes = function(options, callback) {
     else if (typeof changeset === 'number')
         where += "IN (SELECT object_id FROM directives WHERE changeset_id = :changeset AND object = 'shape') ";
     else if (typeof period === 'number') {
-        if (getType) where += "IN (SELECT id FROM shapes WHERE :period = ANY (periods) AND type = :type) ";
+        if (getType) where += "IN (SELECT id FROM shapes WHERE :period = ANY (periods) AND type_id = :type) ";
         else         where += "IN (SELECT id FROM shapes WHERE :period = ANY (periods)) ";
     } else return callback("getNodes needs shapes, changeset, or period ID");
 

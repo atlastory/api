@@ -1,9 +1,10 @@
-var db = require('../db/db'),
+var _ = require('lodash'),
+    pg = require('../db/db').pg,
     util = require('../lib/utilities'),
     geojson = require('../lib/geojson');
 
 
-var Period = module.exports = db.mysql.model("periods", {
+var Period = module.exports = pg.model("periods", {
     schema: {
         name: String,
         start_day:   { type: Number, allowNull: false, default: 1 },
@@ -18,41 +19,39 @@ var Period = module.exports = db.mysql.model("periods", {
 });
 
 // Directly import GeoJSON
-Period.importGeoJSON = function(id, options, callback) {
+Period.importGeoJSON = function(id, options) {
     if (options.type == 'FeatureCollection') {
         options = { geojson: options };
     }
     options.period = id;
-    geojson.import(options, callback);
+
+    return geojson.import(options);
 };
-Period.addMethod('importGeoJSON', function(options, callback) {
-    if (options.type == 'FeatureCollection') {
-        options = { geojson: options };
-    }
-    options.period = this.id;
-    geojson.import(options, callback);
+
+Period.addMethod('importGeoJSON', function(options) {
+    return Period.importGeoJSON(this.id, options);
 });
 
-Period.addMethod('getGeoJSON', function(options, callback) {
+Period.getGeoJSON = function(id, options) {
     /* Get's GeoJSON for a period/layer
-     * p1   ARRAY [x,y] bottom left (optional)
-     * p2   ARRAY [x,y] top right   (optional)
-     * zoom INT   zoom level        (optional)
+     * type   INT    type ID
+     * bbox   INT[]  [west, south, east, north] (optional)
+     * zoom   INT    zoom level                 (optional)
      */
-    /*var p1 = options.p1 || null,
-        p2 = options.p2 || null,
-        z = options.hasOwnProperty('zoom') ? parseFloat(options.zoom) : null,
-        geom = "%g", box = "";
+     options.period = id;
+     return geojson.export(options);
+};
 
-    if (p1 && p2) {
-        box = util.box(p1[0], p1[1], p2[0], p2[1]);
-    }*/
-
+Period.addMethod('getGeoJSON', function(options) {
+    return Period.getGeoJSON(this.id, options);
 });
 
-Period.addMethod('getTopoJSON', function(options, callback) {
-    this.getGeoJSON(options, function(err, geojson) {
-        if (err) callback(err);
-        else callback(null, util.convertTopoJSON(geojson));
+Period.getTopoJSON = function(id, options) {
+    return this.getGeoJSON(id, options).then(function(geojson) {
+        return util.convertTopoJSON(geojson);
     });
+};
+
+Period.addMethod('getTopoJSON', function(options) {
+    return Period.getTopoJSON(this.id, options);
 });
