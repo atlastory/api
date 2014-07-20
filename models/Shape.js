@@ -1,11 +1,11 @@
 var _ = require('lodash'),
-    db = require('../db/db'),
+    pg = require('../db/db').pg,
     util = require('../lib/utilities'),
     async = require('async'),
     hstore = require('hstore.js');
 
 
-var Shape = module.exports = db.pg.model("shapes", {
+var Shape = module.exports = pg.model("shapes", {
     schema: {
         type_id: Number,
         periods: [Number],
@@ -24,7 +24,7 @@ var Shape = module.exports = db.pg.model("shapes", {
         }
     }
 });
-var ShapeRelation = Shape.Relation = db.pg.model("shape_relations", { idAttribute: 'sequence_id' });
+var ShapeRelation = Shape.Relation = pg.model("shape_relations", { idAttribute: 'sequence_id' });
 var Changeset = require('./Changeset');
 var Directive = require('./Directive');
 
@@ -160,7 +160,7 @@ Shape.getNodes = function(options, callback) {
 
     query += where + order;
 
-    db.pg.query(query, {
+    var queue = pg.queue().add(query, {
         shape: shapes,
         shapes: shapes ? shapes.join() : '',
         period: period,
@@ -168,10 +168,9 @@ Shape.getNodes = function(options, callback) {
         type: type,
         west: box[0], south: box[1],
         east: box[2], north: box[3]
-    }, function(err, nodes) {
-        if (err) return callback("Error getting shape nodes: "+err);
-        else callback(null, nodes);
     });
+    if (callback) return queue.run(callback);
+    return queue;
 };
 
 Shape.create = function(data, callback) {
