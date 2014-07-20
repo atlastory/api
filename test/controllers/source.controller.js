@@ -1,6 +1,5 @@
 process.env.ENV_VARIABLE = 'test';
 
-var assert = require('assert');
 var expect = require('chai').expect;
 var request = require('supertest');
 
@@ -8,7 +7,7 @@ var app = require('../../app');
 request = request(app);
 
 describe('source controller', function () {
-this.timeout(0);
+this.timeout(1000);
 
 var src = 1;
 var newId;
@@ -19,11 +18,9 @@ describe('GET /sources', function() {
           .set('Accept', 'application/json')
           .expect('Content-Type', /json/)
           .expect(200)
-          .end(function(err, res) {
-            assert.ifError(err);
-            assert.equal(res.body[0].source, "http://forum.atlastory.com/");
-            done();
-          });
+          .expect(function(res) {
+            expect(res.body[0].source).to.equal("http://forum.atlastory.com/");
+          }).end(done);
     });
 });
 
@@ -33,11 +30,19 @@ describe('GET /sources/:id', function() {
           .set('Accept', 'application/json')
           .expect('Content-Type', /json/)
           .expect(200)
-          .end(function(err, res) {
-            assert.ifError(err);
-            assert.equal(res.body.source, "http://forum.atlastory.com/");
-            done();
-          });
+          .expect(function(res) {
+            expect(res.body.source).to.equal("http://forum.atlastory.com/");
+          }).end(done);
+    });
+
+    it('should respond with error', function(done) {
+        request.get('/sources/111222')
+          .set('Accept', 'application/json')
+          .expect('Content-Type', /json/)
+          .expect(500)
+          .expect(function(res) {
+            expect(res.body.message).to.have.string("not found");
+          }).end(done);
     });
 });
 
@@ -48,11 +53,9 @@ describe('POST /sources', function() {
           .set('Accept', 'application/json')
           .expect('Content-Type', /json/)
           .expect(500)
-          .end(function(err, res) {
-            expect(err).to.not.be.ok;
+          .expect(function(res) {
             expect(res.body.message).to.have.property('name');
-            done();
-          });
+          }).end(done);
     });
 
     it('should create new source', function(done) {
@@ -61,12 +64,10 @@ describe('POST /sources', function() {
           .set('Accept', 'application/json')
           .expect('Content-Type', /json/)
           .expect(200)
-          .end(function(err, res) {
-            expect(err).to.not.be.ok;
+          .expect(function(res) {
             expect(res.body.id).to.be.a('number');
             newId = res.body.id;
-            done();
-          });
+          }).end(done);
     });
 });
 
@@ -77,11 +78,9 @@ describe('PUT /sources/:id', function() {
           .set('Accept', 'application/json')
           .expect('Content-Type', /json/)
           .expect(500)
-          .end(function(err, res) {
-            expect(err).to.not.be.ok;
+          .expect(function(res) {
             expect(res.body.message).to.have.string('not found');
-            done();
-          });
+          }).end(done);
     });
 
     it('should update a source', function(done) {
@@ -90,10 +89,7 @@ describe('PUT /sources/:id', function() {
           .set('Accept', 'application/json')
           .expect('Content-Type', /json/)
           .expect(200)
-          .end(function(err, res) {
-            expect(err).to.not.be.ok;
-            done();
-          });
+          .end(done);
     });
 });
 

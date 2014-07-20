@@ -16,6 +16,7 @@ exports.index = function(req, res) {
 exports.show = function(req, res) {
     var id = req.param("id");
     Type.find(id).then(function(types) {
+        if (!types.length) return send500(res)(new Error('Type '+id+' not found'));
         res.jsonp(types[0]);
     }).fail(send500(res));
 };
@@ -41,11 +42,11 @@ exports.create = function(req, res) {
 exports.update = function(req, res) {
     var id = parseFloat(req.param("id"));
 
-    if (isNaN(id)) return res.send(500, new Error('ID required'));
+    if (isNaN(id)) return send500(res)(new Error('ID required'));
 
     Type.find(id).then(function(type) {
         type = type[0];
-        if (!type) return res.send(500, new Error('Source not found'));
+        if (!type) return send500(res)(new Error('Type '+id+' not found'));
 
         return type.update({
             name: req.param("name"),
@@ -62,10 +63,10 @@ exports.update = function(req, res) {
 exports.destroy = function(req, res) {
     var id = parseFloat(req.param("id"));
 
-    if (isNaN(id)) return res.send(500, new Error('ID required'));
+    if (isNaN(id)) return send500(res)(new Error('ID required'));
 
     Type.find(id).then(function(types) {
-        if (!types[0]) res.send(500, new Error('Type not found'));
+        if (!types[0]) return send500(res)(new Error('Type '+id+' not found'));
         return types[0].remove().run();
     }).then(function(type) {
         res.jsonp(type);
