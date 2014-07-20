@@ -39,7 +39,7 @@ describe('GET /types/:id', function() {
         request.get('/types/111222')
           .set('Accept', 'application/json')
           .expect('Content-Type', /json/)
-          .expect(500)
+          .expect(404)
           .expect(function(res) {
             expect(res.body.message).to.have.string("not found");
           }).end(done);
@@ -52,7 +52,7 @@ describe('POST /types', function() {
           .send({ name: 'Country' })
           .set('Accept', 'application/json')
           .expect('Content-Type', /json/)
-          .expect(500)
+          .expect(400)
           .expect(function(res) {
             expect(res.body.message).to.have.property('type');
           }).end(done);
@@ -77,7 +77,7 @@ describe('PUT /types/:id', function() {
           .send({ type: '' })
           .set('Accept', 'application/json')
           .expect('Content-Type', /json/)
-          .expect(500)
+          .expect(404)
           .expect(function(res) {
             expect(res.body.message).to.have.string('not found');
           }).end(done);
@@ -86,6 +86,26 @@ describe('PUT /types/:id', function() {
     it('should update a type', function(done) {
         request.put('/types/' + newId)
           .send({ name: 'Dependency' })
+          .set('Accept', 'application/json')
+          .expect('Content-Type', /json/)
+          .expect(200)
+          .end(done);
+    });
+});
+
+describe('DELETE /types/:id', function() {
+    it('shouldnt delete type without id', function(done) {
+        request.del('/types/aaa')
+          .set('Accept', 'application/json')
+          .expect('Content-Type', /json/)
+          .expect(400)
+          .expect(function(res) {
+            expect(res.body.message).to.have.string('ID required');
+          }).end(done);
+    });
+
+    it('should delete a type', function(done) {
+        request.del('/types/' + newId)
           .set('Accept', 'application/json')
           .expect('Content-Type', /json/)
           .expect(200)

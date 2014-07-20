@@ -1,24 +1,22 @@
 var Type = require('../models/Type'),
-    util = require('../lib/utilities');
+    util = require('../lib/utilities'),
+    err = util.Err;
 
-function send500(res) {
-    return function(err) { res.send(500, util.err(err)); };
-}
 
 // GET /types
 exports.index = function(req, res) {
     Type.all().then(function(types) {
         res.jsonp(types);
-    }).fail(send500(res));
+    }).fail(err.send(res));
 };
 
 // GET /types/:id
 exports.show = function(req, res) {
     var id = req.param("id");
     Type.find(id).then(function(types) {
-        if (!types.length) return send500(res)(new Error('Type '+id+' not found'));
+        if (!types.length) return err.notFound(res)('Type '+id+' not found');
         res.jsonp(types[0]);
-    }).fail(send500(res));
+    }).fail(err.send(res));
 };
 
 //**********************************************
@@ -35,18 +33,18 @@ exports.create = function(req, res) {
 
     type.save().then(function(types) {
         res.jsonp(types[0]);
-    }).fail(send500(res));
+    }).fail(err.invalid(res));
 };
 
 // PUT /types/:id
 exports.update = function(req, res) {
     var id = parseFloat(req.param("id"));
 
-    if (isNaN(id)) return send500(res)(new Error('ID required'));
+    if (isNaN(id)) return err.invalid(res)('ID required');
 
     Type.find(id).then(function(type) {
         type = type[0];
-        if (!type) return send500(res)(new Error('Type '+id+' not found'));
+        if (!type) return err.notFound(res)('Type '+id+' not found');
 
         return type.update({
             name: req.param("name"),
@@ -56,19 +54,19 @@ exports.update = function(req, res) {
         }).save().run();
     }).then(function(type) {
         res.jsonp(type);
-    }).fail(send500(res));
+    }).fail(err.send(res));
 };
 
 // DELETE /types/:id
 exports.destroy = function(req, res) {
     var id = parseFloat(req.param("id"));
 
-    if (isNaN(id)) return send500(res)(new Error('ID required'));
+    if (isNaN(id)) return err.invalid(res)('ID required');
 
     Type.find(id).then(function(types) {
-        if (!types[0]) return send500(res)(new Error('Type '+id+' not found'));
+        if (!types[0]) return err.notFound(res)('Type '+id+' not found');
         return types[0].remove().run();
     }).then(function(type) {
         res.jsonp(type);
-    }).fail(send500(res));
+    }).fail(err.send(res));
 };

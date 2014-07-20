@@ -39,7 +39,7 @@ describe('GET /sources/:id', function() {
         request.get('/sources/111222')
           .set('Accept', 'application/json')
           .expect('Content-Type', /json/)
-          .expect(500)
+          .expect(404)
           .expect(function(res) {
             expect(res.body.message).to.have.string("not found");
           }).end(done);
@@ -52,7 +52,7 @@ describe('POST /sources', function() {
           .send({ source: 'http://url.com' })
           .set('Accept', 'application/json')
           .expect('Content-Type', /json/)
-          .expect(500)
+          .expect(400)
           .expect(function(res) {
             expect(res.body.message).to.have.property('name');
           }).end(done);
@@ -77,7 +77,7 @@ describe('PUT /sources/:id', function() {
           .send({ source: '' })
           .set('Accept', 'application/json')
           .expect('Content-Type', /json/)
-          .expect(500)
+          .expect(404)
           .expect(function(res) {
             expect(res.body.message).to.have.string('not found');
           }).end(done);
@@ -86,6 +86,26 @@ describe('PUT /sources/:id', function() {
     it('should update a source', function(done) {
         request.put('/sources/' + newId)
           .send({ name: 'test222' })
+          .set('Accept', 'application/json')
+          .expect('Content-Type', /json/)
+          .expect(200)
+          .end(done);
+    });
+});
+
+describe('DELETE /sources/:id', function() {
+    it('shouldnt delete source without id', function(done) {
+        request.del('/sources/aaa')
+          .set('Accept', 'application/json')
+          .expect('Content-Type', /json/)
+          .expect(400)
+          .expect(function(res) {
+            expect(res.body.message).to.have.string('ID required');
+          }).end(done);
+    });
+
+    it('should delete a source', function(done) {
+        request.del('/sources/' + newId)
           .set('Accept', 'application/json')
           .expect('Content-Type', /json/)
           .expect(200)

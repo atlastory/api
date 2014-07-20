@@ -1,24 +1,22 @@
 var Source = require('../models/Source'),
-    util = require('../lib/utilities');
+    util = require('../lib/utilities'),
+    err = util.Err;
 
-function send500(res) {
-    return function(err) { res.send(500, util.err(err)); };
-}
 
 // GET /sources
 exports.index = function(req, res) {
     Source.all().then(function(sources) {
         res.jsonp(sources);
-    }).fail(send500(res));
+    }).fail(err.send(res));
 };
 
 // GET /sources/:id
 exports.show = function(req, res) {
     var id = req.param("id");
     Source.find(id).then(function(sources) {
-        if (!sources.length) return send500(res)(new Error('Source '+id+' not found'));
+        if (!sources.length) return err.notFound(res)('Source '+id+' not found');
         res.jsonp(sources[0]);
-    }).fail(send500(res));
+    }).fail(err.send(res));
 };
 
 //**********************************************
@@ -33,18 +31,18 @@ exports.create = function(req, res) {
 
     source.save().then(function(source) {
         res.jsonp(source[0]);
-    }).fail(send500(res));
+    }).fail(err.invalid(res));
 };
 
 // PUT /sources/:id
 exports.update = function(req, res) {
     var id = parseFloat(req.param("id"));
 
-    if (isNaN(id)) return send500(res)(new Error('ID required'));
+    if (isNaN(id)) return err.invalid(res)('ID required');
 
     Source.find(id).then(function(source) {
         source = source[0];
-        if (!source) return send500(res)(new Error('Source '+id+' not found'));
+        if (!source) return err.notFound(res)('Source '+id+' not found');
 
         return source.update({
             name: req.param("name"),
@@ -52,19 +50,19 @@ exports.update = function(req, res) {
         }).save().run();
     }).then(function(source) {
         res.jsonp(source);
-    }).fail(send500(res));
+    }).fail(err.send(res));
 };
 
 // DELETE /sources/:id
 exports.destroy = function(req, res) {
     var id = parseFloat(req.param("id"));
 
-    if (isNaN(id)) return send500(res)(new Error('ID required'));
+    if (isNaN(id)) return err.invalid(res)('ID required');
 
     Source.find(id).then(function(source) {
-        if (!source[0]) send500(res)(new Error('Source '+id+' not found'));
+        if (!source) return err.notFound(res)('Source '+id+' not found');
         return source[0].remove().run();
     }).then(function(source) {
         res.jsonp(source);
-    }).fail(send500(res));
+    }).fail(err.send(res));
 };
