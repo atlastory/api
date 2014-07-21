@@ -1,6 +1,7 @@
-var assert = require('assert');
-
 process.env.ENV_VARIABLE = 'test';
+
+var assert = require('assert');
+var expect = require('chai').expect;
 var Shape = require('../../models/Shape');
 
 var shape;
@@ -64,10 +65,20 @@ describe('#get()', function() {
 describe('#getNodes()', function() {
     it('should get nodes for shapes in a period', function(done) {
         Shape.getNodes({ period: 1 }, function(err, nodes) {
-            assert.ifError(err);
-            if (nodes.length !== 0) {
-                assert(nodes[0].hasOwnProperty('seq1'));
-            }
+            expect(err).to.be.null;
+            expect(nodes).to.have.length.above(0);
+            expect(nodes[0]).to.have.property('seq1');
+            done();
+        });
+    });
+
+    it('should get nodes for shapes in types', function(done) {
+        Shape.getNodes({ period: 1, type: [1] }, function(err, nodes) {
+            expect(err).to.be.null;
+            expect(nodes).to.have.length.above(0);
+            expect(nodes[0]).to.have.property('shape');
+            expect(nodes[0]).to.have.property('role');
+            expect(nodes[0]).to.have.property('seq1');
             done();
         });
     });

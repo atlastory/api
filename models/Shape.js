@@ -78,7 +78,7 @@ Shape.getData = function(options, callback) {
      * shapes    INT|INT[]  ||
      * changeset INT        ||
      * period    INT
-     * type      INT        (optional)
+     * type      INT|INT[]  (optional)
      */
      var shapes = options.shapes,
         period = options.period,
@@ -90,8 +90,12 @@ Shape.getData = function(options, callback) {
     if (_.isNumber(shapes)) shapes = [shapes];
     if (shapes) where.push("id IN (:shapes)");
     if (_.isNumber(period)) where.push(":period = ANY (periods)");
-    if (_.isNumber(changeset)) where.push("id IN (SELECT object_id FROM directives WHERE changeset_id = :changeset AND object = 'shape')")
-    if (_.isNumber(type)) where.push("type_id = :type");
+    if (_.isNumber(changeset)) where.push("id IN (SELECT object_id FROM directives WHERE changeset_id = :changeset AND object = 'shape')");
+    if (_.isNumber(type)) type = [type];
+    if (_.isArray(type)) {
+        type = [[type.join()]];
+        where.push("type_id IN (:type)");
+    }
 
     where = where.join(' AND ');
 
@@ -109,15 +113,19 @@ Shape.getNodes = function(options, callback) {
      * shapes    INT|INT[]  ||
      * changeset INT        ||
      * period    INT
-     * type      INT        (optional)
+     * type      INT|INT[]  (optional)
      * box       ARRAY      [west, south, east, north]
      */
     var shapes = options.shapes,
         period = options.period,
         changeset = options.changeset,
-        type = options.type,
-        box = options.box,
-        getType = (typeof type === 'number');
+        box = options.box;
+
+    var type = _.isNumber(options.type) ?
+            [options.type] :
+            _.isArray(options.type) ? options.type : null,
+        getType = (_.isArray(type));
+    if (getType) type = [[type.join()]];
 
     var columns, query, where, order, boxq;
 
@@ -149,11 +157,11 @@ Shape.getNodes = function(options, callback) {
     else if (typeof changeset === 'number')
         where += "IN (SELECT object_id FROM directives WHERE changeset_id = :changeset AND object = 'shape') ";
     else if (typeof period === 'number') {
-        if (getType) where += "IN (SELECT id FROM shapes WHERE :period = ANY (periods) AND type_id = :type) ";
+        if (getType) where += "IN (SELECT id FROM shapes WHERE :period = ANY (periods) AND type_id IN (:type)) ";
         else         where += "IN (SELECT id FROM shapes WHERE :period = ANY (periods)) ";
     } else return callback("getNodes needs shapes, changeset, or period ID");
 
-    if (typeof period !== 'number' && getType) where += "shape_relations.shape_id IN (SELECT id FROM shapes WHERE type = :type) ";
+    if (typeof period !== 'number' && getType) where += "shape_relations.shape_id IN (SELECT id FROM shapes WHERE type_id IN (:type)) ";
 
     if (Array.isArray(box)) where += ' AND ' + boxq;
     else box = [];
@@ -169,6 +177,7 @@ Shape.getNodes = function(options, callback) {
         west: box[0], south: box[1],
         east: box[2], north: box[3]
     });
+console.log(queue.print());
     if (callback) return queue.run(callback);
     return queue;
 };

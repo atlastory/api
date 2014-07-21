@@ -6,12 +6,10 @@ apiVersion1('');    // Most recent version
 apiVersion1('/v1');
 
 function apiVersion1(v) {
-    // Types
-    // resources('/layers', 'layer');
 
     // Periods
     resources(v + '/periods', 'period');
-    // /periods/:pid/:type.:format(json|geojson|topojson)
+    match(v + '/periods/:period/:type.:format(json|geojson|topojson)', 'period#geojson');
     match(v + '/geojson', 'period#geojson');
     match(v + '/topojson', 'period#topojson');
 
