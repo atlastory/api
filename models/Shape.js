@@ -177,7 +177,7 @@ Shape.getNodes = function(options, callback) {
         west: box[0], south: box[1],
         east: box[2], north: box[3]
     });
-console.log(queue.print());
+
     if (callback) return queue.run(callback);
     return queue;
 };

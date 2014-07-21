@@ -34,7 +34,7 @@ Period.addMethod('importGeoJSON', function(options) {
 
 Period.getGeoJSON = function(id, options) {
     /* Get's GeoJSON for a period/layer
-     * type   INT    type ID
+     * type   INT[]  type ID
      * bbox   INT[]  [west, south, east, north] (optional)
      * zoom   INT    zoom level                 (optional)
      */

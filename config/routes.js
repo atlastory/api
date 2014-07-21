@@ -9,7 +9,7 @@ function apiVersion1(v) {
 
     // Periods
     resources(v + '/periods', 'period');
-    match(v + '/periods/:period/:type.:format(json|geojson|topojson)', 'period#geojson');
+    match(v + '/periods/:pid/:type.:format(json|geojson|topojson)', 'period#shapes');
     match(v + '/geojson', 'period#geojson');
     match(v + '/topojson', 'period#topojson');
 
