@@ -141,7 +141,7 @@ describe('#import()', function() {
         Shape.inChangeset(shapeCS, function(err, shapes) {
             assert.ifError(err);
             var data = shapes[0].properties;
-            assert.equal(data.name, 'multi poly');
+            assert.equal(data.data.name, 'multi poly');
             assert.equal(data.periods[0], 106);
             assert.equal(data.type_id, 1);
             assert.equal(data.data.a, 55);

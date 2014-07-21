@@ -37,7 +37,7 @@ describe('#export()', function() {
             expect(err).to.not.be.ok;
             var shape = json.features[0];
             expect(shape.geometry).to.deep.equal(gj.line.features[0].geometry);
-            expect(shape.properties.name).to.equal('line');
+            expect(shape.properties.data.name).to.equal('line');
             done();
         });
     });
@@ -49,7 +49,7 @@ describe('#export()', function() {
             expect(err).to.not.be.ok;
             var shape = json.features[0];
             expect(shape.geometry).to.deep.equal(gj.multiline.features[0].geometry);
-            expect(shape.properties.name).to.equal('multi line');
+            expect(shape.properties.data.name).to.equal('multi line');
             done();
         });
     });
@@ -61,7 +61,7 @@ describe('#export()', function() {
             expect(err).to.not.be.ok;
             var shape = json.features[0];
             expect(shape.geometry).to.deep.equal(gj.polygon.features[0].geometry);
-            expect(shape.properties.name).to.equal('poly');
+            expect(shape.properties.data.name).to.equal('poly');
             done();
         });
     });
@@ -73,7 +73,7 @@ describe('#export()', function() {
             expect(err).to.not.be.ok;
             var shape = json.features[0];
             expect(shape.geometry).to.deep.equal(gj.multiPolygon.features[0].geometry);
-            expect(shape.properties.name).to.equal('multi poly');
+            expect(shape.properties.data.name).to.equal('multi poly');
             done();
         });
     });

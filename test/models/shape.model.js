@@ -14,7 +14,8 @@ describe('#create()', function() {
             periods: [1],
             type_id: 1,
             name: 'Test',
-            date_end: '1492-01-01',
+            start_year: 1491,
+            end_year: 1492,
             tags: [12],
             country: 'Spain'
         }, function(err, id) {
@@ -31,7 +32,7 @@ describe('#find()', function() {
         Shape.find(shape, function(err, s) {
             assert.ifError(err);
             s = s[0];
-            assert.equal(s.name, 'Test');
+            assert.equal(s.data.name, 'Test');
             assert.equal(s.tags[0], 12);
             assert.equal(s.data.country, 'Spain');
             done();
@@ -55,7 +56,7 @@ describe('#get()', function() {
     it('should get a shape with nodes/ways', function(done) {
         Shape.get(shape, function(err, s) {
             assert.ifError(err);
-            assert.equal(s.properties.date_end, '1492-01-01');
+            assert.equal(s.properties.end_year, 1492);
             assert.equal(s.objects[0].type, 'Node');
             done();
         });

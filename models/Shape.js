@@ -9,10 +9,12 @@ var Shape = module.exports = pg.model("shapes", {
     schema: {
         type_id: Number,
         periods: [Number],
-        name: String,
-        description: String,
-        date_start: String,
-        date_end: String,
+        start_day:   { type: Number, default: 1 },
+        start_month: { type: Number, default: 1 },
+        start_year:  { type: Number },
+        end_day:     { type: Number, default: 1 },
+        end_month:   { type: Number, default: 1 },
+        end_year:    { type: Number },
         tags: [Number],
         data: { type: 'hstore' }
     },
