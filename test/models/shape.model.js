@@ -14,28 +14,26 @@ describe('#create()', function() {
             periods: [1],
             type_id: 1,
             name: 'Test',
-            date_end: '1492-01-01',
+            start_year: 1491,
+            end_year: 1492,
             tags: [12],
             country: 'Spain'
-        }, function(err, id) {
-            assert.ifError(err);
-            assert(typeof id === 'number');
+        }).then(function(shapes) {
+            var id = parseFloat(shapes[0].id);
+            expect(id).to.be.a("number");
             shape = id;
-            done();
-        });
+        }).fin(done);
     });
 });
 
 describe('#find()', function() {
     it('should find a Shape', function(done) {
-        Shape.find(shape, function(err, s) {
-            assert.ifError(err);
+        Shape.find(shape).then(function(s) {
             s = s[0];
-            assert.equal(s.name, 'Test');
-            assert.equal(s.tags[0], 12);
-            assert.equal(s.data.country, 'Spain');
-            done();
-        });
+            expect(s.data.name).to.equal('Test');
+            expect(s.tags[0]).to.equal(12);
+            expect(s.data.country).to.equal('Spain');
+        }).fin(done);
     });
 });
 
@@ -44,43 +42,34 @@ describe('#connect()', function() {
         Shape.connect(shape, [
             {type: 'Node', id: 1}, {type: 'Node', id: 2},
             {type: 'Way', id: 1}
-        ], function(err) {
-            assert.ifError(err);
-            done();
-        });
+        ]).fin(done);
     });
 });
 
 describe('#get()', function() {
     it('should get a shape with nodes/ways', function(done) {
-        Shape.get(shape, function(err, s) {
-            assert.ifError(err);
-            assert.equal(s.properties.date_end, '1492-01-01');
-            assert.equal(s.objects[0].type, 'Node');
-            done();
-        });
+        Shape.get(shape).then(function(s) {
+            expect(s.properties.end_year).to.equal(1492);
+            expect(s.objects[0].type).to.equal('Node');
+        }).fin(done);
     });
 });
 
 describe('#getNodes()', function() {
     it('should get nodes for shapes in a period', function(done) {
-        Shape.getNodes({ period: 1 }, function(err, nodes) {
-            expect(err).to.be.null;
+        Shape.getNodes({ period: 1 }).then(function(nodes) {
             expect(nodes).to.have.length.above(0);
             expect(nodes[0]).to.have.property('seq1');
-            done();
-        });
+        }).fin(done);
     });
 
     it('should get nodes for shapes in types', function(done) {
-        Shape.getNodes({ period: 1, type: [1] }, function(err, nodes) {
-            expect(err).to.be.null;
+        Shape.getNodes({ period: 1, type: [1] }).then(function(nodes) {
             expect(nodes).to.have.length.above(0);
             expect(nodes[0]).to.have.property('shape');
             expect(nodes[0]).to.have.property('role');
             expect(nodes[0]).to.have.property('seq1');
-            done();
-        });
+        }).fin(done);
     });
 });
 

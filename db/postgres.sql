@@ -107,6 +107,8 @@ CREATE TABLE periods (
     updated_at timestamp without time zone NOT NULL DEFAULT NOW(),
     CONSTRAINT periods_pkey PRIMARY KEY (id)
 );
+CREATE INDEX period_start_year_idx ON periods (start_year);
+CREATE INDEX period_end_year_idx ON periods (end_year);
 
 CREATE TABLE sources (
     id serial NOT NULL,
@@ -153,15 +155,19 @@ CREATE TABLE shapes (
     id serial8 NOT NULL,
     type_id int NOT NULL,
     periods bigint[] NOT NULL,
-    name character varying(250),  -- Move to 'data'?
-    description text,             -- Move to 'data'?
-    date_start character varying(20),
-    date_end character varying(20),
+    start_year int,
+    start_month int DEFAULT 1,
+    start_day int DEFAULT 1,
+    end_year int,
+    end_month int DEFAULT 1,
+    end_day int DEFAULT 1,
     tags integer[],
     data hstore,
     CONSTRAINT shapes_pkey PRIMARY KEY (id),
     CONSTRAINT shapes_type_id_fkey FOREIGN KEY (type_id) REFERENCES types(id)
 );
+CREATE INDEX shape_start_year_idx ON shapes (start_year);
+CREATE INDEX shape_end_year_idx ON shapes (end_year);
 
 CREATE TABLE shape_relations (
     shape_id bigint DEFAULT 0 NOT NULL,
