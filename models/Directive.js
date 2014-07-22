@@ -90,8 +90,8 @@ Directive.create = function(id, directives, callback) {
     else callback(null, id, []);
 };
 
-// Gets all directives for a layer
-// Directive.getLayer
+// Gets all directives for a type
+// Directive.getType
 
 // Gets all directives for a shape
 // Directive.getShape

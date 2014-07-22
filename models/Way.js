@@ -44,11 +44,10 @@ Way.create = function(coords, data, callback) {
         };
     });
 
-    Way.insert(_.extend(wayData, { id: [['DEFAULT']] }))
-      .returning('id', function(err, rows) {
-        if (err) return callback('Error creating Way: ' + err);
-        Way.addNodes(parseFloat(rows[0].id), 0, coords, callback);
-    });
+    return Way.insert(_.extend(wayData, { id: [['DEFAULT']] })).returning('id')
+    .then(function(ways) {
+        return Way.addNodes(parseFloat(ways[0].id), 0, coords);
+    }).nodeify(callback);
 };
 
 // Connects a way with nodes (nodes must be created first)
