@@ -33,7 +33,7 @@
         "async": "*",
         "q": "~1.0.1",
         "grand-central-junction": "*",
-        "grand-central-records": "~0.1.4",
+        "grand-central-records": "~0.1.5",
         "mysql": "~2.0.0-alpha8",
         "pg": "~2.0.0",
 

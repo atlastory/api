@@ -110,7 +110,7 @@ Shape.getData = function(options, callback) {
         period: period,
         changeset: changeset,
         type: type
-    }, callback);
+    }).nodeify(callback);
 };
 
 Shape.getNodes = function(options, callback) {
@@ -122,7 +122,8 @@ Shape.getNodes = function(options, callback) {
      * type      INT|INT[]  (optional)
      * box       ARRAY      [west, south, east, north]
      */
-    var shapes = options.shapes,
+    var queue = pg.queue(),
+        shapes = options.shapes,
         period = options.period,
         changeset = options.changeset,
         box = options.box;
@@ -167,7 +168,7 @@ Shape.getNodes = function(options, callback) {
         else         where += "IN (SELECT id FROM shapes WHERE :period = ANY (periods)) ";
     } else {
         if (callback) return callback("getNodes needs shapes, changeset, or period ID");
-        return pg.queue().add("getNodes needs shapes, changeset, or period ID");
+        return queue.throw(util.err("getNodes needs shapes, changeset, or period ID"));
     }
 
     if (typeof period !== 'number' && getType) where += "shape_relations.shape_id IN (SELECT id FROM shapes WHERE type_id IN (:type)) ";
@@ -177,28 +178,20 @@ Shape.getNodes = function(options, callback) {
 
     query += where + order;
 
-    var queue = pg.queue().add(query, {
+    return queue.add(query, {
         shapes: shapes ? [[shapes.join()]] : '',
         period: period,
         changeset: changeset,
         type: type,
         west: box[0], south: box[1],
         east: box[2], north: box[3]
-    });
-    if (callback) queue.run(callback);
-    return queue;
+    }).nodeify(callback);
 };
 
 Shape.create = function(data, callback) {
-    var id;
-
     data = util.cleanShapeData(data);
 
-    if (!callback) return this.returning("id").insert(data);
-    else this.returning("id").insert(data, function(err, rows) {
-        if (err) return callback('Shape.create > '+err);
-        callback(null, rows);
-    });
+    return this.returning("id").insert(data).nodeify(callback);
 };
 
 // Connects a shape with current nodes/ways/shapes
