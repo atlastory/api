@@ -19,7 +19,7 @@ describe('GET /types', function() {
           .expect('Content-Type', /json/)
           .expect(200)
           .expect(function(res) {
-            expect(res.body[0].type).to.equal("land");
+            expect(res.body[0].level).to.equal("land");
           }).end(done);
     });
 });
@@ -54,13 +54,13 @@ describe('POST /types', function() {
           .expect('Content-Type', /json/)
           .expect(400)
           .expect(function(res) {
-            expect(res.body.message).to.have.property('type');
+            expect(res.body.message).to.have.property('level');
           }).end(done);
     });
 
     it('should create new type', function(done) {
         request.post('/types')
-          .send({ name: 'Country', type: 'admin-1' })
+          .send({ name: 'Country', level: 'admin-1' })
           .set('Accept', 'application/json')
           .expect('Content-Type', /json/)
           .expect(200)
@@ -74,7 +74,7 @@ describe('POST /types', function() {
 describe('PUT /types/:id', function() {
     it('shouldnt update type with incorrect input', function(done) {
         request.put('/types/111222333')
-          .send({ type: '' })
+          .send({ level: '' })
           .set('Accept', 'application/json')
           .expect('Content-Type', /json/)
           .expect(404)

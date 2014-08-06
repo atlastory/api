@@ -85,7 +85,7 @@ CREATE TABLE directives (
 
 CREATE TABLE types (
     id serial NOT NULL,
-    type varchar(25) NOT NULL,
+    level varchar(25) NOT NULL,
     name varchar(255) NOT NULL,
     color1 varchar(255) DEFAULT '',
     color2 varchar(255) DEFAULT '',
@@ -259,10 +259,10 @@ INSERT INTO changesets (user_id, message) VALUES
     (1, 'Initial commit');
 INSERT INTO directives (changeset_id, action, object, object_id, data) VALUES
     (1, 'add', 'period', 1, '{"name":"1999-2000","start_year":1999,"end_year":2000}'),
-    (1, 'add', 'type', 1, '{"name":"Land","type:":"land"}');
+    (1, 'add', 'type', 1, '{"name":"Land","level":"land"}');
 INSERT INTO periods (name, start_year, end_year) VALUES
     ('1999-2000', 1999, 2000);
-INSERT INTO types (type, name) VALUES
+INSERT INTO types (level, name) VALUES
     ('land', 'Land');
 
 INSERT INTO sources (name, source) VALUES

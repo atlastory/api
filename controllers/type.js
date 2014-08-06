@@ -26,7 +26,7 @@ exports.show = function(req, res) {
 exports.create = function(req, res) {
     var type = Type.new({
         name: req.param("name"),
-        type: req.param("type"),
+        level: req.param("level"),
         color1: req.param("color1"),
         color2: req.param("color2"),
     });
@@ -48,7 +48,7 @@ exports.update = function(req, res) {
 
         return type.update({
             name: req.param("name"),
-            type: req.param("type"),
+            level: req.param("level"),
             color1: req.param("color1"),
             color2: req.param("color2")
         }).save().run();
