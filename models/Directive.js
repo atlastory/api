@@ -1,9 +1,9 @@
-var pg = require('../db/db').pg,
+var _ = require('lodash'),
+    pg = require('../db/db').pg,
     util = require('../lib/utilities');
 
 
 var Directive = module.exports = pg.model("directives", {
-    map: true,
     schema: {
         changeset_id: { type: Number, allowNull: false },
         action: { type: String, allowNull: false },
@@ -22,35 +22,36 @@ var Directive = module.exports = pg.model("directives", {
         shape_relations: parseJSON('shape_relations', [])
     },
     methods: {
-        toString: function() {
-            var keys = [], data;
-
-            try {
-                data = JSON.parse(this.data);
-            } catch(err) {
-                data = {};
-            }
-
-            for (var key in data) {
-                keys.push(key + ' = ' + pg.engine.escape(data[key]));
-            }
+        asString: function() {
+            var data = _.map(this.data, function(val, key) {
+                return key + ' = ' + pg.engine.escape(val);
+            });
 
             return [
                 this.action,
                 this.object,
                 this.object_id,
-                (keys.length) ? '('+keys.join(', ')+')' : null
-            ].join(' ').replace(/\s+/g, ' ');
+                data.length ? 'data('+data.join(', ')+')' : null,
+                this.geometry.length ? 'geometry' + JSON.stringify(this.geometry) : null,
+                this.way_nodes.length ? 'with wayNodes'+JSON.stringify(this.way_nodes) : null,
+                this.shape_relations.length ? 'with shapeRelations'+JSON.stringify(this.shape_relations) : null,
+            ].join(' ').replace(/\s+/g,' ').replace(/\s+$/,'');
         }
     }
 });
 
 function parseJSON(col, empty) {
     return function() {
-        if (this[col]) {
-            return JSON.parse(this[col].replace(/\\/g,''));
-        } else return empty;
-    }
+        if (_.isString(this[col])) {
+            try {
+                return JSON.parse(this[col].replace(/\\/g,''));
+            } catch(err) {
+                return empty;
+            }
+        }
+        else if (_.isObject(this[col])) return this[col];
+        return empty;
+    };
 }
 
 Directive.changeset = function(id, callback) {
@@ -80,7 +81,6 @@ Directive.create = function(id, directives, callback) {
         return d;
     });
 
-    if (!callback) return Directive.insert(directives);
     if (directives.length) Directive.insert(directives, function(err, res) {
         if (err || !Array.isArray(res)) callback(err);
         else callback(null, id, res.map(function(r) {
@@ -89,6 +89,7 @@ Directive.create = function(id, directives, callback) {
     });
     else callback(null, id, []);
 };
+Directive.create = util.addPromisesTo(Directive.create);
 
 // Gets all directives for a type
 // Directive.getType

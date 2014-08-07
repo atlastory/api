@@ -5,9 +5,8 @@ var pg = require('../db/db').pg,
 
 
 var Changeset = module.exports = pg.model("changesets", {
-    map: true,
     schema: {
-        user_id:    Number,
+        user_id:    { type: Number, allowNull: false },
         message:    String,
         created_at: Date
     }
@@ -20,12 +19,13 @@ Changeset.get = function(id, callback) {
     }, directives: function(end) {
         Directive.where({ changeset_id: id }, end);
     } }, function(err, res) {
-        if (err) callback(util.err(err, 'getting changeset'));
-        else callback(null, {
+        if (err) return callback(util.err(err, 'getting changeset'));
+        if (!res.changeset.length) return callback(null, null);
+        callback(null, {
             id: id,
             user_id: res.changeset[0].user_id,
             message: res.changeset[0].message,
-            directives: res.directives.map(function(d) { return d.toJSON(); }),
+            directives: res.directives,
             created_at: res.changeset[0].created_at
         });
     });
@@ -36,11 +36,11 @@ Changeset.create = function(changeset, callback) {
     var directives = changeset.directives || [];
     changeset = _.pick(changeset, _.keys(Changeset._schema));
 
-    if (!changeset.user_id) return callback('Error: changeset needs user ID!');
+    if (!changeset.user_id) return callback('changeset needs user ID');
 
     Changeset.insert(changeset, function(err, cs) {
-        if (err) callback("Error creating changeset: "+err);
-        else Directive.create(parseFloat(cs[0].id), directives, callback);
+        if (err) return callback(util.err(err, "creating changeset"));
+        Directive.create(parseFloat(cs[0].id), directives, callback);
     });
 };
 Changeset.create = util.addPromisesTo(Changeset.create);

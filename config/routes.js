@@ -7,6 +7,14 @@ apiVersion1('/v1');
 
 function apiVersion1(v) {
 
+    // Changesets
+    match(v + '/changesets/:id',        'changeset#show');
+    match(v + '/changesets',            'changeset#create', { via: 'post' });
+    match(v + '/changesets/create',     'changeset#create', { via: 'put' });
+    match(v + '/changesets/:id',        'changeset#create', { via: 'put' });
+    match(v + '/changesets/:id/commit', 'changeset#commit');
+    match(v + '/changesets/:id/close',  'changeset#commit');
+
     // Periods
     resources(v + '/periods', 'period');
     match(v + '/periods/:pid/:type.:format(json|geojson|topojson)', 'period#shapes');
@@ -16,11 +24,6 @@ function apiVersion1(v) {
     // /nodes/:id
     // /ways/:id
     // /shapes/:id || /shapes/:id.:format(json|geojson|topojson)
-
-    // Changesets
-    //resources(v + '/changeset', 'changeset');
-    //match(v + '/changeset/:id/commit', 'changeset#commit', {via: 'post'});
-    //match(v + '/changeset/:id/finish', 'changeset#commit', {via: 'post'});
 
     // Types
     resources(v + '/types', 'type');
