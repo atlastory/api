@@ -188,8 +188,37 @@ Shape.getNodes = function(options, callback) {
     }).nodeify(callback);
 };
 
+// Format shape data
+var cleanShapeData = Shape.cleanShapeData = function(data) {
+    // Create new data object w/ fixed columns
+    var newData = {
+        type_id:      data.type_id,
+        periods:      data.periods,
+        start_day:    data.start_day || 1,
+        start_month:  data.start_month || 1,
+        start_year:   data.start_year,
+        end_day:      data.end_day || 1,
+        end_month:    data.end_month || 1,
+        end_year:     data.end_year,
+        tags:         data.tags || [],
+        data: null,
+    };
+
+    // Create hstore with extra data
+    var hstore = _(data).reduce(function(hstore, value, key) {
+        if (!_.contains(_.keys(newData), key)) {
+            value = pg.engine.escape(value).replace(/'/g, "\"");
+            hstore.push(key + ' => ' + value);
+        }
+        return hstore;
+    }, []);
+    newData.data = [["'" + hstore.join(", ") + "'"]];
+
+    return newData;
+};
+
 Shape.create = function(data, callback) {
-    data = util.cleanShapeData(data);
+    data = cleanShapeData(data);
 
     return this.returning("id").insert(data).nodeify(callback);
 };
