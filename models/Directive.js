@@ -81,15 +81,14 @@ Directive.create = function(id, directives, callback) {
         return d;
     });
 
-    if (directives.length) Directive.insert(directives, function(err, res) {
+    if (!callback) return Directive.insert(directives);
+    return Directive.insert(directives, function(err, res) {
         if (err || !Array.isArray(res)) callback(err);
         else callback(null, id, res.map(function(r) {
             return parseFloat(r.id);
         }));
     });
-    else callback(null, id, []);
 };
-Directive.create = util.addPromisesTo(Directive.create);
 
 // Gets all directives for a type
 // Directive.getType

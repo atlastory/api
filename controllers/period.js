@@ -102,7 +102,7 @@ exports.shapes = function(req, res, f) {
 
     if (isNaN(tid)) {
         // No type ID, need to look it up
-        Type.where({ type: type }).then(function(types) {
+        Type.where({ level: type }).then(function(types) {
             if (!types.length) return err.notFound(res)('Type "'+type+'" not found');
             ops.type = types.map(function(t) {
                 return parseFloat(t.id);
