@@ -1,6 +1,5 @@
 var Type = require('../models/Type'),
-    util = require('../lib/utilities'),
-    err = util.Err;
+    err = require('../lib/errors');
 
 
 // GET /types

@@ -1,6 +1,5 @@
 var Source = require('../models/Source'),
-    util = require('../lib/utilities'),
-    err = util.Err;
+    err = require('../lib/errors');
 
 
 // GET /sources

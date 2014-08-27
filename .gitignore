@@ -6,7 +6,6 @@ Thumbs.db
 .sqlite
 .sqlite3
 .db
-config.db.js
 atlastory-db.json
 
 /node_modules

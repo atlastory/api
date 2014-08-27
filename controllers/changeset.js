@@ -1,8 +1,7 @@
 var Changeset = require('../models/Changeset'),
     wiki = require('../lib/wiki'),
     _ = require('lodash'),
-    util = require('../lib/utilities'),
-    err = util.Err;
+    err = require('../lib/errors');
 
 
 // GET /changesets/:id

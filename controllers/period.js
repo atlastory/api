@@ -1,7 +1,6 @@
 var Period = require('../models/Period'),
     Type = require('../models/Type'),
-    util = require('../lib/utilities'),
-    err = util.Err;
+    err = require('../lib/errors');
 
 
 // GET /periods

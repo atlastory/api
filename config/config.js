@@ -13,5 +13,9 @@ module.exports = {
         "test": env.DB_TEST || "test"
     },
 
+    // Switch for 'test' database
     testing: (env.TEST || mode == "test"),
+
+    // Debug mode -- turns on detailed error reporting
+    debug: (env.DEBUG || mode == "debug"),
 };
