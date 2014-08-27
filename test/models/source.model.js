@@ -1,4 +1,4 @@
-process.env.ENV_VARIABLE = 'test';
+process.env.TEST = 'true';
 
 var assert = require('assert');
 var Source = require('../../models/Source');

@@ -1,7 +1,8 @@
+process.env.TEST = 'true';
+
 var assert = require('assert');
 var expect = require('chai').expect;
 
-process.env.ENV_VARIABLE = 'test';
 var Changeset = require('../../models/Changeset');
 
 var directives = [ {

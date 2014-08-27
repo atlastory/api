@@ -1,6 +1,6 @@
 var assert = require('assert');
 
-process.env.ENV_VARIABLE = 'test';
+process.env.TEST = 'true';
 var Way = require('../../models/Way');
 
 var wayId, node1, node2;

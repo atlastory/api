@@ -1,4 +1,4 @@
-process.env.ENV_VARIABLE = 'test';
+process.env.TEST = 'true';
 
 var expect = require('chai').expect;
 var request = require('supertest');

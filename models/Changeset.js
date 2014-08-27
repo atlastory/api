@@ -1,4 +1,4 @@
-var pg = require('../db/db').pg,
+var pg = require('../services/db').pg,
     async = require('async'),
     _ = require('lodash'),
     util = require('../lib/utilities');

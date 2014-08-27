@@ -1,4 +1,4 @@
-var db = require('../db/db'),
+var db = require('../services/db'),
     util = require('../lib/utilities');
 
 

@@ -1,5 +1,5 @@
 var _ = require('lodash'),
-    pg = require('../db/db').pg,
+    pg = require('../services/db').pg,
     util = require('../lib/utilities'),
     async = require('async'),
     hstore = require('hstore.js'),

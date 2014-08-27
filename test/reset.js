@@ -1,9 +1,10 @@
-process.env.ENV_VARIABLE = 'test';
+process.env.TEST = 'true';
 
 var assert = require('assert');
 var path = require('path');
 var fs = require('fs');
-var pg = require('../db/db').pg;
+var config = require('../config/config');
+var pg = require('../services/db').pg;
 
 
 describe('reset', function() {
