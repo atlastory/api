@@ -10,6 +10,7 @@ var c = repl.start({
     output: process.stdout
 }).on('exit', function() {});
 
+c.context.config = require('../config/config');
 c.context.util = require('../lib/utilities');
 c.context.pg = require('../services/db').pg;
 c.context.app = require('../app');
