@@ -8,18 +8,26 @@ var Directive = module.exports = pg.model("directives", {
         changeset_id: { type: Number, allowNull: false },
         action: { type: String, allowNull: false },
         object:          String,
-        object_id:       Number,
-        data:            String,
-        geometry:        String,
-        way_nodes:       String,
-        shape_relations: String,
+        object_id:       String,
+        data:            String, // Stringified JSON object for shapes, types, sources
+        geometry:        String, // Stringified coordinate array
+        way_nodes:       String, // if object=way: List nodeId > '345,678'
+                                 // if object=node: List wayId-sequence > '0-1234,1-2345'
+        shape_relations: String, // if object=shape: List sequence-Type-role-id > '3-Way-outer-1234,4-Way-inner-2345'
+                                 // if object=node,way: List shapeId-sequence > '0-1234,1-2345'
         created_at:      Date
     },
     getters: {
         data: parseJSON('data', {}),
         geometry: parseJSON('geometry', []),
-        way_nodes: parseJSON('way_nodes', []),
-        shape_relations: parseJSON('shape_relations', [])
+        way_nodes: function() {
+            if (!_.isString(this.way_nodes)) return null;
+            return this.way_nodes.split(',');
+        },
+        shape_relations: function() {
+            if (!_.isString(this.shape_relations)) return null;
+            return this.shape_relations.split(',');
+        }
     },
     methods: {
         asString: function() {
@@ -33,8 +41,8 @@ var Directive = module.exports = pg.model("directives", {
                 this.object_id,
                 data.length ? 'data('+data.join(', ')+')' : null,
                 this.geometry.length ? 'geometry' + JSON.stringify(this.geometry) : null,
-                this.way_nodes.length ? 'with wayNodes'+JSON.stringify(this.way_nodes) : null,
-                this.shape_relations.length ? 'with shapeRelations'+JSON.stringify(this.shape_relations) : null,
+                this.way_nodes ? 'with wayNodes(' + this.way_nodes.join(', ') + ')' : null,
+                this.shape_relations ? 'with shapeRelations('+this.shape_relations.join(', ')+')' : null,
             ].join(' ').replace(/\s+/g,' ').replace(/\s+$/,'');
         }
     }
