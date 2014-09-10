@@ -60,7 +60,7 @@ describe('POST /changesets', function() {
     });*/
 });
 
-describe('GET /changesets/:id', function() {
+/*describe('GET /changesets/:id', function() {
     it('should respond with changeset json', function(done) {
         request.get('/changesets/'+id)
           .set('Accept', 'application/json')
@@ -83,7 +83,7 @@ describe('GET /changesets/:id', function() {
             expect(res.body.message).to.have.string("not found");
           }).end(done);
     });
-});
+});*/
 
 /*describe('POST /changesets/:id/commit', function() {
     this.timeout(0);

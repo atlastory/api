@@ -31,12 +31,13 @@ CREATE TYPE nws_enum AS ENUM (
     'Shape'
 );
 CREATE TYPE atlastory_object AS ENUM (
-    'period',
+    'level',
     'type',
     'source',
     'node',
     'way',
-    'shape'
+    'shape',
+    'period'
 );
 CREATE TYPE directive AS ENUM (
     'add',
@@ -52,6 +53,7 @@ CREATE TYPE directive AS ENUM (
 
 DROP TABLE IF EXISTS public.changesets CASCADE;
 DROP TABLE IF EXISTS public.directives CASCADE;
+DROP TABLE IF EXISTS public.levels CASCADE;
 DROP TABLE IF EXISTS public.types CASCADE;
 DROP TABLE IF EXISTS public.periods CASCADE;
 DROP TABLE IF EXISTS public.sources CASCADE;
@@ -83,15 +85,25 @@ CREATE TABLE directives (
     CONSTRAINT directives_pkey PRIMARY KEY (id)
 );
 
-CREATE TABLE types (
+CREATE TABLE levels (
     id serial NOT NULL,
-    level varchar(25) NOT NULL,
     name varchar(255) NOT NULL,
-    color1 varchar(255) DEFAULT '',
-    color2 varchar(255) DEFAULT '',
+    level int NOT NULL DEFAULT 0,
     created_at timestamp without time zone NOT NULL DEFAULT NOW(),
     updated_at timestamp without time zone NOT NULL DEFAULT NOW(),
-    CONSTRAINT types_pkey PRIMARY KEY (id)
+    CONSTRAINT levels_pkey PRIMARY KEY (id)
+);
+
+CREATE TABLE types (
+    id serial NOT NULL,
+    level_id int NOT NULL,
+    name varchar(255) NOT NULL,
+    color_1 varchar(255) DEFAULT '',
+    color_2 varchar(255) DEFAULT '',
+    created_at timestamp without time zone NOT NULL DEFAULT NOW(),
+    updated_at timestamp without time zone NOT NULL DEFAULT NOW(),
+    CONSTRAINT types_pkey PRIMARY KEY (id),
+    CONSTRAINT types_levels_id_fkey FOREIGN KEY (level_id) REFERENCES levels(id)
 );
 
 CREATE TABLE periods (
@@ -259,11 +271,13 @@ INSERT INTO changesets (user_id, message) VALUES
     (1, 'Initial commit');
 INSERT INTO directives (changeset_id, action, object, object_id, data) VALUES
     (1, 'add', 'period', 1, '{"name":"1999-2000","start_year":1999,"end_year":2000}'),
-    (1, 'add', 'type', 1, '{"name":"Land","level":"land"}');
+    (1, 'add', 'level', 1, '{"name":"land","level":1}'),
+    (1, 'add', 'type', 1, '{"name":"land","level_id":1}'),
+    (1, 'add', 'source', 1, '{"name":"Atlastory Contributors","source":"http://forum.atlastory.com/"}');
 INSERT INTO periods (name, start_year, end_year) VALUES
     ('1999-2000', 1999, 2000);
-INSERT INTO types (level, name) VALUES
-    ('land', 'Land');
+INSERT INTO levels (name, level) VALUES ('land', 1);
+INSERT INTO types (level_id, name) VALUES (1, 'land');
 
 INSERT INTO sources (name, source) VALUES
     ('Atlastory Contributors', 'http://forum.atlastory.com/');

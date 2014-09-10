@@ -6,15 +6,15 @@ var request = require('supertest');
 var app = require('../../app');
 request = request(app);
 
-describe('type controller', function () {
+describe('level controller', function () {
 this.timeout(1000);
 
 var t = 1;
 var newId;
 
-describe('GET /types', function() {
-    it('should respond with all type data', function(done) {
-        request.get('/types')
+describe('GET /levels', function() {
+    it('should respond with all level data', function(done) {
+        request.get('/levels')
           .set('Accept', 'application/json')
           .expect('Content-Type', /json/)
           .expect(200)
@@ -24,9 +24,9 @@ describe('GET /types', function() {
     });
 });
 
-describe('GET /types/:id', function() {
-    it('should respond with type data', function(done) {
-        request.get('/types/' + t)
+describe('GET /levels/:id', function() {
+    it('should respond with level data', function(done) {
+        request.get('/levels/' + t)
           .set('Accept', 'application/json')
           .expect('Content-Type', /json/)
           .expect(200)
@@ -36,7 +36,7 @@ describe('GET /types/:id', function() {
     });
 
     it('should respond with error', function(done) {
-        request.get('/types/111222')
+        request.get('/levels/111222')
           .set('Accept', 'application/json')
           .expect('Content-Type', /json/)
           .expect(404)
@@ -46,21 +46,21 @@ describe('GET /types/:id', function() {
     });
 });
 
-describe('POST /types', function() {
+describe('POST /levels', function() {
     it('should fail with incorrect input', function(done) {
-        request.post('/types')
-          .send({ name: 'country' })
+        request.post('/levels')
+          .send({ name: 'admin1' })
           .set('Accept', 'application/json')
           .expect('Content-Type', /json/)
           .expect(400)
           .expect(function(res) {
-            expect(res.body.message).to.have.property('level_id');
+            expect(res.body.message).to.have.property('level');
           }).end(done);
     });
 
-    it('should create new type', function(done) {
-        request.post('/types')
-          .send({ name: 'country', level_id: 1 })
+    it('should create new level', function(done) {
+        request.post('/levels')
+          .send({ name: 'admin1', level: 2 })
           .set('Accept', 'application/json')
           .expect('Content-Type', /json/)
           .expect(200)
@@ -71,9 +71,9 @@ describe('POST /types', function() {
     });
 });
 
-describe('PUT /types/:id', function() {
-    it('shouldnt update type with incorrect input', function(done) {
-        request.put('/types/111222333')
+describe('PUT /levels/:id', function() {
+    it('shouldnt update level with incorrect input', function(done) {
+        request.put('/levels/111222333')
           .send({ level: '' })
           .set('Accept', 'application/json')
           .expect('Content-Type', /json/)
@@ -83,9 +83,9 @@ describe('PUT /types/:id', function() {
           }).end(done);
     });
 
-    it('should update a type', function(done) {
-        request.put('/types/' + newId)
-          .send({ name: 'Dependency' })
+    it('should update a level', function(done) {
+        request.put('/levels/' + newId)
+          .send({ name: 'admin0' })
           .set('Accept', 'application/json')
           .expect('Content-Type', /json/)
           .expect(200)
@@ -93,9 +93,9 @@ describe('PUT /types/:id', function() {
     });
 });
 
-describe('DELETE /types/:id', function() {
-    it('shouldnt delete type without id', function(done) {
-        request.del('/types/aaa')
+describe('DELETE /levels/:id', function() {
+    it('shouldnt delete level without id', function(done) {
+        request.del('/levels/aaa')
           .set('Accept', 'application/json')
           .expect('Content-Type', /json/)
           .expect(400)
@@ -104,8 +104,8 @@ describe('DELETE /types/:id', function() {
           }).end(done);
     });
 
-    it('should delete a type', function(done) {
-        request.del('/types/' + newId)
+    it('should delete a level', function(done) {
+        request.del('/levels/' + newId)
           .set('Accept', 'application/json')
           .expect('Content-Type', /json/)
           .expect(200)

@@ -25,9 +25,9 @@ exports.show = function(req, res) {
 exports.create = function(req, res) {
     var type = Type.new({
         name: req.param("name"),
-        level: req.param("level"),
-        color1: req.param("color1"),
-        color2: req.param("color2"),
+        level_id: req.param("level_id"),
+        color_1: req.param("color_1"),
+        color_2: req.param("color_2"),
     });
 
     type.save().then(function(types) {
@@ -47,9 +47,9 @@ exports.update = function(req, res) {
 
         return type.update({
             name: req.param("name"),
-            level: req.param("level"),
-            color1: req.param("color1"),
-            color2: req.param("color2")
+            level_id: req.param("level_id"),
+            color_1: req.param("color_1"),
+            color_2: req.param("color_2")
         }).save().run();
     }).then(function(type) {
         res.jsonp(type);
