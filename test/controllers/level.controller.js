@@ -32,6 +32,7 @@ describe('GET /levels/:id', function() {
           .expect(200)
           .expect(function(res) {
             expect(res.body.name).to.equal("land");
+            expect(res.body.types[0].name).to.equal("land");
           }).end(done);
     });
 
@@ -42,6 +43,16 @@ describe('GET /levels/:id', function() {
           .expect(404)
           .expect(function(res) {
             expect(res.body.message).to.have.string("not found");
+          }).end(done);
+    });
+
+    it('should respond with level types', function(done) {
+        request.get('/levels/land/types')
+          .set('Accept', 'application/json')
+          .expect('Content-Type', /json/)
+          .expect(200)
+          .expect(function(res) {
+            expect(res.body[0].name).to.equal("land");
           }).end(done);
     });
 });

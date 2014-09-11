@@ -28,4 +28,13 @@ describe('#all()', function() {
     });
 });
 
+describe('#getFromTypeOrLevel()', function() {
+    it('should get types from type or level name', function(done) {
+        Type.getFromTypeOrLevel(testName).then(function(types) {
+            expect(types[0].name).to.equal(testName);
+            expect(types[0].level).to.equal('land');
+        }).fin(done);
+    });
+});
+
 });

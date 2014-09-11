@@ -87,7 +87,7 @@ CREATE TABLE directives (
 
 CREATE TABLE levels (
     id serial NOT NULL,
-    name varchar(255) NOT NULL,
+    name varchar(25) NOT NULL,
     level int NOT NULL DEFAULT 0,
     created_at timestamp without time zone NOT NULL DEFAULT NOW(),
     updated_at timestamp without time zone NOT NULL DEFAULT NOW(),
@@ -97,7 +97,7 @@ CREATE TABLE levels (
 CREATE TABLE types (
     id serial NOT NULL,
     level_id int NOT NULL,
-    name varchar(255) NOT NULL,
+    name varchar(50) NOT NULL,
     color_1 varchar(255) DEFAULT '',
     color_2 varchar(255) DEFAULT '',
     created_at timestamp without time zone NOT NULL DEFAULT NOW(),

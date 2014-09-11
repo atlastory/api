@@ -11,10 +11,37 @@ exports.index = function(req, res) {
 
 // GET /levels/:id
 exports.show = function(req, res) {
-    var id = req.param("id");
-    Level.find(id).then(function(levels) {
+    var id = req.param("id"), level;
+
+    var find = isNaN(parseFloat(id)) ?
+        Level.where({ name: id }) :
+        Level.find(id);
+
+    find.then(function(levels) {
         if (!levels.length) return err.notFound(res)('Level '+id+' not found');
-        res.jsonp(levels[0]);
+        level = levels[0];
+        return level.types();
+    }).then(function(types) {
+        level = level.toJSON();
+        level.types = types;
+        res.jsonp(level);
+    }).fail(err.send(res));
+};
+
+// GET /levels/:id/types
+exports.types = function(req, res) {
+    var id = req.param("id");
+
+    var find = isNaN(parseFloat(id)) ?
+        Level.where({ name: id }) :
+        Level.find(id);
+
+    find.then(function(levels) {
+        if (!levels.length) return err.notFound(res)('Level '+id+' not found');
+        level = levels[0];
+        return Level.Type.where({ level_id: level.id }).run();
+    }).then(function(types) {
+        res.jsonp(types);
     }).fail(err.send(res));
 };
 

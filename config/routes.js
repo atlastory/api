@@ -29,6 +29,7 @@ function apiVersion1(v) {
     // Levels & Types
     resources(v + '/levels', 'level');
     resources(v + '/types', 'type');
+    match(v + '/levels/:id/types', 'level#types');
 
     // Sources
     resources(v + '/sources', 'source');

@@ -12,7 +12,12 @@ exports.index = function(req, res) {
 // GET /types/:id
 exports.show = function(req, res) {
     var id = req.param("id");
-    Type.find(id).then(function(types) {
+
+    var find = isNaN(parseFloat(id)) ?
+        Type.where({ name: id }) :
+        Type.find(id);
+
+    find.then(function(types) {
         if (!types.length) return err.notFound(res)('Type '+id+' not found');
         res.jsonp(types[0]);
     }).fail(err.send(res));
