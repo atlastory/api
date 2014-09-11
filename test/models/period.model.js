@@ -19,8 +19,7 @@ describe('#find()', function() {
             assert.equal(p.id, per);
             assert.equal(p.end_year, 2000);
             period = p;
-            done();
-        }).fail(done);
+        }).then(done,done);
     });
 });
 
@@ -35,8 +34,7 @@ describe('#importGeoJSON()', function() {
             return Changeset.get(cs).run();
         }).then(function(cs) {
             expect(cs.directives[0].data.name).to.equal('point');
-            done();
-        }).fail(done);
+        }).then(done,done);
     });
 });
 
@@ -46,8 +44,7 @@ describe('#getGeoJSON()', function() {
         Period.getGeoJSON(42, { type: 1 }).then(function(json) {
             expect(json.type).to.equal('FeatureCollection');
             expect(json.features[0].geometry).to.deep.equal(gj.point.features[0].geometry);
-            done();
-        }).fail(done);
+        }).then(done,done);
     });
 });
 
@@ -57,8 +54,7 @@ describe('#getTopoJSON()', function() {
         Period.getTopoJSON(per, { type: 1 }).then(function(json) {
             expect(json.type).to.equal('Topology');
             expect(json.bbox[0]).to.be.a('number');
-            done();
-        }).fail(done);
+        }).then(done,done);
     });
 });
 

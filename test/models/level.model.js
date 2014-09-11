@@ -16,7 +16,7 @@ describe('#find()', function() {
             res = res[0];
             expect(res.id).to.equal(testId);
             expect(res.name).to.equal(testName);
-        }).fin(done);
+        }).then(done,done);
     });
 });
 
@@ -24,7 +24,7 @@ describe('#all()', function() {
     it('should get all levels', function(done) {
         Level.all().then(function(levels) {
             expect(levels).to.not.be.empty;
-        }).fin(done);
+        }).then(done,done);
     });
 });
 

@@ -20,7 +20,7 @@ function apiVersion1(v) {
     match(v + '/periods/:pid/:type.:format(json|geojson|topojson)', 'period#shapes');
     match(v + '/geojson', 'period#geojson');
     match(v + '/topojson', 'period#topojson');
-    // match(v + '/year/:year/:type.:format(json|geojson|topojson)', 'period#date')
+    match(v + '/year/:year/:type.:format(json|geojson|topojson)', 'period#year');
 
     // /nodes/:id
     // /ways/:id

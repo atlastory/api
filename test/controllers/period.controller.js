@@ -140,6 +140,21 @@ describe('GET /periods/:pid/:type.:format', function() {
     });
 });
 
+describe('GET /year/:year/:type.:format', function() {
+    var year = gj.multiPolygon.features[0].properties.start_year + 2;
+    it('should get geojson with year, type', function(done) {
+        request.get('/year/'+year+'/land.geojson')
+          .set('Accept', 'application/json')
+          .expect('Content-Type', /json/)
+          .expect(200)
+          .expect(function(res) {
+            var shape = res.body.features[0];
+            expect(shape.type).to.equal("Feature");
+            expect(shape.properties.start_year).to.equal(year - 2);
+          }).end(done);
+    });
+});
+
 describe('GET /geojson', function() {
     it('should get geojson with type ID', function(done) {
         request.get('/geojson')

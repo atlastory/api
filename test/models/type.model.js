@@ -16,7 +16,7 @@ describe('#find()', function() {
             res = res[0];
             expect(res.id).to.equal(testId);
             expect(res.name).to.equal(testName);
-        }).fin(done);
+        }).then(done,done);
     });
 });
 
@@ -24,7 +24,7 @@ describe('#all()', function() {
     it('should get all types', function(done) {
         Type.all().then(function(types) {
             expect(types).to.not.be.empty;
-        }).fin(done);
+        }).then(done,done);
     });
 });
 
@@ -33,7 +33,7 @@ describe('#getFromTypeOrLevel()', function() {
         Type.getFromTypeOrLevel(testName).then(function(types) {
             expect(types[0].name).to.equal(testName);
             expect(types[0].level).to.equal('land');
-        }).fin(done);
+        }).then(done,done);
     });
 });
 

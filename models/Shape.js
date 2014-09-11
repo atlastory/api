@@ -83,11 +83,13 @@ Shape.getData = function(options, callback) {
      *
      * shapes    INT|INT[]  ||
      * changeset INT        ||
-     * period    INT
+     * period    INT        ||
+     * year      INT
      * type      INT|INT[]  (optional)
      */
      var shapes = options.shapes,
-        period = options.period,
+        period = parseFloat(options.period),
+        year = parseFloat(options.year),
         changeset = options.changeset,
         type = options.type;
 
@@ -95,7 +97,8 @@ Shape.getData = function(options, callback) {
 
     if (_.isNumber(shapes)) shapes = [shapes];
     if (shapes) where.push("id IN (:shapes)");
-    if (_.isNumber(period)) where.push(":period = ANY (periods)");
+    if (!isNaN(period)) where.push(":period = ANY (periods)");
+      else if (!isNaN(year)) where.push("start_year <= :year AND end_year > :year");
     if (_.isNumber(changeset)) where.push("id IN (SELECT object_id FROM directives WHERE changeset_id = :changeset AND object = 'shape')");
     if (_.isNumber(type)) type = [type];
     if (_.isArray(type)) {
@@ -108,6 +111,7 @@ Shape.getData = function(options, callback) {
     return Shape.where(where, {
         shapes: shapes ? [[shapes.join()]] : '',
         period: period,
+        year: year,
         changeset: changeset,
         type: type
     }).nodeify(callback);
@@ -118,13 +122,15 @@ Shape.getNodes = function(options, callback) {
      *
      * shapes    INT|INT[]  ||
      * changeset INT        ||
-     * period    INT
+     * period    INT        ||
+     * year      INT
      * type      INT|INT[]  (optional)
      * box       ARRAY      [west, south, east, north]
      */
     var queue = pg.queue(),
         shapes = options.shapes,
-        period = options.period,
+        period = parseFloat(options.period),
+        year = parseFloat(options.year),
         changeset = options.changeset,
         box = options.box;
 
@@ -163,15 +169,18 @@ Shape.getNodes = function(options, callback) {
         where += "IN (:shapes) ";
     else if (typeof changeset === 'number')
         where += "IN (SELECT object_id FROM directives WHERE changeset_id = :changeset AND object = 'shape') ";
-    else if (typeof period === 'number') {
+    else if (!isNaN(period)) {
         if (getType) where += "IN (SELECT id FROM shapes WHERE :period = ANY (periods) AND type_id IN (:type)) ";
         else         where += "IN (SELECT id FROM shapes WHERE :period = ANY (periods)) ";
+    } else if (!isNaN(year)) {
+        if (getType) where += "IN (SELECT id FROM shapes WHERE start_year <= :year AND end_year > :year AND type_id IN (:type)) ";
+        else         where += "IN (SELECT id FROM shapes WHERE start_year <= :year AND end_year > :year) ";
     } else {
-        if (callback) return callback("getNodes needs shapes, changeset, or period ID");
-        return queue.throw(util.err("getNodes needs shapes, changeset, or period ID"));
+        if (callback) return callback("getNodes needs shapes, changeset, year, or period ID");
+        return queue.throw(util.err("getNodes needs shapes, changeset, year, or period ID"));
     }
 
-    if (typeof period !== 'number' && getType) where += "shape_relations.shape_id IN (SELECT id FROM shapes WHERE type_id IN (:type)) ";
+    if (isNaN(period) && isNaN(year) && getType) where += "shape_relations.shape_id IN (SELECT id FROM shapes WHERE type_id IN (:type)) ";
 
     if (Array.isArray(box)) where += ' AND ' + boxq;
     else box = [];
@@ -181,6 +190,7 @@ Shape.getNodes = function(options, callback) {
     return queue.add(query, {
         shapes: shapes ? [[shapes.join()]] : '',
         period: period,
+        year: year,
         changeset: changeset,
         type: type,
         west: box[0], south: box[1],

@@ -93,7 +93,12 @@ exports.multiPolygon = {
     "features": [
         {
             "type": "Feature",
-            "properties": { "name": "multi poly", "a": 55 },
+            "properties": {
+                "name": "multi poly",
+                "a": 55,
+                "start_year": 1986,
+                "end_year": 2014
+            },
             "geometry": {
                 "type": "MultiPolygon",
                 "coordinates": [[[[6.6,6.6],[7.7,7.7],[6.6,2.2],[6.6,6.6]], [[1.1, 1.1],[2.2,2.2],[2.2,0.54321],[1.1,1.1]]],[[[6.6,6.6],[7.7,7.7],[7.7,2],[6.6,6.6]]]]

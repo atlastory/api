@@ -22,7 +22,7 @@ describe('#create()', function() {
             var id = parseFloat(shapes[0].id);
             expect(id).to.be.a("number");
             shape = id;
-        }).fin(done);
+        }).then(done,done);
     });
 });
 
@@ -33,7 +33,7 @@ describe('#find()', function() {
             expect(s.data.name).to.equal('Test');
             expect(s.tags[0]).to.equal(12);
             expect(s.data.country).to.equal('Spain');
-        }).fin(done);
+        }).then(done,done);
     });
 });
 
@@ -42,7 +42,9 @@ describe('#connect()', function() {
         Shape.connect(shape, [
             {type: 'Node', id: 1}, {type: 'Node', id: 2},
             {type: 'Way', id: 1}
-        ]).fin(done);
+        ]).then(function(res) {
+            //
+        }).then(done,done);
     });
 });
 
@@ -51,7 +53,7 @@ describe('#get()', function() {
         Shape.get(shape).then(function(s) {
             expect(s.properties.end_year).to.equal(1492);
             expect(s.objects[0].type).to.equal('Node');
-        }).fin(done);
+        }).then(done,done);
     });
 });
 
@@ -60,7 +62,7 @@ describe('#getNodes()', function() {
         Shape.getNodes({ period: 1 }).then(function(nodes) {
             expect(nodes).to.have.length.above(0);
             expect(nodes[0]).to.have.property('seq1');
-        }).fin(done);
+        }).then(done,done);
     });
 
     it('should get nodes for shapes in types', function(done) {
@@ -69,7 +71,16 @@ describe('#getNodes()', function() {
             expect(nodes[0]).to.have.property('shape');
             expect(nodes[0]).to.have.property('role');
             expect(nodes[0]).to.have.property('seq1');
-        }).fin(done);
+        }).then(done,done);
+    });
+
+    it('should get nodes for shapes in a year', function(done) {
+        Shape.getNodes({ year: 1491, type: [1] }).then(function(nodes) {
+            expect(nodes).to.have.length.above(0);
+            expect(nodes[0]).to.have.property('shape');
+            expect(nodes[0]).to.have.property('role');
+            expect(nodes[0]).to.have.property('seq1');
+        }).then(done,done);
     });
 });
 

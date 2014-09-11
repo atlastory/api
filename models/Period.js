@@ -55,3 +55,5 @@ Period.getTopoJSON = function(id, options) {
 Period.addMethod('getTopoJSON', function(options) {
     return Period.getTopoJSON(this.id, options);
 });
+
+// TODO: getShapeData
