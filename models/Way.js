@@ -4,11 +4,7 @@ var _ = require('lodash'),
 
 
 var Way = module.exports = pg.model("ways", {
-    map: true,
-    schema: {
-        created_at: Date
-    },
-    getters: {}
+    schema: { created_at: Date }
 });
 
 Way.Node = pg.model("way_nodes", {
@@ -25,7 +21,13 @@ Way.addQueryMethod('getNodes', function(wayId) {
     return this._replace(q, { wayId: wayId });
 });
 
-// Creates a new way with nodes
+/**
+ * Creates a new way with nodes
+ * @param {array}  coords An array of coordinates [lon, lat]
+ * @param {object} data   Any data that should be passed on to nodes
+ * @callback callback
+ * @returns {array} Array of WayNodes (way, node, sequence)
+ */
 Way.create = function(coords, data, callback) {
     var wayData;
 
@@ -50,25 +52,16 @@ Way.create = function(coords, data, callback) {
     }).nodeify(callback);
 };
 
-// Connects a way with nodes (nodes must be created first)
-Way.addQueryMethod('connectNodes', function(wayId, nodes) {
-    return Way.Node.insert(nodes.map(function(node, i) {
-        return {
-            node_id: node,
-            way_id: wayId,
-            sequence_id: i
-        };
-    }));
-});
-
+/**
+ * Adds new or existing nodes into way (must be sequential)
+ * @param {number} wayId    ID of Way to add to
+ * @param {number} position Postion of nodes in sequence
+ * @param {(num[]|object[])} nodes  Array of node IDs or objects (new nodes) to add
+ * @returns {array} Array of WayNodes (way, node, sequence)
+ */
 Way.addQueryMethod('addNodes', function(wayId, position, nodes) {
-    /* Adds new or existing nodes into way (must be sequential)
-     *
-     * wayId     INT
-     * position  INT  postion of nodes in sequence
-     * nodes     INT[] {}[] array of nodes ids or objects to add
-     */
-    if (!_.isNumber(wayId) || !_.isNumber(position)) return new Error('way#addNodes: Invalid way ID or position');
+    position = parseFloat(position || 0);
+    if (isNaN(position)) return util.err('Position is not a number','adding nodes');
     if (!_.isArray(nodes)) nodes = [nodes];
 
     var esc = pg.engine.escape;
@@ -89,10 +82,10 @@ Way.addQueryMethod('addNodes', function(wayId, position, nodes) {
             way_id: wayId,
             node_id: [[n]],
             sequence_id: position + i
-        }
+        };
     });
 
-    var queue = pg.queue()
+    return pg.queue()
         .add(Way.Node.update({
             sequence_id: [['sequence_id + ' + nodes.length]]
         }).where('way_id = :way AND sequence_id >= :seq', {
@@ -100,20 +93,21 @@ Way.addQueryMethod('addNodes', function(wayId, position, nodes) {
             seq: position
         }))
         .add(Way.Node.insert(nodes).returning('*'));
-
-    return queue;
 }, function(wayNode) {
     return {
-        way_id: parseFloat(wayNode.way_id),
-        node_id: parseFloat(wayNode.node_id),
+        way_id: wayNode.way_id,
+        node_id: wayNode.node_id,
         sequence_id: parseFloat(wayNode.sequence_id)
     };
 });
 
-// Removes nodes from way (must be sequential)
+/**
+ * Removes nodes from way (must be sequential)
+ * @param {number} wayId
+ * @param {number[]} nodeIds Array of node IDs to remove
+ */
 Way.addQueryMethod('removeNodes', function(wayId, nodeIds) {
     if (!_.isArray(nodeIds)) nodeIds = [nodeIds];
-    nodeIds = nodeIds.map(function(n) { return parseFloat(n); });
 
     var sequence = _.uniqueId('way_seq_'),
         queue = pg.queue()
@@ -126,9 +120,20 @@ Way.addQueryMethod('removeNodes', function(wayId, nodeIds) {
             "(SELECT node_id FROM way_nodes WHERE way_id = :way ORDER BY sequence_id) AS sub" +
         ") AS new_table WHERE " +
         "way_nodes.way_id = :way AND " +
-        "way_nodes.node_id = new_table.node_id"
-    , { way: wayId, seq: sequence })
+        "way_nodes.node_id = new_table.node_id",
+        { way: wayId, seq: sequence })
       .add('DROP SEQUENCE ' + sequence);
 
     return queue;
+});
+
+// Connects a way with nodes (nodes must be created first)
+Way.addQueryMethod('connectNodes', function(wayId, nodes) {
+    return Way.Node.insert(nodes.map(function(node, i) {
+        return {
+            node_id: node,
+            way_id: wayId,
+            sequence_id: i
+        };
+    }));
 });

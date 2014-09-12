@@ -1,5 +1,5 @@
 process.env.TEST = 'true';
-;
+
 var expect = require('chai').expect;
 
 // Make sure import is run before export

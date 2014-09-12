@@ -32,12 +32,15 @@ Period.addMethod('importGeoJSON', function(options) {
     return Period.importGeoJSON(this.id, options);
 });
 
+/**
+ * Get's GeoJSON for a period/type
+ * @param {number} id Period ID
+ * @param {object}   options
+ *        {number[]} .type   Type ID
+ *        {number[]} [.bbox] (west, south, east, north)
+ *        {number}   [.zoom] zoom level
+ */
 Period.getGeoJSON = function(id, options) {
-    /* Get's GeoJSON for a period/layer
-     * type   INT[]  type ID
-     * bbox   INT[]  [west, south, east, north] (optional)
-     * zoom   INT    zoom level                 (optional)
-     */
      options.period = id;
      return geojson.export(options);
 };
@@ -46,6 +49,7 @@ Period.addMethod('getGeoJSON', function(options) {
     return Period.getGeoJSON(this.id, options);
 });
 
+// Gets TopoJSON for a period/type (same options as GeoJSON)
 Period.getTopoJSON = function(id, options) {
     return this.getGeoJSON(id, options).then(function(geojson) {
         return util.convertTopoJSON(geojson);

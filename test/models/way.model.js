@@ -14,7 +14,7 @@ describe('#create()', function() {
     it('should create a Way with nodes', function(done) {
         Way.create(coords, { created_at: new Date(), error: 5 }, function(err, nodes) {
             assert.ifError(err);
-            assert(typeof nodes[0].way_id === 'number');
+            assert(typeof nodes[0].way_id === 'string');
             wayId = nodes[0].way_id;
             done();
         });
@@ -59,10 +59,7 @@ describe('#addNodes()', function() {
             node2 = nodes[2].id;
             assert.equal(nodes[1].latitude, -3);
             assert.equal(nodes[2].latitude, -2);
-            return done();
-        }).fail(function(err) {
-            assert.ifError(err);
-        });
+        }).then(done, done);
     });
 });
 
@@ -73,11 +70,7 @@ describe('#removeNodes()', function() {
         }).then(function(nodes) {
             assert.equal(nodes.length, coords.length);
             assert.equal(nodes[1].latitude, coords[1][1]);
-            return done();
-        }).fail(function(err) {
-            assert.ifError(err);
-            done();
-        });
+        }).then(done, done);
     });
 });
 
