@@ -13,6 +13,12 @@ module.exports = {
       geometry: [6.2, 9.8],
       data: { source_id: 3 }
     },
+    badNode: {
+      action: 'add',
+      object: 'node',
+      object_id: 'n-1',
+      geometry: [190, -90]
+    },
     way1: {
       action: 'add',
       object: 'way',
@@ -28,6 +34,19 @@ module.exports = {
       shape_relations: ['0-Way-outer-w-1','1-Way-inner-239283']
     }
   },
-  edit: {},
-  delete: {}
+  edit: {
+    node1: {
+      action: 'edit',
+      object: 'node',
+      object_id: '1',
+      geometry: [15, 22]
+    }
+  },
+  delete: {
+    node1: {
+      action: 'delete',
+      object: 'node',
+      object_id: '1'
+    }
+  }
 };
