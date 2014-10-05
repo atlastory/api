@@ -1,7 +1,8 @@
-var pg = require('../services/db').pg,
-    async = require('async'),
+var Q = require('q'),
+    pg = require('../services/db').pg,
     _ = require('lodash'),
-    util = require('../lib/utilities');
+    util = require('../lib/utilities'),
+    err = util.Err;
 
 
 var Changeset = module.exports = pg.model("changesets", {
@@ -13,35 +14,33 @@ var Changeset = module.exports = pg.model("changesets", {
 });
 var Directive = Changeset.Directive = require('./Directive');
 
-Changeset.get = function(id, callback) {
-    async.parallel({ changeset: function(end) {
-        Changeset.find(id, end);
-    }, directives: function(end) {
-        Directive.where({ changeset_id: id }, end);
-    } }, function(err, res) {
-        if (err) return callback(util.err(err, 'getting changeset'));
-        if (!res.changeset.length) return callback(null, null);
-        callback(null, {
+Changeset.get = function(id) {
+    return Q.all([
+        Changeset.find(id),
+        Directive.changeset(id)
+    ]).then(function(res) {
+        if (!res[0].length) return null;
+        return {
             id: id,
-            user_id: res.changeset[0].user_id,
-            message: res.changeset[0].message,
-            directives: res.directives,
-            created_at: res.changeset[0].created_at
-        });
+            user_id: res[0][0].user_id,
+            message: res[0][0].message,
+            directives: res[1].map(function(d) { return d.toJSON(); }),
+            created_at: res[0][0].created_at
+        };
     });
 };
-Changeset.get = util.addPromisesTo(Changeset.get);
 
-Changeset.create = function(changeset, callback) {
+Changeset.create = function(changeset) {
     var directives = changeset.directives || [];
     changeset = _.pick(changeset, _.keys(Changeset._schema));
 
-    if (!changeset.user_id) return callback('changeset needs user ID');
+    if (!changeset.user_id) return Q.reject(new Error('changeset needs user ID'));
 
-    Changeset.insert(changeset, function(err, cs) {
-        if (err) return callback(util.err(err, "creating changeset"));
-        Directive.create(parseFloat(cs[0].id), directives, callback);
-    });
+    var csId;
+    return Changeset.insert(changeset).then(function(cs) {
+        csId = cs[0].id;
+        return Directive.create(csId, directives);
+    }).then(function() {
+        return csId;
+    }).catch(err.catch('creating changeset'));
 };
-Changeset.create = util.addPromisesTo(Changeset.create);
-

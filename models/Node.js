@@ -18,12 +18,9 @@ var Node = module.exports = pg.model("nodes", {
 
 // Creates nodes in DB
 Node._create = Node.create;
-Node.create = function(coords, data, callback) {
+Node.create = function(coords, data) {
     if (typeof coords[1] === 'number') coords = [coords];
-    if (typeof data === 'function') {
-        callback = data;
-        data = {};
-    }
+    data = data || {};
     data = _.pick(data, _.keys(Node._schema));
 
     var nodes = _.compact(coords.map(function(coord) {
@@ -34,10 +31,10 @@ Node.create = function(coords, data, callback) {
         });
     }));
 
-    if (!nodes.length) return Q([]).nodeify(callback);
+    if (!nodes.length) return Q([]);
     return Node.insert(nodes).then(function(nodes) {
         return nodes.map(function(n) {
             return { id: n.id };
         });
-    }).nodeify(callback);
+    });
 };

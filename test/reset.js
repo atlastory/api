@@ -11,7 +11,7 @@ describe('reset', function() {
     it('should reset the database', function(done) {
         fs.readFile(path.resolve('./db/postgres.sql'), function(err, sql) {
             if (err) throw err;
-            pg.query(sql+'', done);
+            pg.query(sql+'').fin(done);
         });
     });
 });

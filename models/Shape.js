@@ -1,7 +1,7 @@
 var _ = require('lodash'),
     pg = require('../services/db').pg,
     util = require('../lib/utilities'),
-    async = require('async'),
+    err = util.Err,
     hstore = require('hstore.js'),
     Q = require('q');
 
@@ -61,44 +61,35 @@ var cleanShapeData = Shape.cleanShapeData = function(data) {
 };
 
 // Gets a single shape with associated nodes/ways
-Shape.get = function(id, callback) {
-    var d = Q.defer();
+Shape.get = function(id) {
     var shape = {};
-    id = parseFloat(id);
-    if (isNaN(id)) return Q.reject(util.err('ID must be a number','getting shape'));
+    if (!util.isBigint(id)) return Q.reject(util.err('ID must be a number','getting shape'));
 
-    async.parallel({ properties: function(cb) {
-        Shape.find(id, cb);
-    }, objects: function(cb) {
-        Shape.getRelations(id, cb);
-    }}, function(err, res) {
-        if (err) return d.reject(util.err(err,'getting shape'));
-        shape.properties = res.properties[0].toJSON();
-        shape.objects = res.objects.map(function(rel) {
-            return {
-                type: rel.relation_type,
-                id: rel.relation_id,
-                role: rel.relation_role,
-                sequence: rel.sequence_id
-            };
-        });
-        d.resolve(shape);
-    });
-
-    return d.promise.nodeify(callback);
+    return Q.all([
+        Shape.find(id),
+        Shape.getRelations(id)
+    ]).then(function(res) {
+        return {
+            properties: res[0][0].toJSON(),
+            objects: res[1].map(function(rel) {
+                return {
+                    type: rel.relation_type,
+                    id: rel.relation_id,
+                    role: rel.relation_role,
+                    sequence: rel.sequence_id
+                };
+            })
+        };
+    }).catch(err.catch('getting shape'));
 };
 
-Shape.inChangeset = function(id, callback) {
-    Directive.where({
+Shape.inChangeset = function(id) {
+    return Directive.select('object_id').where({
         changeset_id: id,
         object: 'shape'
-    }).select('object_id', function(err, ids) {
-        if (err) callback('Error getting changeset shapes: '+err);
-        else if (ids.length === 0) callback(null, []);
-        else async.map(ids, function(directive, next) {
-            Shape.get(directive.object_id, next);
-        }, callback);
-    });
+    }).then(util.mapPromise(function(directive) {
+        return Shape.get(directive.object_id);
+    }));
 };
 
 Shape.getRelations = function(id, callback) {
@@ -116,9 +107,9 @@ Shape.getRelations = function(id, callback) {
  *        {(num|num[])} [.type]    Type ID(s)
  * @returns {array} Array of objects, each with shape data
  */
-Shape.getData = function(options, callback) {
+Shape.getData = function(options) {
      var shapes = options.shapes,
-        period = parseFloat(options.period),
+        period = options.period,
         year = parseFloat(options.year),
         changeset = options.changeset,
         type = options.type;
@@ -127,7 +118,7 @@ Shape.getData = function(options, callback) {
 
     if (_.isNumber(shapes)) shapes = [shapes];
     if (shapes) where.push("id IN (:shapes)");
-    if (!isNaN(period)) where.push(":period = ANY (periods)");
+    if (util.isBigint(period)) where.push(":period = ANY (periods)");
       else if (!isNaN(year)) where.push("start_year <= :year AND end_year > :year");
     if (_.isNumber(changeset)) where.push("id IN (SELECT object_id FROM directives WHERE changeset_id = :changeset AND object = 'shape')");
     if (_.isNumber(type)) type = [type];
@@ -144,7 +135,7 @@ Shape.getData = function(options, callback) {
         year: year,
         changeset: changeset,
         type: type
-    }).nodeify(callback);
+    });
 };
 
 /**
@@ -158,10 +149,10 @@ Shape.getData = function(options, callback) {
  *        {number[]}    [.bbox]    Bounding box (west, south, east, north)
  * @returns {array} Array of objects, each with shape data
  */
-Shape.getNodes = function(options, callback) {
+Shape.getNodes = function(options) {
     var queue = pg.queue(),
         shapes = options.shapes,
-        period = parseFloat(options.period),
+        period = options.period,
         year = parseFloat(options.year),
         changeset = options.changeset,
         bbox = options.bbox;
@@ -200,17 +191,16 @@ Shape.getNodes = function(options, callback) {
 
     if (Array.isArray(shapes)) {
         where += "IN (:shapes) ";
-    } else if (typeof changeset === 'number') {
+    } else if (util.isBigint(changeset)) {
         where += "IN (SELECT object_id FROM directives WHERE changeset_id = :changeset AND object = 'shape') ";
-    } else if (!isNaN(period)) {
+    } else if (util.isBigint(period)) {
         if (getType) where += "IN (SELECT id FROM shapes WHERE :period = ANY (periods) AND type_id IN (:type)) ";
         else         where += "IN (SELECT id FROM shapes WHERE :period = ANY (periods)) ";
     } else if (!isNaN(year)) {
         if (getType) where += "IN (SELECT id FROM shapes WHERE start_year <= :year AND end_year > :year AND type_id IN (:type)) ";
         else         where += "IN (SELECT id FROM shapes WHERE start_year <= :year AND end_year > :year) ";
     } else {
-        if (callback) return callback("getNodes needs shapes, changeset, year, or period ID");
-        return queue.throw(util.err("getNodes needs shapes, changeset, year, or period ID"));
+        return Q.reject(util.err("getNodes needs shapes, changeset, year, or period ID"));
     }
 
     if (isNaN(period) && isNaN(year) && getType) where += "shape_relations.shape_id IN (SELECT id FROM shapes WHERE type_id IN (:type)) ";
@@ -228,18 +218,17 @@ Shape.getNodes = function(options, callback) {
         type: type,
         west: bbox[0], south: bbox[1],
         east: bbox[2], north: bbox[3]
-    }).nodeify(callback);
+    }).run();
 };
 
-Shape.create = function(data, callback) {
+Shape.create = function(data) {
     data = cleanShapeData(data);
-
-    return this.returning("id").insert(data).nodeify(callback);
+    return this.returning("id").insert(data);
 };
 
 // Connects a shape with current nodes/ways/shapes
 // (nodes must be created first)
-Shape.connect = function(shapeId, relations, callback) {
+Shape.connect = function(shapeId, relations) {
     var rels = [],
         i = 0;
 
@@ -258,13 +247,13 @@ Shape.connect = function(shapeId, relations, callback) {
 
     return Shape.Relation.insert(rels).then(function(res) {
         return shapeId;
-    }).nodeify(callback);
+    });
 };
 
-Shape.finish = function(data, relations, callback) {
+Shape.finish = function(data, relations) {
     return Shape.create(data).then(function(shapes) {
-        var id = parseFloat(shapes[0].id);
+        var id = shapes[0].id;
         return Shape.connect(id, relations);
-    }).nodeify(callback);
+    });
 };
 

@@ -12,38 +12,32 @@ this.timeout(4000);
 
 describe('#create()', function() {
     it('should create a Way with nodes', function(done) {
-        Way.create(coords, { created_at: new Date(), error: 5 }, function(err, nodes) {
-            assert.ifError(err);
+        Way.create(coords, { created_at: new Date(), error: 5 })
+        .then(function(nodes) {
             assert(typeof nodes[0].way_id === 'string');
             wayId = nodes[0].way_id;
-            done();
-        });
+        }).then(done, done);
     });
 });
 
 describe('#getNodes()', function() {
     it('should get nodes from way', function(done) {
-        Way.getNodes(wayId, function(err, nodes) {
-            assert.ifError(err);
+        Way.getNodes(wayId).then(function(nodes) {
             assert.equal(nodes[0].longitude, coords[0][0]);
             assert.equal(nodes[3].longitude, coords[3][0]);
-            done();
-        });
+        }).then(done, done);
     });
 });
 
 describe('#find()', function() {
     it('should find a way with way_nodes', function(done) {
-        Way.find(wayId, function(err, n) {
-            assert.ifError(err);
+        Way.find(wayId).then(function(n) {
             assert.equal(n[0].id, wayId);
-            Way.getNodes(wayId, function(err, nodes) {
-                assert.ifError(err);
-                assert.equal(nodes[0].longitude, coords[0][0]);
-                assert.equal(nodes[2].longitude, coords[2][0]);
-                done();
-            });
-        });
+            return Way.getNodes(wayId);
+        }).then(function(nodes) {
+            assert.equal(nodes[0].longitude, coords[0][0]);
+            assert.equal(nodes[2].longitude, coords[2][0]);
+        }).then(done, done);
     });
 });
 
@@ -52,8 +46,8 @@ describe('#addNodes()', function() {
         Way.addNodes(wayId, 1, [
             { longitude: 5, latitude: -3 },
             { longitude: 4, latitude: -2 }
-        ]).run().then(function(wayNodes) {
-            return Way.getNodes(wayId).run();
+        ]).then(function(wayNodes) {
+            return Way.getNodes(wayId);
         }).then(function(nodes) {
             node1 = nodes[1].id;
             node2 = nodes[2].id;
@@ -65,8 +59,9 @@ describe('#addNodes()', function() {
 
 describe('#removeNodes()', function() {
     it('should remove nodes from way', function(done) {
-        Way.removeNodes(wayId, [node1, node2]).run().then(function(wayNodes) {
-            return Way.getNodes(wayId).run();
+        Way.removeNodes(wayId, [node1, node2])
+        .then(function(wayNodes) {
+            return Way.getNodes(wayId);
         }).then(function(nodes) {
             assert.equal(nodes.length, coords.length);
             assert.equal(nodes[1].latitude, coords[1][1]);

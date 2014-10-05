@@ -1,10 +1,11 @@
 {
     "name": "atlastory-api",
     "version": "0.1.1",
-    "private": true,
-    "author": {
-        "name": "Atlastory, Inc.",
-        "url": "http://www.atlastory.com/"
+    "homepage": "http://www.atlastory.com/",
+    "description": "An API for historic map data",
+    "directories": {
+        "doc": "docs",
+        "test": "test"
     },
     "repository": {
         "type": "git",
@@ -12,7 +13,8 @@
     },
     "scripts": {
         "start": "node app",
-        "test": "mocha --reporter list --bail ./test/reset.js ./test/models/*.js ./test/*.js ./test/*/**.js"
+        "test": "mocha --reporter list --bail ./test/reset.js ./test/models/*.js ./test/*.js ./test/*/**.js",
+        "env": "for x in $(cat .env); do export $x; done"
     },
     "devDependencies": {
         "mocha": "~1.20.1",
@@ -33,7 +35,7 @@
         "async": "*",
         "q": "~1.0.1",
         "grand-central-junction": "*",
-        "grand-central-records": "~0.1.5",
+        "grand-central-records": "0.5.0",
         "mysql": "~2.0.0-alpha8",
         "pg": "~2.0.0",
 
@@ -41,5 +43,19 @@
         "markdown": "*",
         "hstore.js": "~0.1.0",
         "geojsonhint": "~0.3.1"
-    }
+    },
+    "keywords": [
+        "maps",
+        "history",
+        "atlastory"
+    ],
+    "bugs": {
+        "url": "https://github.com/atlastory/api/issues"
+    },
+    "license": "",
+    "author": {
+        "name": "Atlastory, Inc.",
+        "url": "http://www.atlastory.com/"
+    },
+    "contributors": []
 }

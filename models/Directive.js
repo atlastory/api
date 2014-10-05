@@ -62,11 +62,11 @@ function parseJSON(col, empty) {
     };
 }
 
-Directive.changeset = function(id, callback) {
-    return this.where({ changeset_id: id }, callback);
-};
+Directive.addQueryMethod("changeset", function(id) {
+    return Directive.where({ changeset_id: id });
+});
 
-Directive.create = function(id, directives, callback) {
+Directive._parseDirectives = function(id, directives) {
     var now = new Date();
 
     if (!Array.isArray(directives)) directives = [directives];
@@ -76,7 +76,7 @@ Directive.create = function(id, directives, callback) {
         return d;
     }
 
-    directives = directives.map(function(d) {
+    return directives.map(function(d) {
         if (d.toJSON) d = d.toJSON();
         d.action = d.action.toLowerCase();
         d.object = d.object.toLowerCase();
@@ -88,15 +88,13 @@ Directive.create = function(id, directives, callback) {
         d = stringify(d, 'shape_relations');
         return d;
     });
-
-    if (!callback) return Directive.insert(directives);
-    return Directive.insert(directives, function(err, res) {
-        if (err || !Array.isArray(res)) callback(err);
-        else callback(null, id, res.map(function(r) {
-            return parseFloat(r.id);
-        }));
-    });
 };
+
+Directive.addQueryMethod("create", function(id, directives) {
+    return Directive.insert(Directive._parseDirectives(id, directives));
+}, function(directive) {
+    return directive.id;
+});
 
 // Gets all directives for a type
 // Directive.getType

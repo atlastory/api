@@ -25,16 +25,11 @@ Way.addQueryMethod('getNodes', function(wayId) {
  * Creates a new way with nodes
  * @param {array}  coords An array of coordinates [lon, lat]
  * @param {object} data   Any data that should be passed on to nodes
- * @callback callback
  * @returns {array} Array of WayNodes (way, node, sequence)
  */
-Way.create = function(coords, data, callback) {
+Way.create = function(coords, data) {
     var wayData;
-
-    if (typeof data === 'function') {
-        callback = data;
-        data = {};
-    }
+    data = data || {};
 
     wayData = _.pick(data, _.keys(Way._schema));
     coords = coords.map(function(coord) {
@@ -49,7 +44,7 @@ Way.create = function(coords, data, callback) {
     return Way.insert(_.extend(wayData, { id: [['DEFAULT']] })).returning('id')
     .then(function(ways) {
         return Way.addNodes(parseFloat(ways[0].id), 0, coords);
-    }).nodeify(callback);
+    });
 };
 
 /**

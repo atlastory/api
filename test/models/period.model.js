@@ -30,8 +30,8 @@ describe('#importGeoJSON()', function() {
             geojson: gj.point,
             user: 1, type: 1
         }).then(function(cs) {
-            expect(cs).to.be.a('number');
-            return Changeset.get(cs).run();
+            expect(cs).to.be.a('string');
+            return Changeset.get(cs);
         }).then(function(cs) {
             expect(cs.directives[0].data.name).to.equal('point');
         }).then(done,done);
@@ -51,7 +51,8 @@ describe('#getGeoJSON()', function() {
 describe('#getTopoJSON()', function() {
     this.timeout(6000);
     it('should get a TopoJSON', function(done) {
-        Period.getTopoJSON(per, { type: 1 }).then(function(json) {
+        Period.getTopoJSON(per, { type: 1 })
+        .then(function(json) {
             expect(json.type).to.equal('Topology');
             expect(json.bbox[0]).to.be.a('number');
         }).then(done,done);

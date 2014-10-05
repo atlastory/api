@@ -3,6 +3,7 @@ process.env.TEST = 'true';
 var assert = require('assert');
 var expect = require('chai').expect;
 var Shape = require('../../models/Shape');
+var Changeset = require('../../models/Changeset');
 
 var shape;
 
@@ -19,8 +20,8 @@ describe('#create()', function() {
             tags: [12],
             country: 'Spain'
         }).then(function(shapes) {
-            var id = parseFloat(shapes[0].id);
-            expect(id).to.be.a("number");
+            var id = shapes[0].id;
+            expect(id).to.be.a("string");
             shape = id;
         }).then(done,done);
     });
@@ -53,6 +54,23 @@ describe('#get()', function() {
         Shape.get(shape).then(function(s) {
             expect(s.properties.end_year).to.equal(1492);
             expect(s.objects[0].type).to.equal('Node');
+        }).then(done,done);
+    });
+});
+
+describe('#inChangeset()', function() {
+    it('should get a shapes in a changeset', function(done) {
+        Changeset.create({
+            user_id: 1,
+            directives: [{
+                action: 'add',
+                object: 'shape',
+                object_id: shape
+            }]
+        }).then(function(cs) {
+            return Shape.inChangeset(cs);
+        }).then(function(shapes) {
+            expect(shapes[0].properties.end_year).to.equal(1492);
         }).then(done,done);
     });
 });
