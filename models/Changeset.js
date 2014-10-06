@@ -1,87 +1,46 @@
-var postgis = require('../lib/postgis'),
-    db = require('../db/db'),
-    util = require('../lib/utilities');
+var Q = require('q'),
+    pg = require('../services/db').pg,
+    _ = require('lodash'),
+    util = require('../lib/utilities'),
+    err = util.Err;
 
 
-var Changeset = module.exports = db.pg.model("changesets", {
-    map: true,
+var Changeset = module.exports = pg.model("changesets", {
     schema: {
-        changeset: { type: String, allowNull: false },
-        user_id:    Number,
-        action: { type: String, allowNull: false },
-        object:     String,
-        map: { type: Number, default: 1 },
-        layer:      Number,
-        period:     Number,
-        shape:      Number,
-        data:       String,
-        data_old:   String,
-        type:       String,
-        geom_diff:  String,
+        user_id:    { type: Number, allowNull: false },
+        message:    String,
         created_at: Date
-    },
-    // Remove '\' on strings to allow JSON.parse
-    getters: {
-        data: function() {
-            if (this.data) return this.data.replace(/\\/g,'');
-        },
-        data_old: function() {
-            if (this.data_old) return this.data_old.replace(/\\/g,'');
-        },
-        type: function() {
-            if (this.type) return this.type.replace(/\\/g,'');
-        }
-    },
-    methods: {
-        toString: function() {
-            return [
-                this.action,
-                this.object,
-                'm' + (this.map || 'X'),
-                'l' + (this.layer || 'X'),
-                'p' + (this.period || 'X'),
-                's' + (this.shape || 'X')
-            ].join(' ');
-        }
     }
 });
+var Directive = Changeset.Directive = require('./Directive');
 
-Changeset.get = function(id, callback) {
-    return this.where({ changeset: id }, callback);
+Changeset.get = function(id) {
+    return Q.all([
+        Changeset.find(id),
+        Directive.changeset(id)
+    ]).then(function(res) {
+        if (!res[0].length) return null;
+        return {
+            id: id,
+            user_id: res[0][0].user_id,
+            message: res[0][0].message,
+            directives: res[1].map(function(d) { return d.toJSON(); }),
+            created_at: res[0][0].created_at
+        };
+    });
 };
 
-Changeset.create = function(directives, id, callback) {
-    var now = new Date(),
-        hash = id;
+Changeset.create = function(changeset) {
+    var directives = changeset.directives || [];
+    changeset = _.pick(changeset, _.keys(Changeset._schema));
 
-    // If no id, create one
-    if (typeof id === 'function') callback = id;
-    if (!id || typeof id === 'function') hash = util.createHash();
-    if (!Array.isArray(directives)) directives = [directives];
+    if (!changeset.user_id) return Q.reject(new Error('changeset needs user ID'));
 
-    directives.forEach(function(d) {
-        if (d.toJSON) d = d.toJSON();
-        d.changeset = hash;
-        d.created_at = now;
-        db.pg.queue(Changeset.insert(d));
-    });
-
-    // Callback returns hash ID of Changeset
-    if (directives.length) db.pg.run(function(err, res) {
-        if (err || !Array.isArray(res)) callback(err);
-        else callback(null, hash);
-    });
-    else callback(null, hash);
+    var csId;
+    return Changeset.insert(changeset).then(function(cs) {
+        csId = cs[0].id;
+        return Directive.create(csId, directives);
+    }).then(function() {
+        return csId;
+    }).catch(err.catch('creating changeset'));
 };
-
-// Gets all directives for a layer
-// Changeset.getLayer
-
-// Gets all directives for a shape
-// Changeset.getShape
-
-// TODO: Checks directive if it's the most recent change
-Changeset.addMethod('checkConflict', function(callback) {
-    this.inConflict = false;
-    callback(null, this);
-});

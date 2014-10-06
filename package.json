@@ -1,10 +1,11 @@
 {
     "name": "atlastory-api",
-    "version": "0.0.5",
-    "private": true,
-    "author": {
-        "name": "Atlastory, Inc.",
-        "url": "http://www.atlastory.com/"
+    "version": "0.1.1",
+    "homepage": "http://www.atlastory.com/",
+    "description": "An API for historic map data",
+    "directories": {
+        "doc": "docs",
+        "test": "test"
     },
     "repository": {
         "type": "git",
@@ -12,24 +13,47 @@
     },
     "scripts": {
         "start": "node app",
-        "test": "mocha -R spec"
+        "test": "mocha --reporter list --bail ./test/reset.js ./test/models/*.js ./test/*.js ./test/*/**.js",
+        "env": "for x in $(cat .env); do export $x; done"
     },
     "devDependencies": {
-        "mocha": "1.12.0",
-        "supertest": "0.7.1"
+        "mocha": "~1.20.1",
+        "chai": "~1.9.1",
+        "supertest": "0.13.0"
     },
     "dependencies": {
-        "underscore": "*",
-        "step": "*",
-        "express": "~3.2.5",
+        "express": "~4.0.0",
+        "static-favicon": "~1.0.0",
+        "morgan": "~1.0.0",
+        "cookie-parser": "~1.0.1",
+        "body-parser": "~1.0.0",
+        "debug": "~0.7.4",
         "ejs": "*",
         "less-middleware": "*",
+
+        "lodash": "*",
+        "q": "~1.0.1",
         "grand-central-junction": "*",
+        "grand-central-records": "0.5.0",
+        "pg": "3.5.0",
+
         "topojson": "1.2.2",
-        "grand-central-records": "~0.0.65",
-        "mysql": "~2.0.0-alpha8",
-        "pg": "~2.0.0",
-        "terraformer-wkt-parser": "*",
-        "markdown": "*"
-    }
+        "markdown": "*",
+        "hstore.js": "~0.1.0",
+        "geojsonhint": "~0.3.1"
+    },
+    "keywords": [
+        "maps",
+        "history",
+        "atlastory"
+    ],
+    "bugs": {
+        "url": "https://github.com/atlastory/api/issues"
+    },
+    "license": "",
+    "author": {
+        "name": "Atlastory, Inc.",
+        "url": "http://www.atlastory.com/"
+    },
+    "contributors": []
 }

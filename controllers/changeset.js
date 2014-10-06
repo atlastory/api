@@ -1,99 +1,70 @@
 var Changeset = require('../models/Changeset'),
     wiki = require('../lib/wiki'),
-    Step = require('step');
+    _ = require('lodash'),
+    err = require('../lib/errors');
 
-// GET /changeset/:id
+
+// GET /changesets/:id
 exports.show = function(req, res) {
     var id = req.param("id");
-    Changeset.get(id, function(err, changeset) {
-        if (err) res.send(500, err);
-        else res.jsonp(changeset);
-    });
+    var asString = (req.param("format") == 'text');
+
+    Changeset.get(id).then(function(changeset) {
+        if (!changeset) return err.notFound(res)('Changeset #'+id+' not found');
+        if (asString) {
+            var txt = 'id: ' + changeset.id + '\n' +
+                'user: ' + changeset.user_id + '\n' +
+                'message: ' + changeset.message + '\n' +
+                'created: ' + changeset.created_at + '\n' +
+                'directives:\n' + changeset.directives.map(function(d) {
+                    return '    ' + d.asString();
+                }).join('\n');
+            res.type('text/plain').send(txt);
+        } else {
+            changeset.directives = changeset.directives.map(function(d) {
+                return _.omit(d.toJSON(), ['id','changeset_id']);
+            });
+            res.jsonp(changeset);
+        }
+    }).fail(err.send(res));
 };
 
-// POST /changeset
+// POST /changesets
+// PUT /changesets/create
+// PUT /changesets/:id
 exports.create = function(req, res) {
-    // Accepts { id: hash, directives: [] }
+    var id = req.param("id"),
+        message = req.param("message"),
+        user = req.param("user_id"),
+        csData = { message: message, user_id: user };
 
-    var cs = req.body,
-        hasDirectives = !(!cs.directives || !cs.directives.length);
-
-    if (!cs.id && !hasDirectives) {
-        res.send(500, 'Needs a changeset in form of {id:hash, directives:[]}');
-    } else if (cs.id) {
-        // Delete old changeset, then addDirectives()
-        Changeset.where({changeset: cs.id}).remove(function(err) {
-            if (err) res.send(500, err);
-            else addDirectives();
-        });
+    if (id) {
+        // Changeset already exists; update
+        Changeset.update(id, csData)
+          .then(function() { return addDirectives(id); })
+          .fail(err.send(res));
     } else {
-        addDirectives();
-    }
-
-    function addDirectives() {
-        var valid = true;
-        var directives = cs.directives.map(function(d) {
-            var model = Changeset.new(d);
-            // TODO: validate = model.validate();
-            return model;
-        });
-
-        Changeset.create(directives, cs.id, function(err, hash) {
-            if (err) res.send(500, err);
-            else res.jsonp({id: hash});
-        });
+        Changeset.insert(csData)
+          .then(function(c) { return addDirectives(c[0].id); })
+          .fail(err.send(res));
     }
 };
 
-// DELETE /changeset/:id
-exports.destroy = function(req, res) {
+// DELETE /changesets/:id
+/*exports.destroy = function(req, res) {
     var id = req.param("id");
-    Changeset.where({changeset: id}).remove(function(err) {
-        if (err) res.send(500, err);
-        else res.send(200);
-    });
-};
+    Changeset.remove(id).then(function() {
+        res.send(200);
+    }).fail(err.send(res));
+};*/
 
 // POST /changeset/:id/commit
+// Accepts { message: '', directives: [] }
 exports.commit = function(req, res) {
     var id = req.param("id"),
-        result = [];
+        body = req.body;
 
-    function checkDirective(d) {
-        var parse = true,
-            response = '';
-
-        if (d.inConflict) {
-            parse = false;
-            response = 'Newer change already commited';
-        }
-
-        if (parse) wiki.parse(d);
-        result.push({
-            id: d.gid,
-            parsed: parse,
-            response: response
-        });
-    }
-
-    Step(function getChangeset() {
-        Changeset.get(id, this);
-
-    }, function checkConflict(err, changeset) {
-        if (err) res.send(500, err);
-        else if (!changeset.length) res.send(500, 'No changeset found');
-        else {
-            var group = this.group();
-            changeset.forEach(function(d) {
-                d.checkConflict(group());
-            });
-        }
-
-    }, function parseDirectives(err, changeset) {
-        if (err) res.send(500, err);
-        else {
-            changeset.forEach(checkDirective);
-            res.jsonp(result);
-        }
-    });
+    wiki.commit(id, body).then(function(directives) {
+        res.jsonp(directives);
+    }).fail(err.send(res));
 };

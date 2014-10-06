@@ -1,22 +1,44 @@
 module.exports = function(match, resources) {
 
-    match('/', 'home#index');
+match('/', 'home#index');
 
-    // Layers
-    resources('/layers', 'layer');
+apiVersion1('');    // Most recent version
+apiVersion1('/v1');
 
-    // Periods
-    resources('/layers/:lid/periods', 'period');
-    match('/layers/:lid/periods/:pid/shapes.:type(json|geojson|topojson)', 'period#shapes');
-    match('/geojson', 'period#geojson');
-    match('/topojson', 'period#topojson');
-
-    // Shapes
-    match('/layers/:lid/periods/:pid/shapes/:id.:type(json|geojson|topojson)', 'shape#show');
+function apiVersion1(v) {
 
     // Changesets
-    resources('/changeset', 'changeset');
-    match('/changeset/:id/commit', 'changeset#commit', {via: 'post'});
-    match('/changeset/:id/finish', 'changeset#commit', {via: 'post'});
+    match(v + '/changesets/:id',        'changeset#show');
+    match(v + '/changesets',            'changeset#create', { via: 'post' });
+    match(v + '/changesets/create',     'changeset#create', { via: 'put' });
+    match(v + '/changesets/:id',        'changeset#create', { via: 'put' });
+    match(v + '/changesets/:id/commit', 'changeset#commit');
+    match(v + '/changesets/:id/close',  'changeset#commit');
+
+    // Time periods
+    resources(v + '/periods', 'period');
+    match(v + '/periods/:pid/:type.:format(json|geojson|topojson)', 'period#shapes');
+    match(v + '/year/:year/:type.:format(json|geojson|topojson)', 'period#year');
+    match(v + '/geojson', 'period#geojson');
+    match(v + '/topojson', 'period#topojson');
+
+    // Nodes, Ways, Shapes
+    // resources(v + '/nodes', 'node');
+    // resources(v + '/ways', 'way');
+    // resources(v + '/shapes', 'shape');
+    // match('/shapes/:id.json', 'shape#show');
+    // match('/shapes/:id.:format(geojson|topojson)', 'shape#geo');
+
+    // Levels & Types
+    resources(v + '/levels', 'level');
+    resources(v + '/types', 'type');
+    match(v + '/levels/:id/types', 'level#types');
+
+    // Sources
+    resources(v + '/sources', 'source');
+
+    // Users
+    // match(v + '/@:username', 'user#profile');
+}
 
 };

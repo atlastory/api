@@ -1,92 +1,63 @@
-var postgis = require('../lib/postgis'),
-    db = require('../db/db'),
-    util = require('../lib/utilities');
+var _ = require('lodash'),
+    pg = require('../services/db').pg,
+    util = require('../lib/utilities'),
+    geojson = require('../lib/geojson');
 
 
-var Period = module.exports = db.mysql.model("periods", {
-    map: true,
+var Period = module.exports = pg.model("periods", {
     schema: {
-        layer_id: { type: Number, allowNull: false },
-        name: { type: String, allowNull: false },
-        start: String,
-        end: String,
+        name: String,
+        start_day:   { type: Number, allowNull: false, default: 1 },
+        start_month: { type: Number, allowNull: false, default: 1 },
+        start_year:  { type: Number, allowNull: false },
+        end_day:     { type: Number, allowNull: false, default: 1 },
+        end_month:   { type: Number, allowNull: false, default: 1 },
+        end_year:    { type: Number, allowNull: false },
         created_at: Date,
         updated_at: Date
     }
 });
 
-Period._all = Period.all;
-Period.all = function(layerId, callback) {
-    return this.where({layer_id: layerId}, callback);
+// Directly import GeoJSON
+Period.importGeoJSON = function(id, options) {
+    if (options.type == 'FeatureCollection') {
+        options = { geojson: options };
+    }
+    options.period = id;
+
+    return geojson.import(options);
 };
 
-
-Period.addMethod('getGeoJSON', function(options, callback) {
-    /* Get's GeoJSON for a period/layer
-     * p1   ARRAY [x,y] bottom left (optional)
-     * p2   ARRAY [x,y] top right   (optional)
-     * zoom INT   zoom level        (optional)
-     */
-    var p1 = options.p1 || null,
-        p2 = options.p2 || null,
-        z = options.hasOwnProperty('zoom') ? parseFloat(options.zoom) : null,
-        geom = "%g", box = "";
-
-    // @TODO: http://trac.osgeo.org/postgis/wiki/UsersWikiSimplifyPreserveTopology
-    if (z !== null && z !== undefined && isNaN(z)) {
-        var s = 0.25; // Simplify intensity
-        if (z/8 > 1) z = 1;
-        else z = z / 8;
-        z = s - z * s;
-        geom = util.simplify(geom, z);
-    }
-
-    if (p1 && p2) {
-        box = util.box(p1[0], p1[1], p2[0], p2[1]);
-        geom = util.intersection(box, geom);
-        box = "%g && " + box;
-    }
-
-    postgis.getShapes({
-        period: this.id,
-        layer: this.layer_id,
-        properties: ["gid", "name"],
-        geom: util.asGeoJSON(geom),
-        where: [box]
-    }, function(err, shapes) {
-        if (err) callback(err);
-        else callback(null, util.buildGeoJSON(shapes));
-    });
+Period.addMethod('importGeoJSON', function(options) {
+    return Period.importGeoJSON(this.id, options);
 });
 
-Period.addMethod('getTopoJSON', function(options, callback) {
-    this.getGeoJSON(options, function(err, geojson) {
-        if (err) callback(err);
-        else callback(null, util.convertTopoJSON(geojson));
-    });
+/**
+ * Get's GeoJSON for a period/type
+ * @param {number} id Period ID
+ * @param {object}   options
+ *        {number[]} .type   Type ID
+ *        {number[]} [.bbox] (west, south, east, north)
+ *        {number}   [.zoom] zoom level
+ */
+Period.getGeoJSON = function(id, options) {
+     options.period = id;
+     return geojson.export(options);
+};
+
+Period.addMethod('getGeoJSON', function(options) {
+    return Period.getGeoJSON(this.id, options);
 });
 
-Period.addMethod('getShapeData', function(options, callback) {
-    /* Get's shape data for a period/layer
-     * p1   ARRAY [x,y] bottom left (optional)
-     * p2   ARRAY [x,y] top right   (optional)
-     */
-    var p1 = options.p1 || null,
-        p2 = options.p2 || null,
-        box = "";
-
-    if (p1 && p2) {
-        box = util.box(p1[0], p1[1], p2[0], p2[1]);
-        box = "%g && " + box;
-    }
-
-    postgis.getData({
-        period: this.id,
-        layer: this.layer_id,
-        type: this.shape,
-        where: [box]
-    }, function(err, shapes) {
-        if (err) callback(err);
-        else callback(null, shapes);
+// Gets TopoJSON for a period/type (same options as GeoJSON)
+Period.getTopoJSON = function(id, options) {
+    return this.getGeoJSON(id, options).then(function(geojson) {
+        return util.convertTopoJSON(geojson);
     });
+};
+
+Period.addMethod('getTopoJSON', function(options) {
+    return Period.getTopoJSON(this.id, options);
 });
+
+// TODO: getShapeData
