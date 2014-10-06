@@ -180,6 +180,8 @@ CREATE TABLE shapes (
 );
 CREATE INDEX shape_start_year_idx ON shapes (start_year);
 CREATE INDEX shape_end_year_idx ON shapes (end_year);
+-- TODO: Index data hstore
+-- See: http://www.pgcon.org/2014/schedule/attachments/318_pgcon-2014-vodka.pdf
 
 CREATE TABLE shape_relations (
     shape_id bigint DEFAULT 0 NOT NULL,

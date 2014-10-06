@@ -15,16 +15,19 @@ function apiVersion1(v) {
     match(v + '/changesets/:id/commit', 'changeset#commit');
     match(v + '/changesets/:id/close',  'changeset#commit');
 
-    // Periods
+    // Time periods
     resources(v + '/periods', 'period');
     match(v + '/periods/:pid/:type.:format(json|geojson|topojson)', 'period#shapes');
+    match(v + '/year/:year/:type.:format(json|geojson|topojson)', 'period#year');
     match(v + '/geojson', 'period#geojson');
     match(v + '/topojson', 'period#topojson');
-    match(v + '/year/:year/:type.:format(json|geojson|topojson)', 'period#year');
 
-    // /nodes/:id
-    // /ways/:id
-    // /shapes/:id || /shapes/:id.:format(json|geojson|topojson)
+    // Nodes, Ways, Shapes
+    // resources(v + '/nodes', 'node');
+    // resources(v + '/ways', 'way');
+    // resources(v + '/shapes', 'shape');
+    // match('/shapes/:id.json', 'shape#show');
+    // match('/shapes/:id.:format(geojson|topojson)', 'shape#geo');
 
     // Levels & Types
     resources(v + '/levels', 'level');
@@ -33,6 +36,9 @@ function apiVersion1(v) {
 
     // Sources
     resources(v + '/sources', 'source');
+
+    // Users
+    // match(v + '/@:username', 'user#profile');
 }
 
 };
