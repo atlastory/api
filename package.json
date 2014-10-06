@@ -32,12 +32,10 @@
         "less-middleware": "*",
 
         "lodash": "*",
-        "async": "*",
         "q": "~1.0.1",
         "grand-central-junction": "*",
         "grand-central-records": "0.5.0",
-        "mysql": "~2.0.0-alpha8",
-        "pg": "~2.0.0",
+        "pg": "3.5.0",
 
         "topojson": "1.2.2",
         "markdown": "*",
