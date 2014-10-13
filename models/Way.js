@@ -43,7 +43,7 @@ Way.create = function(coords, data) {
 
     return Way.insert(_.extend(wayData, { id: [['DEFAULT']] })).returning('id')
     .then(function(ways) {
-        return Way.addNodes(parseFloat(ways[0].id), 0, coords);
+        return Way.addNodes(ways[0].id, 0, coords);
     });
 };
 

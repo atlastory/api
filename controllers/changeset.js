@@ -45,7 +45,7 @@ exports.create = function(req, res) {
           .fail(err.send(res));
     } else {
         Changeset.insert(csData)
-          .then(function(c) { return addDirectives(c[0].id); })
+          .thenOne(function(c) { return addDirectives(c.id); })
           .fail(err.send(res));
     }
 };

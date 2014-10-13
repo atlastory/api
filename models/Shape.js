@@ -63,15 +63,15 @@ var cleanShapeData = Shape.cleanShapeData = function(data) {
 // Gets a single shape with associated nodes/ways
 Shape.get = function(id) {
     var shape = {};
-    if (!util.isBigint(id)) return Q.reject(util.err('ID must be a number','getting shape'));
+    if (!util.isBigint(id)) return err.reject('ID must be a number','getting shape');
 
     return Q.all([
         Shape.find(id),
         Shape.getRelations(id)
-    ]).then(function(res) {
+    ]).spread(function(shapes, relations) {
         return {
-            properties: res[0][0].toJSON(),
-            objects: res[1].map(function(rel) {
+            properties: shapes[0].toJSON(),
+            objects: relations.map(function(rel) {
                 return {
                     type: rel.relation_type,
                     id: rel.relation_id,
@@ -200,7 +200,7 @@ Shape.getNodes = function(options) {
         if (getType) where += "IN (SELECT id FROM shapes WHERE start_year <= :year AND end_year > :year AND type_id IN (:type)) ";
         else         where += "IN (SELECT id FROM shapes WHERE start_year <= :year AND end_year > :year) ";
     } else {
-        return Q.reject(util.err("getNodes needs shapes, changeset, year, or period ID"));
+        return err.reject("getNodes needs shapes, changeset, year, or period ID");
     }
 
     if (isNaN(period) && isNaN(year) && getType) where += "shape_relations.shape_id IN (SELECT id FROM shapes WHERE type_id IN (:type)) ";
@@ -233,7 +233,7 @@ Shape.connect = function(shapeId, relations) {
         i = 0;
 
     if (relations.length === 0)
-        return Q.reject(util.err('no nodes, ways, or shapes','connecting shape'));
+        return err.reject('no nodes, ways, or shapes','connecting shape');
 
     relations.forEach(function(rel) {
         rels.push({
