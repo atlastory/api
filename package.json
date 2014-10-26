@@ -13,8 +13,7 @@
     },
     "scripts": {
         "start": "node app",
-        "test": "mocha --reporter list --bail ./test/reset.js ./test/models/*.js ./test/*.js ./test/*/**.js",
-        "env": "for x in $(cat .env); do export $x; done"
+        "test": "mocha --reporter list --bail ./test/reset.js ./test/models/*.js ./test/*.js ./test/*/**.js"
     },
     "devDependencies": {
         "mocha": "~1.20.1",
@@ -37,8 +36,9 @@
         "grand-central-records": "0.5.0",
         "pg": "3.5.0",
 
+        "remarkable": "~1.2.0",
+        "highlight.js": "~8.3.0",
         "topojson": "1.2.2",
-        "markdown": "*",
         "hstore.js": "~0.1.0",
         "geojsonhint": "~0.3.1"
     },
