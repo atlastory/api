@@ -54,7 +54,7 @@ function start() {
         console.log("Server pid %s listening on port %s in %s mode",
             process.pid,
             port,
-            app.get('env')
+            process.env.ENV
         );
     });
 }
