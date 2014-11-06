@@ -62,7 +62,7 @@ Way.addQueryMethod('addNodes', function(wayId, position, nodes) {
     var esc = pg.engine.escape;
 
     nodes = _.compact(nodes.map(function(n) {
-        if (_.isNumber(n)) {
+        if (_.isNumber(n) || _.isString(n)) {
             return n;
         } else if (_.isPlainObject(n) && _.isNumber(n.latitude)) {
             if (!util.verifyCoord([n.longitude, n.latitude])) return null;
@@ -101,12 +101,12 @@ Way.addQueryMethod('addNodes', function(wayId, position, nodes) {
  * @param {number} wayId
  * @param {number[]} nodeIds Array of node IDs to remove
  */
-Way.addQueryMethod('removeNodes', function(wayId, nodeIds) {
-    if (!_.isArray(nodeIds)) nodeIds = [nodeIds];
+Way.addQueryMethod('removeNodes', function(wayId, seq) {
+    if (!_.isArray(seq)) seq = [seq];
 
     var sequence = _.uniqueId('way_seq_'),
         queue = pg.queue()
-        .add(Way.Node.where({ way_id: wayId, node_id: nodeIds }).remove());
+        .add(Way.Node.where({ way_id: wayId, sequence_id: seq }).remove());
 
     // Re-numbers sequence without losing order
     queue.add('CREATE SEQUENCE ' + sequence)
