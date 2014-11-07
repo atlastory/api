@@ -11,7 +11,7 @@ module.exports = {
       object: 'node',
       object_id: 'n-2',
       geometry: [6.2, 9.8],
-      data: { source_id: 3 }
+      data: { source_id: 1 }
     },
     badNode: {
       action: 'add',

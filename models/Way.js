@@ -99,23 +99,23 @@ Way.addQueryMethod('addNodes', function(wayId, position, nodes) {
 /**
  * Removes nodes from way (must be sequential)
  * @param {number} wayId
- * @param {number[]} nodeIds Array of node IDs to remove
+ * @param {number[]} seqIds Array of sequence IDs to remove
  */
-Way.addQueryMethod('removeNodes', function(wayId, seq) {
-    if (!_.isArray(seq)) seq = [seq];
+Way.addQueryMethod('removeNodes', function(wayId, seqIds) {
+    if (!_.isArray(seqIds)) seqIds = [seqIds];
 
     var sequence = _.uniqueId('way_seq_'),
         queue = pg.queue()
-        .add(Way.Node.where({ way_id: wayId, sequence_id: seq }).remove());
+        .add(Way.Node.where({ way_id: wayId, sequence_id: seqIds }).remove());
 
     // Re-numbers sequence without losing order
     queue.add('CREATE SEQUENCE ' + sequence)
       .add("UPDATE way_nodes SET sequence_id = newseq FROM (" +
-        "SELECT node_id, (nextval(:seq) - 1) AS newseq FROM " +
-            "(SELECT node_id FROM way_nodes WHERE way_id = :way ORDER BY sequence_id) AS sub" +
+        "SELECT sequence_id, (nextval(:seq) - 1) AS newseq FROM " +
+            "(SELECT sequence_id FROM way_nodes WHERE way_id = :way ORDER BY sequence_id) AS sub" +
         ") AS new_table WHERE " +
         "way_nodes.way_id = :way AND " +
-        "way_nodes.node_id = new_table.node_id",
+        "way_nodes.sequence_id = new_table.sequence_id",
         { way: wayId, seq: sequence })
       .add('DROP SEQUENCE ' + sequence);
 
