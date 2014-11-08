@@ -68,12 +68,14 @@ function validateRelation(rel) {
 
     rel = _.pick(rel, keys);
 
-    if (!_.isString(rel.id) || _.isNumber(rel.id)) rel.invalid = true;
+    if (!_.isString(rel.id) && !_.isNumber(rel.id)) rel.invalid = true;
 
-    rel.type = rel.type.charAt(0).toUpperCase() + rel.type.slice(1);
+    if (_.isString(rel.type))
+        rel.type = rel.type.charAt(0).toUpperCase() + rel.type.slice(1);
     if (!_.contains(types, rel.type)) rel.invalid = true;
 
-    rel.role = rel.role.toLowerCase();
+    if (_.isString(rel.role))
+        rel.role = rel.role.toLowerCase();
     if (!_.contains(roles, rel.role)) rel.invalid = true;
 
     if (rel.sequence) {
@@ -288,7 +290,7 @@ Shape.connect = function(shapeId, relations) {
             shape_id: shapeId,
             relation_type: rel.type,
             relation_id: rel.id,
-            relation_role: rel.role || ' ',
+            relation_role: rel.role,
             sequence_id: rel.sequence || i++
         };
     });

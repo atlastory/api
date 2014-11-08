@@ -6,20 +6,21 @@ var Shape = require('../../models/Shape');
 var Changeset = require('../../models/Changeset');
 
 var shape;
+var newShape = {
+    periods: [1],
+    type_id: 1,
+    name: 'Test',
+    start_year: 1491,
+    end_year: 1492,
+    tags: [12],
+    country: 'Spain'
+};
 
 describe('Shape model', function() {
 
 describe('#create()', function() {
     it('should create a Shape with nodes', function(done) {
-        Shape.create({
-            periods: [1],
-            type_id: 1,
-            name: 'Test',
-            start_year: 1491,
-            end_year: 1492,
-            tags: [12],
-            country: 'Spain'
-        }).then(function(shapes) {
+        Shape.create(newShape).then(function(shapes) {
             var id = shapes[0].id;
             expect(id).to.be.a("string");
             shape = id;
@@ -41,10 +42,14 @@ describe('#find()', function() {
 describe('#connect()', function() {
     it('should connect a Shape to nodes/ways', function(done) {
         Shape.connect(shape, [
-            {type: 'Node', id: 1}, {type: 'Node', id: 2},
-            {type: 'Way', id: 1}
+            {type: 'Node', role: 'point', id: 1},
+            {type: 'Node', role: 'point', id: 2},
+            {type: 'Way', role: 'OUTER', id: 1}
         ]).then(function(res) {
-            //
+            return Shape.get(shape);
+        }).then(function(shape) {
+            expect(shape.objects).to.have.length(3);
+            expect(shape.objects[2]).to.have.property('role','outer');
         }).then(done,done);
     });
 });
@@ -54,6 +59,16 @@ describe('#get()', function() {
         Shape.get(shape).then(function(s) {
             expect(s.properties.end_year).to.equal(1492);
             expect(s.objects[0].type).to.equal('Node');
+        }).then(done,done);
+    });
+});
+
+describe('#update()', function() {
+    it('should update shape data', function(done) {
+        Shape.update(shape, { country: 'Italy' }).then(function() {
+            return Shape.find(shape);
+        }).then(function(shapes) {
+            expect(shapes[0]).to.have.deep.property('data.country','Italy');
         }).then(done,done);
     });
 });
@@ -99,6 +114,19 @@ describe('#getNodes()', function() {
             expect(nodes[0]).to.have.property('role');
             expect(nodes[0]).to.have.property('seq1');
         }).then(done,done);
+    });
+});
+
+describe('#removeRelations', function() {
+    it('should remove shape relations', function(done) {
+        Shape.removeRelations(shape, [0,1]).then(function() {
+            return Shape.get(shape);
+        }).then(function(s) {
+            expect(s.objects).to.have.length(1);
+            expect(s.objects[0]).to.have.property('type', 'Way');
+            expect(s.objects[0]).to.have.property('sequence', 0);
+        })
+        .then(done,done);
     });
 });
 
