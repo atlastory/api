@@ -30,8 +30,8 @@ module.exports = {
       action: 'add',
       object: 'shape',
       object_id: 's-1',
-      data: { start_year: 1000, name: 'test' },
-      shape_relations: ['0-Way-outer-w-1','1-Way-inner-239283']
+      data: { type_id: 1, periods: [1], start_year: 1000, end_year: 1200, name: 'test', one: 1 },
+      shape_relations: ['0-Way-outer-w-1','1-Way-inner-1']
     }
   },
   edit: {
@@ -40,6 +40,13 @@ module.exports = {
       object: 'node',
       object_id: '1',
       geometry: [15, 22]
+    },
+    shape1: {
+      action: 'edit',
+      object: 'shape',
+      object_id: '1',
+      data: { name: 'shape1' },
+      shape_relations: ['3-Way-outer-2']
     }
   },
   delete: {

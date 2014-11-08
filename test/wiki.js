@@ -2,12 +2,14 @@ process.env.TEST = 'true';
 
 var expect = require('chai').expect;
 var assert = require('assert');
+var _ = require('lodash');
 
 var wiki = require('../lib/wiki');
 var cs = require('./helpers/changeset');
 
 var Node = require('../models/Node');
 var Way = require('../models/Way');
+var Shape = require('../models/Shape');
 
 var newId;
 
@@ -110,9 +112,52 @@ describe('#parse()', function() {
     });
 
     describe('#shape', function() {
-    // TODO: it('should edit a shape', function(done) {});
-    // TODO: it('should add a shape', function(done) {});
-    // TODO: it('should delete a shape', function(done) {});
+        var node1, shape1;
+        it('should add a shape', function(done) {
+            wiki.parse([
+                cs.add.node1, cs.add.node2,
+                cs.add.way1, cs.add.shape1
+            ]).then(function(drs) {
+                assert(drs[drs.length-1].success, drs[drs.length-1].response);
+                node1 = drs[0]; shape1 = drs[3];
+                return Shape.getNodes({ shapes: drs[3].object_id });
+            }).then(function(nodes) {
+                node1 = _.find(nodes, { node: node1.object_id });
+                expect(node1.lon).to.equal(cs.add.node1.geometry[0]+'');
+            }).then(done, done);
+        });
+        it('should edit a shape', function(done) {
+            cs.edit.shape1.object_id = shape1.object_id;
+            new wiki.Diff().run(cs.edit.shape1).then(function(d) {
+                assert(d.success, d.response);
+                return Shape.find(d.object_id);
+            }).then(function(shapes) {
+                expect(shapes[0].data.name).to.equal(cs.edit.shape1.data.name);
+                expect(shapes[0].data.one).to.equal(cs.add.shape1.data.one);
+            })
+            .then(done, done);
+        });
+        it('should delete a shape', function(done) {
+            var dir = {
+                action: 'delete', object: 'shape',
+                object_id: shape1.object_id,
+                shape_relations: shape1.shape_relations+
+                    ','+cs.edit.shape1.shape_relations[0]
+            };
+            // (1) delete relations
+            new wiki.Diff().run(dir).then(function(d) {
+                assert(d.success, d.response);
+                delete dir.shape_relations;
+            // (2) delete shape
+                return new wiki.Diff().run(dir);
+            }).then(function(d) {
+                assert(d.success, d.response);
+                return Shape.get(dir.object_id);
+            }).then(function(shape) {
+                expect(shape.properties).to.be.null;
+                expect(shape.objects).to.be.empty;
+            }).then(done, done);
+        });
     });
 
     describe('#level', function() {
