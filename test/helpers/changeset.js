@@ -45,7 +45,19 @@ module.exports = {
       object: 'level',
       object_id: 'l-1',
       data: { name: 'country', level: 2 }
-    }
+    },
+    type: {
+      action: 'add',
+      object: 'type',
+      object_id: 't-1',
+      data: { name: 'city', level_id: '1' }
+    },
+    source: {
+      action: 'add',
+      object: 'source',
+      object_id: 'sc-1',
+      data: { name: 'Node.js', source: 'test!!!!' }
+    },
   },
   edit: {
     node1: {

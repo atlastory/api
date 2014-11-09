@@ -16,7 +16,7 @@ var newId;
 describe('Wiki', function() {
 
 describe('#parse()', function() {
-    /*it('should parse a directive', function(done) {
+    it('should parse a directive', function(done) {
         wiki.parse([ cs.add.node1 ]).then(function(drs) {
             var d = drs[0];
             expect(d.action).to.equal('add');
@@ -177,7 +177,7 @@ describe('#parse()', function() {
                 expect(shape.objects).to.be.empty;
             }).then(done, done);
         });
-    });*/
+    });
 
     describe('#level', function() {
         var Level = require('../models/Level');
@@ -222,15 +222,86 @@ describe('#parse()', function() {
     });
 
     describe('#type', function() {
-    // TODO: it('should edit a type', function(done) {});
-    // TODO: it('should add a type', function(done) {});
-    // TODO: it('should delete a type', function(done) {});
+        var Type = require('../models/Type');
+        var dir = cs.add.type
+        it('should add a type', function(done) {
+            new wiki.Diff().run(dir).then(function(d) {
+                assert(d.success, d.message);
+                dir.object_id = d.object_id;
+                return Type.find(d.object_id);
+            }).then(function(types) {
+                expect(types).to.have.length(1);
+                expect(types[0]).to.have.property('name', dir.data.name);
+            }).then(done, done);
+        });
+        it('should fail with incorrect input', function(done) {
+            delete dir.data.name;
+            new wiki.Diff().run(dir).then(function(d) {
+                expect(d.success).to.be.false;
+                expect(d.message).to.have.string('empty');
+            }).then(done, done);
+        });
+        it('should edit a type', function(done) {
+            dir.action = 'edit';
+            dir.data.name = 'road';
+            new wiki.Diff().run(dir).then(function(d) {
+                assert(d.success, d.message);
+                return Type.find(d.object_id);
+            }).then(function(types) {
+                expect(types[0]).to.have.property('name', dir.data.name);
+            }).then(done, done);
+        });
+        it('should delete a type', function(done) {
+            dir.action = 'delete';
+            new wiki.Diff().run(dir).then(function(d) {
+                expect(d.message).to.have.string('not allowed');
+                /*assert(d.success, d.message);
+                return Type.find(dir.object_id);
+            }).then(function(lvls) {
+                expect(lvls).to.be.empty;*/
+            }).then(done, done);
+        });
     });
 
     describe('#source', function() {
-    // TODO: it('should edit a source', function(done) {});
-    // TODO: it('should add a source', function(done) {});
-    // TODO: it('should delete a source', function(done) {});
+        var Source = require('../models/Source');
+        var dir = cs.add.source
+        it('should add a source', function(done) {
+            new wiki.Diff().run(dir).then(function(d) {
+                assert(d.success, d.message);
+                dir.object_id = d.object_id;
+                return Source.find(d.object_id);
+            }).then(function(srcs) {
+                expect(srcs).to.have.length(1);
+                expect(srcs[0]).to.have.property('name', dir.data.name);
+            }).then(done, done);
+        });
+        it('should fail with incorrect input', function(done) {
+            delete dir.data.name;
+            new wiki.Diff().run(dir).then(function(d) {
+                expect(d.success).to.be.false;
+                expect(d.message).to.have.string('empty');
+            }).then(done, done);
+        });
+        it('should edit a source', function(done) {
+            dir.action = 'edit';
+            dir.data.name = 'nothing';
+            new wiki.Diff().run(dir).then(function(d) {
+                assert(d.success, d.message);
+                return Source.find(d.object_id);
+            }).then(function(srcs) {
+                expect(srcs[0]).to.have.property('name', dir.data.name);
+            }).then(done, done);
+        });
+        it('should delete a source', function(done) {
+            dir.action = 'delete';
+            new wiki.Diff().run(dir).then(function(d) {
+                assert(d.success, d.message);
+                return Source.find(dir.object_id);
+            }).then(function(srcs) {
+                expect(srcs).to.be.empty;
+            }).then(done, done);
+        });
     });
 });
 
