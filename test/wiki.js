@@ -60,6 +60,15 @@ describe('#parse()', function() {
                 expect(d.invalid).to.be.true;
             }).then(done, done);
         });
+        it('should add wayNode relation', function(done) {
+            var dir = cs.add.node3;
+            new wiki.Diff().run(dir).then(function(d) {
+                assert(d.success, d.response);
+                return Way.getNodes(1);
+            }).then(function(nodes) {
+                expect(nodes[0].longitude).to.equal(dir.geometry[0]+'');
+            }).then(done, done);
+        });
         it('should delete a node', function(done) {
             var dir = { action: 'delete', object:'node', object_id:newId };
             new wiki.Diff().run(dir).then(function(d) {
@@ -72,6 +81,7 @@ describe('#parse()', function() {
     });
 
     describe('#way', function() {
+        var way1;
         it('should edit a way', function(done) {
             new wiki.Diff().run({
                 action: 'edit', object: 'way',
@@ -90,6 +100,7 @@ describe('#parse()', function() {
                 cs.add.way1
             ]).then(function(drs) {
                 assert(drs[drs.length-1].success, drs[drs.length-1].response);
+                way1 = drs[2];
                 return Way.getNodes(drs[2].object_id);
             }).then(function(nodes) {
                 expect(nodes[0].longitude).to.equal(cs.add.node1.geometry[0]+'');
@@ -97,15 +108,23 @@ describe('#parse()', function() {
             }).then(done, done);
         });
         it('should delete a way', function(done) {
-            new wiki.Diff().run({
+            var dir = {
                 action: 'delete', object: 'way',
-                object_id: '1',
-                way_nodes: ['0']
-            }).then(function(d) {
+                object_id: way1.object_id,
+                way_nodes: '0,1'
+            };
+            new wiki.Diff().run(dir).then(function(d) {
                 assert(d.success, d.response);
                 return Way.getNodes(d.object_id);
             }).then(function(nodes) {
-                expect(nodes[0].id).to.not.equal('1');
+                expect(nodes).to.be.empty;
+                delete dir.way_nodes;
+                return new wiki.Diff().run(dir);
+            }).then(function(d) {
+                assert(d.success, d.response);
+                return Way.find(d.object_id).then(function(w) {
+                    expect(w).to.be.empty;
+                });
             })
             .then(done, done);
         });

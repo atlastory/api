@@ -12,6 +12,7 @@ var Directive = module.exports = pg.model("directives", {
         data:            String, // Stringified JSON object for shapes, types, sources
         geometry:        String, // Stringified coordinate array
         way_nodes:       String, // if object=way: List nodeId > '345,678'
+                                 // if object=way, action=delete: List seqId > '0,1,2'
                                  // if object=node: List sequence-wayId > '0-1234,1-2345'
         shape_relations: String, // if object=shape: List sequence-Type-role-id > '3-Way-outer-1234,4-Way-inner-2345'
                                  // if object=node,way: List sequence-shapeId > '0-1234,1-2345'

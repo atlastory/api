@@ -13,6 +13,13 @@ module.exports = {
       geometry: [6.2, 9.8],
       data: { source_id: 1 }
     },
+    node3: {
+      action: 'add',
+      object: 'node',
+      object_id: 'n-3',
+      geometry: [11, 12],
+      way_nodes: ['0-1']
+    },
     badNode: {
       action: 'add',
       object: 'node',
