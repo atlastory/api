@@ -54,7 +54,7 @@ describe('POST /sources', function() {
           .expect('Content-Type', /json/)
           .expect(400)
           .expect(function(res) {
-            expect(res.body.message).to.have.property('name');
+            expect(res.body.detail).to.have.property('name');
           }).end(done);
     });
 

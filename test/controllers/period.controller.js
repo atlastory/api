@@ -55,7 +55,7 @@ describe('POST /periods', function() {
           .expect('Content-Type', /json/)
           .expect(500)
           .expect(function(res) {
-            expect(res.body.message).to.have.property('end_year');
+            expect(res.body.detail).to.have.property('end_year');
           }).end(done);
     });
 

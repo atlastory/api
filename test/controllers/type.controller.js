@@ -54,7 +54,7 @@ describe('POST /types', function() {
           .expect('Content-Type', /json/)
           .expect(400)
           .expect(function(res) {
-            expect(res.body.message).to.have.property('level_id');
+            expect(res.body.detail).to.have.property('level_id');
           }).end(done);
     });
 

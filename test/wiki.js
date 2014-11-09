@@ -36,7 +36,7 @@ describe('#parse()', function() {
         it('should edit a node', function(done) {
             var dir = cs.edit.node1;
             new wiki.Diff().run(dir).then(function(d) {
-                assert(d.success, d.response);
+                assert(d.success, d.message);
                 return Node.find(d.object_id);
             }).then(function(nodes) {
                 expect(nodes).to.not.be.empty;
@@ -46,7 +46,7 @@ describe('#parse()', function() {
         it('should add a node', function(done) {
             var dir = cs.add.node1;
             new wiki.Diff().run(dir).then(function(d) {
-                assert(d.success, d.response);
+                assert(d.success, d.message);
                 expect(d.object_id).to.not.equal(dir.object_id);
                 newId = d.object_id;
                 return Node.find(d.object_id);
@@ -63,7 +63,7 @@ describe('#parse()', function() {
         it('should add wayNode relation', function(done) {
             var dir = cs.add.node3;
             new wiki.Diff().run(dir).then(function(d) {
-                assert(d.success, d.response);
+                assert(d.success, d.message);
                 return Way.getNodes(1);
             }).then(function(nodes) {
                 expect(nodes[0].longitude).to.equal(dir.geometry[0]+'');
@@ -72,7 +72,7 @@ describe('#parse()', function() {
         it('should delete a node', function(done) {
             var dir = { action: 'delete', object:'node', object_id:newId };
             new wiki.Diff().run(dir).then(function(d) {
-                assert(d.success, d.response);
+                assert(d.success, d.message);
                 return Node.find(d.object_id);
             }).then(function(nodes) {
                 expect(nodes).to.be.empty;
@@ -88,7 +88,7 @@ describe('#parse()', function() {
                 object_id: '1',
                 way_nodes: ['0-1','1-2']
             }).then(function(d) {
-                assert(d.success, d.response);
+                assert(d.success, d.message);
                 return Way.getNodes(d.object_id);
             }).then(function(nodes) {
                 expect(nodes[1].id).to.equal('2');
@@ -99,7 +99,7 @@ describe('#parse()', function() {
                 cs.add.node1, cs.add.node2,
                 cs.add.way1
             ]).then(function(drs) {
-                assert(drs[drs.length-1].success, drs[drs.length-1].response);
+                assert(drs[drs.length-1].success, drs[drs.length-1].message);
                 way1 = drs[2];
                 return Way.getNodes(drs[2].object_id);
             }).then(function(nodes) {
@@ -114,14 +114,14 @@ describe('#parse()', function() {
                 way_nodes: '0,1'
             };
             new wiki.Diff().run(dir).then(function(d) {
-                assert(d.success, d.response);
+                assert(d.success, d.message);
                 return Way.getNodes(d.object_id);
             }).then(function(nodes) {
                 expect(nodes).to.be.empty;
                 delete dir.way_nodes;
                 return new wiki.Diff().run(dir);
             }).then(function(d) {
-                assert(d.success, d.response);
+                assert(d.success, d.message);
                 return Way.find(d.object_id).then(function(w) {
                     expect(w).to.be.empty;
                 });
@@ -137,7 +137,7 @@ describe('#parse()', function() {
                 cs.add.node1, cs.add.node2,
                 cs.add.way1, cs.add.shape1
             ]).then(function(drs) {
-                assert(drs[drs.length-1].success, drs[drs.length-1].response);
+                assert(drs[drs.length-1].success, drs[drs.length-1].message);
                 node1 = drs[0]; shape1 = drs[3];
                 return Shape.getNodes({ shapes: drs[3].object_id });
             }).then(function(nodes) {
@@ -148,7 +148,7 @@ describe('#parse()', function() {
         it('should edit a shape', function(done) {
             cs.edit.shape1.object_id = shape1.object_id;
             new wiki.Diff().run(cs.edit.shape1).then(function(d) {
-                assert(d.success, d.response);
+                assert(d.success, d.message);
                 return Shape.find(d.object_id);
             }).then(function(shapes) {
                 expect(shapes[0].data.name).to.equal(cs.edit.shape1.data.name);
@@ -165,12 +165,12 @@ describe('#parse()', function() {
             };
             // (1) delete relations
             new wiki.Diff().run(dir).then(function(d) {
-                assert(d.success, d.response);
+                assert(d.success, d.message);
                 delete dir.shape_relations;
             // (2) delete shape
                 return new wiki.Diff().run(dir);
             }).then(function(d) {
-                assert(d.success, d.response);
+                assert(d.success, d.message);
                 return Shape.get(dir.object_id);
             }).then(function(shape) {
                 expect(shape.properties).to.be.null;
@@ -180,8 +180,14 @@ describe('#parse()', function() {
     });
 
     describe('#level', function() {
+        var dir = cs.add.level
     // TODO: it('should edit a level', function(done) {});
-    // TODO: it('should add a level', function(done) {});
+        /*it('should add a level', function(done) {
+            new wiki.Diff().run(dir).then(function(d) {
+                assert(d.success, d.message);
+            })
+            .then(done, done);
+        });*/
     // TODO: it('should delete a level', function(done) {});
     });
 
