@@ -16,7 +16,7 @@ var Level = module.exports = db.pg.model("levels", {
     methods: {
         types: function() {
             return Level.Type.where({ level_id: this.id })
-                .select(['id','name','color_1','color_2']).run();
+                .select(['id','name','color_1','color_2']);
         }
     }
 });

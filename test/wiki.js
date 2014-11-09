@@ -16,7 +16,7 @@ var newId;
 describe('Wiki', function() {
 
 describe('#parse()', function() {
-    it('should parse a directive', function(done) {
+    /*it('should parse a directive', function(done) {
         wiki.parse([ cs.add.node1 ]).then(function(drs) {
             var d = drs[0];
             expect(d.action).to.equal('add');
@@ -177,18 +177,48 @@ describe('#parse()', function() {
                 expect(shape.objects).to.be.empty;
             }).then(done, done);
         });
-    });
+    });*/
 
     describe('#level', function() {
+        var Level = require('../models/Level');
         var dir = cs.add.level
-    // TODO: it('should edit a level', function(done) {});
-        /*it('should add a level', function(done) {
+        it('should add a level', function(done) {
             new wiki.Diff().run(dir).then(function(d) {
                 assert(d.success, d.message);
-            })
-            .then(done, done);
-        });*/
-    // TODO: it('should delete a level', function(done) {});
+                dir.object_id = d.object_id;
+                return Level.find(d.object_id);
+            }).then(function(lvls) {
+                expect(lvls).to.have.length(1);
+                expect(lvls[0]).to.have.property('name', dir.data.name);
+            }).then(done, done);
+        });
+        it('should fail with incorrect input', function(done) {
+            delete dir.data.name;
+            new wiki.Diff().run(dir).then(function(d) {
+                expect(d.success).to.be.false;
+                expect(d.message).to.have.string('empty');
+            }).then(done, done);
+        });
+        it('should edit a level', function(done) {
+            dir.action = 'edit';
+            dir.data.name = 'admin-1';
+            new wiki.Diff().run(dir).then(function(d) {
+                assert(d.success, d.message);
+                return Level.find(d.object_id);
+            }).then(function(lvls) {
+                expect(lvls[0]).to.have.property('name', dir.data.name);
+            }).then(done, done);
+        });
+        it('should delete a level', function(done) {
+            dir.action = 'delete';
+            new wiki.Diff().run(dir).then(function(d) {
+                expect(d.message).to.have.string('not allowed');
+                /*assert(d.success, d.message);
+                return Level.find(dir.object_id);
+            }).then(function(lvls) {
+                expect(lvls).to.be.empty;*/
+            }).then(done, done);
+        });
     });
 
     describe('#type', function() {
