@@ -303,6 +303,48 @@ describe('#parse()', function() {
             }).then(done, done);
         });
     });
+
+    describe('#period', function() {
+        var Period = require('../models/Period');
+        var dir = cs.add.period
+        it('should add a period', function(done) {
+            new wiki.Diff().run(dir).then(function(d) {
+                assert(d.success, d.message);
+                dir.object_id = d.object_id;
+                return Period.find(d.object_id);
+            }).then(function(pers) {
+                expect(pers).to.have.length(1);
+                expect(pers[0]).to.have.property('name', dir.data.name);
+            }).then(done, done);
+        });
+        it('should fail with incorrect input', function(done) {
+            delete dir.data.start_year;
+            new wiki.Diff().run(dir).then(function(d) {
+                expect(d.success).to.be.false;
+                expect(d.message).to.have.string('empty');
+            }).then(done, done);
+        });
+        it('should edit a period', function(done) {
+            dir.action = 'edit';
+            dir.data.start_year = 1986;
+            new wiki.Diff().run(dir).then(function(d) {
+                assert(d.success, d.message);
+                return Period.find(d.object_id);
+            }).then(function(pers) {
+                expect(pers[0]).to.have.property('start_year', dir.data.start_year);
+            }).then(done, done);
+        });
+        it('should delete a period', function(done) {
+            dir.action = 'delete';
+            new wiki.Diff().run(dir).then(function(d) {
+                expect(d.message).to.have.string('not allowed');
+                /*assert(d.success, d.message);
+                return Period.find(dir.object_id);
+            }).then(function(pers) {
+                expect(pers).to.be.empty;*/
+            }).then(done, done);
+        });
+    });
 });
 
 describe('#commit()', function() {

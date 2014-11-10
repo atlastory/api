@@ -58,6 +58,12 @@ module.exports = {
       object_id: 'sc-1',
       data: { name: 'Node.js', source: 'test!!!!' }
     },
+    period: {
+      action: 'add',
+      object: 'period',
+      object_id: 'p-1',
+      data: { name: '1990-2000', start_year: 1990, end_year: 2000 }
+    },
   },
   edit: {
     node1: {
