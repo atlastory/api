@@ -52,6 +52,12 @@ module.exports = {
       object_id: 't-1',
       data: { name: 'city', level_id: '1' }
     },
+    type2: {
+      action: 'add',
+      object: 'type',
+      object_id: 't-2',
+      data: { name: 'state', level_id: 'l-1' }
+    },
     source: {
       action: 'add',
       object: 'source',

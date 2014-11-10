@@ -74,25 +74,27 @@ Directive._parseDirectives = function(id, directives) {
 
     function stringify(d, col) {
         if (typeof d[col] === 'object') d[col] = JSON.stringify(d[col]);
-        return d;
+        return d[col] ? d[col] : null;
     }
 
     return directives.map(function(d) {
         if (d.toJSON) d = d.toJSON();
-        d.action = d.action.toLowerCase();
-        d.object = d.object.toLowerCase();
-        d.changeset_id = id;
-        d.created_at = now;
-        d = stringify(d, 'data');
-        d = stringify(d, 'geometry');
-        d = stringify(d, 'way_nodes');
-        d = stringify(d, 'shape_relations');
-        return d;
+        var newD = {};
+        newD.action = d.action.toLowerCase();
+        newD.object = d.object.toLowerCase();
+        newD.changeset_id = id;
+        newD.created_at = now;
+        newD.data = stringify(d, 'data');
+        newD.geometry = stringify(d, 'geometry');
+        newD.way_nodes = stringify(d, 'way_nodes');
+        newD.shape_relations = stringify(d, 'shape_relations');
+        return newD;
     });
 };
 
 Directive.addQueryMethod("create", function(id, directives) {
-    return Directive.insert(Directive._parseDirectives(id, directives));
+    directives = Directive._parseDirectives(id, directives);
+    return Directive.insert(directives);
 }, function(directive) {
     return directive.id;
 });

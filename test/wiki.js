@@ -7,6 +7,7 @@ var _ = require('lodash');
 var wiki = require('../lib/wiki');
 var cs = require('./helpers/changeset');
 
+var Changeset = require('../models/Changeset');
 var Node = require('../models/Node');
 var Way = require('../models/Way');
 var Shape = require('../models/Shape');
@@ -132,10 +133,11 @@ describe('#parse()', function() {
 
     describe('#shape', function() {
         var node1, shape1;
+        var dir = _.clone(cs.add.shape1);
         it('should add a shape', function(done) {
             wiki.parse([
                 cs.add.node1, cs.add.node2,
-                cs.add.way1, cs.add.shape1
+                cs.add.way1, dir
             ]).then(function(drs) {
                 assert(drs[drs.length-1].success, drs[drs.length-1].message);
                 node1 = drs[0]; shape1 = drs[3];
@@ -181,7 +183,7 @@ describe('#parse()', function() {
 
     describe('#level', function() {
         var Level = require('../models/Level');
-        var dir = cs.add.level
+        var dir = _.clone(cs.add.level);
         it('should add a level', function(done) {
             new wiki.Diff().run(dir).then(function(d) {
                 assert(d.success, d.message);
@@ -223,7 +225,7 @@ describe('#parse()', function() {
 
     describe('#type', function() {
         var Type = require('../models/Type');
-        var dir = cs.add.type
+        var dir = _.clone(cs.add.type);
         it('should add a type', function(done) {
             new wiki.Diff().run(dir).then(function(d) {
                 assert(d.success, d.message);
@@ -265,7 +267,7 @@ describe('#parse()', function() {
 
     describe('#source', function() {
         var Source = require('../models/Source');
-        var dir = cs.add.source
+        var dir = _.clone(cs.add.source);
         it('should add a source', function(done) {
             new wiki.Diff().run(dir).then(function(d) {
                 assert(d.success, d.message);
@@ -306,7 +308,7 @@ describe('#parse()', function() {
 
     describe('#period', function() {
         var Period = require('../models/Period');
-        var dir = cs.add.period
+        var dir = _.clone(cs.add.period);
         it('should add a period', function(done) {
             new wiki.Diff().run(dir).then(function(d) {
                 assert(d.success, d.message);
@@ -348,11 +350,45 @@ describe('#parse()', function() {
 });
 
 describe('#commit()', function() {
-    // TODO: it('should update commit message', function(done) {});
+    var commit = {
+        message: 'Updated message',
+        directives: [
+            cs.add.type2,
+            cs.add.level,
+            cs.add.shape1,
+            cs.add.node1, cs.add.node2,
+            cs.add.way1
+        ]
+    };
 
-    // TODO: it('should sort directives', function(done) {});
+    before(function(done) {
+        Changeset.update(1, { status: 'start' }).then(function() { done(); });
+    });
 
-    // TODO: it('should record finished directives', function(done) {});
+    it('should update commit message', function(done) {
+        var msg = { message: 'Updated message', directives: [cs.add.node1] };
+        wiki.commit(1, msg).then(function(drs) {
+            expect(drs[drs.length-1]).to.have.property('status', 'success');
+            return Changeset.find(1);
+        }).then(function(cs) {
+            expect(cs[0]).to.have.property('message', msg.message);
+            return Changeset.update(1, { status: 'start' }).then(function() {});
+        }).then(done, done);
+    });
+
+    it('should sort directives', function(done) {
+        wiki.commit(1, commit).then(function(drs) {
+            expect(drs[drs.length-1]).to.have.property('status', 'success');
+            expect(drs[0].directive).to.have.string('level');
+        }).then(done, done);
+    });
+
+    it('should record finished directives', function(done) {
+        Changeset.get(1).then(function(cs) {
+            expect(cs.status).to.equal('done');
+            expect(cs.directives).to.have.length.above(6);
+        }).then(done, done);
+    });
 });
 
 });
