@@ -16,6 +16,7 @@ exports.show = function(req, res) {
                 'user: ' + changeset.user_id + '\n' +
                 'message: ' + changeset.message + '\n' +
                 'created: ' + changeset.created_at + '\n' +
+                'status: ' + changeset.status + '\n' +
                 'directives:\n' + changeset.directives.map(function(d) {
                     return '    ' + d.asString();
                 }).join('\n');
@@ -41,11 +42,11 @@ exports.create = function(req, res) {
     if (id) {
         // Changeset already exists; update
         Changeset.update(id, csData)
-          .then(function() { return addDirectives(id); })
+          //.then(function() { return addDirectives(id); })
           .fail(err.send(res));
     } else {
         Changeset.insert(csData)
-          .thenOne(function(c) { return addDirectives(c.id); })
+          //.thenOne(function(c) { return addDirectives(c.id); })
           .fail(err.send(res));
     }
 };
