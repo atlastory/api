@@ -53,7 +53,7 @@ exports.update = function(req, res) {
             name: req.param("name"),
             start_year: req.param("start_year"),
             end_year: req.param("end_year")
-        }).save().run();
+        }).save().catch(err.invalid(res));
     }).then(function(period) {
         res.jsonp(period);
     }).fail(err.send(res));
@@ -67,7 +67,7 @@ exports.destroy = function(req, res) {
 
     Period.find(id).then(function(period) {
         if (!period) return err.notFound(res)('Period '+id+' not found');
-        return period[0].remove().run();
+        return period[0].remove();
     }).then(function(period) {
         res.jsonp(period);
     }).fail(err.send(res));

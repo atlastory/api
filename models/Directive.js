@@ -82,6 +82,7 @@ Directive._parseDirectives = function(id, directives) {
         var newD = {};
         newD.action = d.action.toLowerCase();
         newD.object = d.object.toLowerCase();
+        newD.object_id = d.object_id;
         newD.changeset_id = id;
         newD.created_at = now;
         newD.data = stringify(d, 'data');

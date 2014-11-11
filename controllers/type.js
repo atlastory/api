@@ -55,7 +55,7 @@ exports.update = function(req, res) {
             level_id: req.param("level_id"),
             color_1: req.param("color_1"),
             color_2: req.param("color_2")
-        }).save().run();
+        }).save().catch(err.invalid(res));
     }).then(function(type) {
         res.jsonp(type);
     }).fail(err.send(res));
@@ -69,7 +69,7 @@ exports.destroy = function(req, res) {
 
     Type.find(id).then(function(types) {
         if (!types[0]) return err.notFound(res)('Type '+id+' not found');
-        return types[0].remove().run();
+        return types[0].remove();
     }).then(function(type) {
         res.jsonp(type);
     }).fail(err.send(res));

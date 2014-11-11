@@ -1,12 +1,12 @@
-var md = require('../lib/md.parser');
+var md = require('../lib/markdown');
+var err = require('../lib/errors');
 
 exports.index = function(req, res) {
-    md('index', function(err, html) {
-        if (err) res.send(304, "Error rendering markdown");
-        else {
-            res.render('index', {
+    md('docs/index').then(function(html) {
+        res.render('index', {
             title: "Atlastory API",
             content: html
-        });}
-    });
+        });
+    })
+    .fail(err.send(res, 304, "rendering markdown"));
 };

@@ -73,7 +73,7 @@ exports.update = function(req, res) {
         return level.update({
             name: req.param("name"),
             level: req.param("level")
-        }).save().run();
+        }).save().catch(err.invalid(res));
     }).then(function(level) {
         res.jsonp(level);
     }).fail(err.send(res));
@@ -87,7 +87,7 @@ exports.destroy = function(req, res) {
 
     Level.find(id).then(function(levels) {
         if (!levels[0]) return err.notFound(res)('Level '+id+' not found');
-        return levels[0].remove().run();
+        return levels[0].remove();
     }).then(function(level) {
         res.jsonp(level);
     }).fail(err.send(res));

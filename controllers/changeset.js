@@ -7,7 +7,7 @@ var Changeset = require('../models/Changeset'),
 // GET /changesets/:id
 exports.show = function(req, res) {
     var id = req.param("id");
-    var asString = (req.param("format") == 'text');
+    var asString = (req.param("format") == 'txt');
 
     Changeset.get(id).then(function(changeset) {
         if (!changeset) return err.notFound(res)('Changeset #'+id+' not found');
@@ -23,7 +23,7 @@ exports.show = function(req, res) {
             res.type('text/plain').send(txt);
         } else {
             changeset.directives = changeset.directives.map(function(d) {
-                return _.omit(d.toJSON(), ['id','changeset_id']);
+                return _.omit(d, ['id','changeset_id']);
             });
             res.jsonp(changeset);
         }
@@ -39,15 +39,26 @@ exports.create = function(req, res) {
         user = req.param("user_id"),
         csData = { message: message, user_id: user };
 
+    // TODO: OAuth check
     if (id) {
         // Changeset already exists; update
-        Changeset.update(id, csData)
-          //.then(function() { return addDirectives(id); })
-          .fail(err.send(res));
+        Changeset.find(id).thenOne(function(cs) {
+            if (!cs) return err.notFound(res)('Changeset #'+id+' not found');
+            return cs.update(csData).save().catch(err.invalid(res));
+        }).then(function() {
+            res.jsonp({
+                id: id,
+                response: 'Changeset updated'
+            });
+        }).fail(err.send(res));
     } else {
-        Changeset.insert(csData)
-          //.thenOne(function(c) { return addDirectives(c.id); })
-          .fail(err.send(res));
+        var cs = Changeset.new(csData);
+        cs.save().then(function(cs) {
+            res.jsonp({
+                id: cs[0].id,
+                response: 'Changeset created'
+            });
+        }).fail(err.invalid(res));
     }
 };
 

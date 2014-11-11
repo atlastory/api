@@ -46,7 +46,7 @@ exports.update = function(req, res) {
         return source.update({
             name: req.param("name"),
             source: req.param("source")
-        }).save().run();
+        }).save().catch(err.invalid(res));
     }).then(function(source) {
         res.jsonp(source);
     }).fail(err.send(res));
@@ -60,7 +60,7 @@ exports.destroy = function(req, res) {
 
     Source.find(id).then(function(source) {
         if (!source) return err.notFound(res)('Source '+id+' not found');
-        return source[0].remove().run();
+        return source[0].remove();
     }).then(function(source) {
         res.jsonp(source);
     }).fail(err.send(res));

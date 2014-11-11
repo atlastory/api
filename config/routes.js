@@ -9,11 +9,12 @@ function apiVersion1(v) {
 
     // Changesets
     match(v + '/changesets/:id',        'changeset#show');
+    match(v + '/changesets/:id.:format(json|txt)', 'changeset#show');
     match(v + '/changesets',            'changeset#create', { via: 'post' });
     match(v + '/changesets/create',     'changeset#create', { via: 'put' });
     match(v + '/changesets/:id',        'changeset#create', { via: 'put' });
-    match(v + '/changesets/:id/commit', 'changeset#commit');
-    match(v + '/changesets/:id/close',  'changeset#commit');
+    match(v + '/changesets/:id/commit', 'changeset#commit', { via: 'post' });
+    match(v + '/changesets/:id/close',  'changeset#commit', { via: 'put' });
 
     // Time periods
     resources(v + '/periods', 'period');
