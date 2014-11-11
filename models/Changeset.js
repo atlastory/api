@@ -12,7 +12,8 @@ var Changeset = module.exports = pg.model("changesets", {
         status:     { type: function(s) {
             return _.contains(['start', 'done', 'failed'], s);
         }, default: 'start' },
-        created_at: Date
+        created_at: Date,
+        finished_at: Date
     }
 });
 var Directive = Changeset.Directive = require('./Directive');

@@ -69,6 +69,7 @@ CREATE TABLE changesets (
     message text,
     status varchar(10) DEFAULT 'start',
     created_at timestamp without time zone NOT NULL DEFAULT NOW(),
+    finished_at timestamp without time zone,
     CONSTRAINT changesets_pkey PRIMARY KEY (id)
 );
 
@@ -270,8 +271,8 @@ $$  LANGUAGE plpgsql;
 
 -- SEED DATA
 
-INSERT INTO changesets (user_id, message, status) VALUES
-    (1, 'Initial commit', 'done');
+INSERT INTO changesets (user_id, message, status, finished_at) VALUES
+    (1, 'Initial commit', 'done', NOW());
 INSERT INTO directives (changeset_id, action, object, object_id, data) VALUES
     (1, 'add', 'period', 1, '{"name":"1999-2000","start_year":1999,"end_year":2000}'),
     (1, 'add', 'level', 1, '{"name":"land","level":1}'),
