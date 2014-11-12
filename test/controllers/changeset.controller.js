@@ -80,9 +80,17 @@ describe('GET /changesets/:id', function() {
           }).end(done);
     });
 
+    it('should respond with changeset txt', function(done) {
+        request.get('/changesets/'+id+'.txt')
+          .set('Accept', 'application/json')
+          .expect('Content-Type', /text/)
+          .expect(200)
+          .expect(function(res) {
+            expect(res.text).to.have.string("directives");
+          }).end(done);
+    });
 
-
-    /*it('should respond with error', function(done) {
+    it('should respond with error', function(done) {
         request.get('/changesets/111222')
           .set('Accept', 'application/json')
           .expect('Content-Type', /json/)
@@ -90,7 +98,7 @@ describe('GET /changesets/:id', function() {
           .expect(function(res) {
             expect(res.body.message).to.have.string("not found");
           }).end(done);
-    });*/
+    });
 });
 
 

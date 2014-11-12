@@ -29,7 +29,7 @@ Changeset.get = function(id) {
             user_id: changesets[0].user_id,
             message: changesets[0].message,
             status: changesets[0].status,
-            directives: directives.map(function(d) { return d.toJSON(); }),
+            directives: directives,
             created_at: changesets[0].created_at
         };
     });

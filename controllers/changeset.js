@@ -7,7 +7,11 @@ var Changeset = require('../models/Changeset'),
 // GET /changesets/:id
 exports.show = function(req, res) {
     var id = req.param("id");
-    var asString = (req.param("format") == 'txt');
+
+    // Fix bug in Express that doesnt recognize :format
+    var format = req.param("format") || id.split('.')[1];
+    if (format) id = id.split('.')[0];
+    var asString = (format == 'txt');
 
     Changeset.get(id).then(function(changeset) {
         if (!changeset) return err.notFound(res)('Changeset #'+id+' not found');
@@ -23,7 +27,7 @@ exports.show = function(req, res) {
             res.type('text/plain').send(txt);
         } else {
             changeset.directives = changeset.directives.map(function(d) {
-                return _.omit(d, ['id','changeset_id']);
+                return _.omit(d.toJSON(), ['id','changeset_id']);
             });
             res.jsonp(changeset);
         }
