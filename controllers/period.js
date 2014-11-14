@@ -81,12 +81,12 @@ var formats = {
     //json: 'getShapeData'
 };
 
-// GET /year/:year/:type.:format
+// GET /year/:year/:type(.:format)
 exports.year = function(req, res) {
     var year = req.param("year"),
         type = req.param("type"),
         box = req.param("bbox"),
-        format = req.param("format");
+        format = req.param("format") || 'json';
 
     if (box) box = box.replace(/\s/g,'').split(',');
     if (box && box.length < 4) return err.invalid(res)("Box needs 2 points (x1, y1, x2, y2)");
@@ -107,13 +107,13 @@ exports.year = function(req, res) {
     }).fail(err.send(res));
 };
 
-// GET /periods/:pid/:type.:format
+// GET /periods/:pid/:type(.:format)
 exports.shapes = function(req, res, f) {
     var pid = req.param("pid") || req.param("period_id") || req.param("period"),
         type = req.param("type"),
         tid = parseFloat(req.param("type_id")),
         box = req.param("bbox"),
-        format = req.param("format") || f;
+        format = req.param("format") || f || 'json';
 
     pid = parseFloat(pid);
     if (box) box = box.replace(/\s/g,'').split(',');

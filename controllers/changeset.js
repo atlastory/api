@@ -4,18 +4,15 @@ var Changeset = require('../models/Changeset'),
     err = require('../lib/errors');
 
 
-// GET /changesets/:id
+// GET /changesets/:id(.:format)
 exports.show = function(req, res) {
     var id = req.param("id");
 
-    // Fix bug in Express that doesnt recognize :format
-    var format = req.param("format") || id.split('.')[1];
-    if (format) id = id.split('.')[0];
-    var asString = (format == 'txt');
-
     Changeset.get(id).then(function(changeset) {
         if (!changeset) return err.notFound(res)('Changeset #'+id+' not found');
-        if (asString) {
+
+        switch (req.param("format")) {
+        case "txt":
             var txt = 'id: ' + changeset.id + '\n' +
                 'user: ' + changeset.user_id + '\n' +
                 'message: ' + changeset.message + '\n' +
@@ -25,7 +22,9 @@ exports.show = function(req, res) {
                     return '    ' + d.asString();
                 }).join('\n');
             res.type('text/plain').send(txt);
-        } else {
+            break;
+
+        default:
             changeset.directives = changeset.directives.map(function(d) {
                 return _.omit(d.toJSON(), ['id','changeset_id']);
             });
@@ -78,9 +77,9 @@ exports.create = function(req, res) {
 // Accepts { message: '', directives: [] }
 exports.commit = function(req, res) {
     var id = req.param("id"),
-        body = req.body;
+        data = req.body;
 
-    wiki.commit(id, body).then(function(directives) {
+    wiki.commit(id, data).then(function(directives) {
         res.jsonp(directives);
     }).fail(err.send(res));
 };

@@ -1,4 +1,3 @@
-module.exports = function(match, resources) {
 
 match('/', 'home#index');
 
@@ -7,19 +6,20 @@ apiVersion1('/v1');
 
 function apiVersion1(v) {
 
+    // all (v + '*', requireAuth, loadUser);
+
     // Changesets
-    match(v + '/changesets/:id',        'changeset#show');
-    match(v + '/changesets/:id.:format(json|txt)', 'changeset#show');
-    match(v + '/changesets',            'changeset#create', { via: 'post' });
-    match(v + '/changesets/create',     'changeset#create', { via: 'put' });
-    match(v + '/changesets/:id',        'changeset#create', { via: 'put' });
-    match(v + '/changesets/:id/commit', 'changeset#commit', { via: 'post' });
-    match(v + '/changesets/:id/close',  'changeset#commit', { via: 'put' });
+    get (v + '/changesets/:id.?:format(json|txt)?', 'changeset#show');
+    post(v + '/changesets',            'changeset#create');
+    put (v + '/changesets/create',     'changeset#create');
+    put (v + '/changesets/:id',        'changeset#create');
+    post(v + '/changesets/:id/commit', 'changeset#commit');
+    put (v + '/changesets/:id/close',  'changeset#commit');
 
     // Time periods
     resources(v + '/periods', 'period');
-    match(v + '/periods/:pid/:type.:format(json|geojson|topojson)', 'period#shapes');
-    match(v + '/year/:year/:type.:format(json|geojson|topojson)', 'period#year');
+    match(v + '/periods/:pid/:type.?:format(json|geojson|topojson)?', 'period#shapes');
+    match(v + '/year/:year/:type.?:format(json|geojson|topojson)?', 'period#year');
     match(v + '/geojson', 'period#geojson');
     match(v + '/topojson', 'period#topojson');
 
@@ -41,5 +41,3 @@ function apiVersion1(v) {
     // Users
     // match(v + '/@:username', 'user#profile');
 }
-
-};

@@ -32,7 +32,7 @@
 
         "lodash": "*",
         "q": "~1.0.1",
-        "grand-central-junction": "*",
+        "grand-central-junction": "0.1.0",
         "grand-central-records": "0.5.0",
         "pg": "3.5.0",
 
