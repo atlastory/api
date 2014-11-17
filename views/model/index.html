@@ -1,0 +1,26 @@
+{% extends './layout.html' %}
+
+{% block title %}{{ title }}: Index{% endblock %}
+
+{% block content %}
+
+    <table class="table table-striped table-condensed">
+        <tr>
+            <th>id</th>
+            {% for col in columns -%}
+                <th>{{ col }}</th>
+            {% endfor %}
+        </tr>
+        {% for row in rows -%}
+        <tr>
+            <td>{{ row.id }}</td>
+            {% for col in columns -%}
+                {% if row[col].getDate %}<td>{{ row[col]|date('Y-m-d H:m') }}</td>
+                {% else %}<td>{{ row[col] }}</td>
+                {% endif %}
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </table>
+
+{% endblock %}

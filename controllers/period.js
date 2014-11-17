@@ -7,16 +7,32 @@ var Period = require('../models/Period'),
 // GET /periods
 exports.index = function(req, res) {
     Period.all().then(function(periods) {
-        res.jsonp(periods);
+        if (req.param("format") == 'html') {
+            res.render('model/index', {
+                title: 'Periods',
+                columns: Object.keys(periods[0].toJSON()),
+                rows: periods
+            });
+        } else {
+            res.jsonp(periods);
+        }
     }).fail(err.send(res));
 };
 
 // GET /periods/:id
 exports.show = function(req, res) {
     var id = req.param("id");
-    Period.find(id).then(function(period) {
-        if (!period.length) return err.notFound(res)('Period '+id+' not found');
-        res.jsonp(period[0]);
+    Period.find(id).thenOne(function(period) {
+        if (!period) return err.notFound(res)('Period '+id+' not found');
+        if (req.param("format") == 'html') {
+            res.render('model/show', {
+                title: 'Periods',
+                columns: Object.keys(period.toJSON()),
+                item: period
+            });
+        } else {
+            res.jsonp(period);
+        }
     }).fail(err.send(res));
 };
 

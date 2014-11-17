@@ -17,7 +17,8 @@ function apiVersion1(v) {
     put (v + '/changesets/:id/close',  'changeset#commit');
 
     // Time periods
-    resources(v + '/periods', 'period');
+    get (v + '/periods.?:format(json|html)?',     'period#index');
+    get (v + '/periods/:id.?:format(json|html)?', 'period#show');
     match(v + '/periods/:pid/:type.?:format(json|geojson|topojson)?', 'period#shapes');
     match(v + '/year/:year/:type.?:format(json|geojson|topojson)?', 'period#year');
     match(v + '/geojson',  'period#geojson');
