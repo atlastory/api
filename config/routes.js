@@ -20,15 +20,17 @@ function apiVersion1(v) {
     resources(v + '/periods', 'period');
     match(v + '/periods/:pid/:type.?:format(json|geojson|topojson)?', 'period#shapes');
     match(v + '/year/:year/:type.?:format(json|geojson|topojson)?', 'period#year');
-    match(v + '/geojson', 'period#geojson');
+    match(v + '/geojson',  'period#geojson');
     match(v + '/topojson', 'period#topojson');
+    // match(v + '/year/:year/periods')
 
     // Nodes, Ways, Shapes
-    // resources(v + '/nodes', 'node');
-    // resources(v + '/ways', 'way');
-    // resources(v + '/shapes', 'shape');
-    // match('/shapes/:id.json', 'shape#show');
-    // match('/shapes/:id.:format(geojson|topojson)', 'shape#geo');
+    get (v + '/nodes',     'node#index');
+    get (v + '/nodes/:id', 'node#show');
+    get (v + '/ways',      'way#index');
+    get (v + '/ways/:id.?:format(json|geojson|topojson)?', 'way#show');
+    get (v + '/shapes',    'shape#index');
+    get (v + '/shapes/:id.?:format(json|geojson|topojson)?', 'shape#show');
 
     // Levels & Types
     resources(v + '/levels', 'level');
