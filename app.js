@@ -4,15 +4,19 @@ var express = require('express'),
     logger = require('morgan'),
     cookieParser = require('cookie-parser'),
     bodyParser = require('body-parser'),
-    debug = require('debug')('my-application'),
+    debug = require('debug')('atlastory-api'),
+    swig = require('swig'),
     gcj = require('grand-central-junction'),
     app = express();
 
 app.enable("jsonp callback");
 
 app.set('port', process.env.PORT || 3000);
+
+swig.setDefaults({ cache: false });
+app.engine('html', swig.renderFile);
+app.set('view engine', 'html');
 app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
 
 app.use(favicon());
 app.use(logger('dev'));
