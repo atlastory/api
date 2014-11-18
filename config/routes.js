@@ -34,12 +34,15 @@ function apiVersion1(v) {
     get (v + '/shapes/:id.?:format(json|geojson|topojson)?', 'shape#show');
 
     // Levels & Types
-    resources(v + '/levels', 'level');
-    resources(v + '/types', 'type');
-    match(v + '/levels/:id/types', 'level#types');
+    get (v + '/levels.?:format(json|html)?',     'level#index');
+    get (v + '/levels/:id.?:format(json|html)?', 'level#show');
+    get (v + '/types.?:format(json|html)?',      'type#index');
+    get (v + '/types/:id.?:format(json|html)?',  'type#show');
+    get (v + '/levels/:id/types', 'level#types');
 
     // Sources
-    resources(v + '/sources', 'source');
+    get (v + '/sources.?:format(json|html)?',     'source#index');
+    get (v + '/sources/:id.?:format(json|html)?', 'source#show');
 
     // Users
     // match(v + '/@:username', 'user#profile');

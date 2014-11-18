@@ -1,0 +1,18 @@
+<table class="table table-bordered table-condensed">
+    <tr>
+        {%- set item = table[0] -%}
+        {%- set columns = Object.keys(item) -%}
+        {%- for col in columns -%}
+            <th>{{ col }}</th>
+        {%- endfor -%}
+    </tr>
+    {%- for row in table -%}
+    <tr>
+        {%- for col in columns -%}
+            {%- if row[col].getDate %}<td>{{ row[col]|date('Y-m-d H:m') }}</td>
+            {%- else %}<td>{{ row[col] }}</td>
+            {%- endif -%}
+        {%- endfor -%}
+    </tr>
+    {%- endfor -%}
+</table>

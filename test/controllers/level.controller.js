@@ -57,7 +57,7 @@ describe('GET /levels/:id', function() {
     });
 });
 
-describe('POST /levels', function() {
+/*describe('POST /levels', function() {
     it('should fail with incorrect input', function(done) {
         request.post('/levels')
           .send({ name: 'admin1' })
@@ -122,7 +122,7 @@ describe('DELETE /levels/:id', function() {
           .expect(200)
           .end(done);
     });
-});
+});*/
 
 
 });

@@ -5,16 +5,32 @@ var Source = require('../models/Source'),
 // GET /sources
 exports.index = function(req, res) {
     Source.all().then(function(sources) {
-        res.jsonp(sources);
+        if (req.param("format") == 'html') {
+            res.render('model/index', {
+                title: 'Sources',
+                columns: Object.keys(sources[0]),
+                rows: sources
+            });
+        } else {
+            res.jsonp(sources);
+        }
     }).fail(err.send(res));
 };
 
 // GET /sources/:id
 exports.show = function(req, res) {
     var id = req.param("id");
-    Source.find(id).then(function(sources) {
-        if (!sources.length) return err.notFound(res)('Source '+id+' not found');
-        res.jsonp(sources[0]);
+    Source.find(id).thenOne(function(source) {
+        if (!source) return err.notFound(res)('Source '+id+' not found');
+        if (req.param("format") == 'html') {
+            res.render('model/show', {
+                title: 'Sources',
+                columns: Object.keys(source.toJSON()),
+                item: source
+            });
+        } else {
+            res.jsonp(source);
+        }
     }).fail(err.send(res));
 };
 

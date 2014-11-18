@@ -46,7 +46,7 @@ describe('GET /types/:id', function() {
     });
 });
 
-describe('POST /types', function() {
+/*describe('POST /types', function() {
     it('should fail with incorrect input', function(done) {
         request.post('/types')
           .send({ name: 'country' })
@@ -111,7 +111,7 @@ describe('DELETE /types/:id', function() {
           .expect(200)
           .end(done);
     });
-});
+});*/
 
 
 });

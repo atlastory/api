@@ -47,7 +47,7 @@ describe('GET /periods/:id', function() {
     });
 });
 
-describe('POST /periods', function() {
+/*describe('POST /periods', function() {
     it('should fail with incorrect input', function(done) {
         request.post('/periods')
           .send({ start_year: 1986 })
@@ -114,7 +114,7 @@ describe('DELETE /periods/:id', function() {
           .expect(200)
           .end(done);
     });
-});
+});*/
 
 describe('GET /periods/:pid/:type.:format', function() {
     it('should get geojson with type name', function(done) {

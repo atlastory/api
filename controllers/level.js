@@ -5,7 +5,15 @@ var Level = require('../models/Level'),
 // GET /levels
 exports.index = function(req, res) {
     Level.all().then(function(levels) {
-        res.jsonp(levels);
+        if (req.param("format") == 'html') {
+            res.render('model/index', {
+                title: 'Levels',
+                columns: Object.keys(levels[0].toJSON()),
+                rows: levels
+            });
+        } else {
+            res.jsonp(levels);
+        }
     }).fail(err.send(res));
 };
 
@@ -17,14 +25,21 @@ exports.show = function(req, res) {
         Level.where({ name: id }) :
         Level.find(id);
 
-    find.then(function(levels) {
-        if (!levels.length) return err.notFound(res)('Level '+id+' not found');
-        level = levels[0];
-        return level.types();
+    find.thenOne(function(lvl) {
+        if (!lvl) return err.notFound(res)('Level '+id+' not found');
+        level = lvl;
+        return level.getTypes();
     }).then(function(types) {
         level = level.toJSON();
-        level.types = types;
-        res.jsonp(level);
+        level.types = types.map(function(t) { return t.toJSON(); });
+
+        if (req.param("format") == 'html') {
+            res.render('model/show', {
+                title: 'Levels',
+                columns: Object.keys(level),
+                item: level
+            });
+        } else res.jsonp(level);
     }).fail(err.send(res));
 };
 
@@ -39,7 +54,7 @@ exports.types = function(req, res) {
     find.then(function(levels) {
         if (!levels.length) return err.notFound(res)('Level '+id+' not found');
         level = levels[0];
-        return Level.Type.where({ level_id: level.id }).run();
+        return Level.Type.where({ level_id: level.id });
     }).then(function(types) {
         res.jsonp(types);
     }).fail(err.send(res));

@@ -14,7 +14,7 @@ var Level = module.exports = db.pg.model("levels", {
         updated_at: Date
     },
     methods: {
-        types: function() {
+        getTypes: function() {
             return Level.Type.where({ level_id: this.id })
                 .select(['id','name','color_1','color_2']);
         }
