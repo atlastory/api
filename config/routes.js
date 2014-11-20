@@ -1,7 +1,10 @@
 
 match('/', 'home#index');
 
-apiVersion1('');    // Most recent version
+// Current version
+apiVersion1('');
+
+// Previous versions
 apiVersion1('/v1');
 
 function apiVersion1(v) {

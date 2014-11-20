@@ -1,6 +1,3 @@
--- Partly based on OpenStreetMap data structure:
--- https://github.com/openstreetmap/openstreetmap-website/blob/master/db/structure.sql
-
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET client_encoding = 'UTF8';
@@ -51,23 +48,21 @@ CREATE TYPE directive AS ENUM (
 
 -- TABLES
 
-DROP TABLE IF EXISTS public.changesets CASCADE;
-DROP TABLE IF EXISTS public.directives CASCADE;
-DROP TABLE IF EXISTS public.levels CASCADE;
-DROP TABLE IF EXISTS public.types CASCADE;
-DROP TABLE IF EXISTS public.periods CASCADE;
-DROP TABLE IF EXISTS public.sources CASCADE;
-DROP TABLE IF EXISTS public.nodes CASCADE;
-DROP TABLE IF EXISTS public.ways CASCADE;
-DROP TABLE IF EXISTS public.way_nodes CASCADE;
-DROP TABLE IF EXISTS public.shapes CASCADE;
-DROP TABLE IF EXISTS public.shape_relations CASCADE;
+CREATE TABLE config (
+    key varchar(255),
+    value text,
+    CONSTRAINT config_pkey PRIMARY KEY (key)
+);
 
 CREATE TABLE changesets (
     id serial8 NOT NULL,
     user_id integer NOT NULL,
     message text,
     status varchar(10) DEFAULT 'start',
+    min_lat integer,
+    max_lat integer,
+    min_lon integer,
+    max_lon integer,
     created_at timestamp without time zone NOT NULL DEFAULT NOW(),
     finished_at timestamp without time zone,
     CONSTRAINT changesets_pkey PRIMARY KEY (id)
@@ -268,21 +263,3 @@ $$  DECLARE new_id BIGINT;
       RETURN new_id;
     END;
 $$  LANGUAGE plpgsql;
-
--- SEED DATA
-
-INSERT INTO changesets (user_id, message, status, finished_at) VALUES
-    (1, 'Initial commit', 'done', NOW());
-INSERT INTO directives (changeset_id, action, object, object_id, data) VALUES
-    (1, 'add', 'period', 1, '{"name":"1999-2000","start_year":1999,"end_year":2000}'),
-    (1, 'add', 'level', 1, '{"name":"land","level":1}'),
-    (1, 'add', 'type', 1, '{"name":"land","level_id":1}'),
-    (1, 'add', 'source', 1, '{"name":"Atlastory Contributors","source":"http://forum.atlastory.com/"}');
-INSERT INTO periods (name, start_year, end_year) VALUES
-    ('1999-2000', 1999, 2000);
-INSERT INTO levels (name, level) VALUES ('land', 1);
-INSERT INTO types (level_id, name) VALUES (1, 'land');
-
-INSERT INTO sources (name, source) VALUES
-    ('Atlastory Contributors', 'http://forum.atlastory.com/');
-

@@ -10,7 +10,7 @@ module.exports = {
         "database": env.DB_DATABASE || "atlastory",
         "username": env.DB_USER || "",
         "password": env.DB_PASS || "",
-        "test": env.DB_TEST || "test"
+        "test": env.DB_TEST || "atlastory_test"
     },
 
     // Switch for 'test' database

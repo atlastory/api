@@ -1,6 +1,6 @@
 {
     "name": "atlastory-api",
-    "version": "0.1.1",
+    "version": "0.8.8",
     "homepage": "http://www.atlastory.com/",
     "description": "An API for historic map data",
     "directories": {
@@ -40,7 +40,8 @@
         "highlight.js": "~8.3.0",
         "topojson": "1.2.2",
         "hstore.js": "~0.1.0",
-        "geojsonhint": "~0.3.1"
+        "geojsonhint": "~0.3.1",
+        "semver": "~4.1.0"
     },
     "keywords": [
         "maps",
@@ -50,7 +51,7 @@
     "bugs": {
         "url": "https://github.com/atlastory/api/issues"
     },
-    "license": "",
+    "license": "New BSD",
     "author": {
         "name": "Atlastory, Inc.",
         "url": "http://www.atlastory.com/"
