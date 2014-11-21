@@ -61,8 +61,7 @@ exports.update = function(req, res) {
 
     if (isNaN(id)) return err.invalid(res)('ID required');
 
-    Period.find(id).then(function(period) {
-        period = period[0];
+    Period.find(id).thenOne(function(period) {
         if (!period) return err.notFound(res)('Period '+id+' not found');
 
         return period.update({
@@ -81,9 +80,9 @@ exports.destroy = function(req, res) {
 
     if (isNaN(id)) return err.invalid(res)('ID required');
 
-    Period.find(id).then(function(period) {
+    Period.find(id).thenOne(function(period) {
         if (!period) return err.notFound(res)('Period '+id+' not found');
-        return period[0].remove();
+        return period.remove();
     }).then(function(period) {
         res.jsonp(period);
     }).fail(err.send(res));

@@ -1,15 +1,14 @@
 # Atlastory API Documentation
 
-this is a text with a [link](link)
-This is ++underlined text++ and this is ==highlighted text==.
+*WORK IN PROGRESS*
 
-```js
-var test = 1;
+## Uploading a Changeset (i.e. making a contribution)
 
-function(a, b) {
-    return a * 2;
-}
-```
+1. Create Changeset `POST /changesets`
+    * Need to be signed in for OAuth
+2. Upload Directives and commit Changeset `POST /changesets/:id/commit`
+    * `{ message: "", directives: [...] }`
+    * Requires commit message if not already posted
 
 ## GeoJSON
 

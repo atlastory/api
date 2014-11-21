@@ -19,17 +19,16 @@ exports.index = function(req, res) {
 
 // GET /levels/:id
 exports.show = function(req, res) {
-    var id = req.param("id"), level;
+    var id = req.param("id");
 
     var find = isNaN(parseFloat(id)) ?
         Level.where({ name: id }) :
         Level.find(id);
 
-    find.thenOne(function(lvl) {
-        if (!lvl) return err.notFound(res)('Level '+id+' not found');
-        level = lvl;
-        return level.getTypes();
-    }).then(function(types) {
+    find.thenOne(function(level) {
+        if (!level) return err.notFound(res)('Level '+id+' not found');
+        return [level, level.getTypes()];
+    }).spread(function(level, types) {
         level = level.toJSON();
         level.types = types.map(function(t) { return t.toJSON(); });
 
