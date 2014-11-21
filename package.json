@@ -12,6 +12,7 @@
         "url": "https://github.com/atlastory/api.git"
     },
     "scripts": {
+        "prestart": "node bin/migrate",
         "start": "node app",
         "test": "mocha --reporter list --bail ./test/reset.js ./test/models/*.js ./test/*.js ./test/*/**.js"
     },
@@ -33,7 +34,7 @@
         "lodash": "*",
         "q": "~1.0.1",
         "grand-central-junction": "0.1.0",
-        "grand-central-records": "0.5.0",
+        "grand-central-records": "0.5.2",
         "pg": "3.5.0",
 
         "remarkable": "~1.2.0",
@@ -56,5 +57,8 @@
         "name": "Atlastory, Inc.",
         "url": "http://www.atlastory.com/"
     },
-    "contributors": []
+    "contributors": [],
+    "engines": {
+        "node": ">0.10 <0.11"
+    }
 }

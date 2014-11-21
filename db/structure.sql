@@ -26,11 +26,6 @@ DROP TYPE IF EXISTS nws_enum CASCADE;
 DROP TYPE IF EXISTS atlastory_object CASCADE;
 DROP TYPE IF EXISTS directive CASCADE;
 
-CREATE TYPE format_enum AS ENUM (
-    'html',
-    'markdown',
-    'text'
-);
 CREATE TYPE nws_enum AS ENUM (
     'Node',
     'Way',
@@ -52,7 +47,6 @@ CREATE TYPE directive AS ENUM (
     'link',    -- link shape to new period
     'split'    -- clone shape into new period
 );
-
 
 
 -- TABLES
@@ -285,3 +279,6 @@ $$  DECLARE new_id BIGINT;
       RETURN new_id;
     END;
 $$  LANGUAGE plpgsql;
+
+-- Insert blank version number (important for future migrations)
+INSERT INTO config (key, value) VALUES ('version', '');

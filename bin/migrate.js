@@ -101,10 +101,20 @@ if (command == 'init') {
 
     console.log('Initializing database structure in:', dbName);
 
+    var v = require('../package.json').version;
+
     util.promiseSeries([
         { file: path.join(__dirname, '../db/structure.sql') },
-        { file: path.join(__dirname, '../db/seeds.sql') }
+        { file: path.join(__dirname, '../db/seeds.sql'), version: v }
     ], migrateFile)
+    .thenResolve('migration : complete')
+    .then(console.log)
+    .fail(console.error)
+    .fin(pg.end);
+}
+
+else if (command == 'seed') {
+    migrateFile({ file: path.join(__dirname, '../db/seeds.sql') })
     .thenResolve('migration : complete')
     .then(console.log)
     .fail(console.error)

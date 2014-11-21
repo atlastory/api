@@ -33,7 +33,9 @@ gcj.route(app);
 
 /// catch 404 and forwarding to error handler
 app.use(function(req, res, next) {
-    var err = new Error('Not Found');
+    var msg = req.path ? "Path '"+ req.path +"' Not Found" : 'Not Found';
+    var err = new Error(msg);
+    //if (/\.html$/.test(req.path) || req.accepts('html')) err.format = 'html';
     err.status = 404;
     next(err);
 });
@@ -41,12 +43,25 @@ app.use(function(req, res, next) {
 /// error handler
 
 app.use(function(err, req, res, next) {
-    var error = (app.get('env') === 'development') ? err : {};
-    res.status(err.status || 500);
-    res.render('error', {
+    var error = {
+        error: true,
+        code: err.status || err.code || 500,
         message: err.message,
-        error: err
-    });
+        stack: err.stack
+    };
+    if (process.env.ENV === 'production') delete error.stack;
+    res.status(error.code);
+
+    if (/\.html$/.test(req.path) || (req.accepts('html') && !req.accepts('json'))) {
+        res.render('error', {
+            message: err.message,
+            error: error
+        });
+    } else {
+        if (error.stack && typeof err.stack == 'string')
+            error.stack = err.stack.split('\n    ');
+        res.jsonp(error);
+    }
 });
 
 /// serve
