@@ -23,6 +23,7 @@ log
 sandbox.js
 sandbox
 
-/node_modules
+# Local configuration
+node_modules
 VERSION
-atlastory-db.json
+.env
