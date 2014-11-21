@@ -1,17 +1,18 @@
 process.env.TEST = 'true';
 
-var assert = require('assert');
 var path = require('path');
 var fs = require('fs');
-var config = require('../config/config');
+var Q = require('q');
 var pg = require('../services/db').pg;
 
+var readFile = Q.denodeify(fs.readFile);
 
 describe('reset', function() {
     it('should reset the database', function(done) {
-        fs.readFile(path.resolve('./db/postgres.sql'), function(err, sql) {
-            if (err) throw err;
-            pg.query(sql+'').fin(done);
-        });
+        readFile(path.resolve('./db/structure.sql'))
+        .then(function(sql) { return pg.query(sql+''); })
+        .then(function() { return readFile(path.resolve('./db/seeds.sql')); })
+        .then(function(sql) { pg.query(sql+''); })
+        .then(done, done);
     });
 });

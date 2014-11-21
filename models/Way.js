@@ -43,7 +43,7 @@ Way.create = function(coords, data) {
 
     return Way.insert(_.extend(wayData, { id: [['DEFAULT']] })).returning('id')
     .then(function(ways) {
-        return Way.addNodes(parseFloat(ways[0].id), 0, coords);
+        return Way.addNodes(ways[0].id, 0, coords);
     });
 };
 
@@ -62,7 +62,7 @@ Way.addQueryMethod('addNodes', function(wayId, position, nodes) {
     var esc = pg.engine.escape;
 
     nodes = _.compact(nodes.map(function(n) {
-        if (_.isNumber(n)) {
+        if (_.isNumber(n) || _.isString(n)) {
             return n;
         } else if (_.isPlainObject(n) && _.isNumber(n.latitude)) {
             if (!util.verifyCoord([n.longitude, n.latitude])) return null;
@@ -99,23 +99,23 @@ Way.addQueryMethod('addNodes', function(wayId, position, nodes) {
 /**
  * Removes nodes from way (must be sequential)
  * @param {number} wayId
- * @param {number[]} nodeIds Array of node IDs to remove
+ * @param {number[]} seqIds Array of sequence IDs to remove
  */
-Way.addQueryMethod('removeNodes', function(wayId, nodeIds) {
-    if (!_.isArray(nodeIds)) nodeIds = [nodeIds];
+Way.addQueryMethod('removeNodes', function(wayId, seqIds) {
+    if (!_.isArray(seqIds)) seqIds = [seqIds];
 
     var sequence = _.uniqueId('way_seq_'),
         queue = pg.queue()
-        .add(Way.Node.where({ way_id: wayId, node_id: nodeIds }).remove());
+        .add(Way.Node.where({ way_id: wayId, sequence_id: seqIds }).remove());
 
     // Re-numbers sequence without losing order
     queue.add('CREATE SEQUENCE ' + sequence)
       .add("UPDATE way_nodes SET sequence_id = newseq FROM (" +
-        "SELECT node_id, (nextval(:seq) - 1) AS newseq FROM " +
-            "(SELECT node_id FROM way_nodes WHERE way_id = :way ORDER BY sequence_id) AS sub" +
+        "SELECT sequence_id, (nextval(:seq) - 1) AS newseq FROM " +
+            "(SELECT sequence_id FROM way_nodes WHERE way_id = :way ORDER BY sequence_id) AS sub" +
         ") AS new_table WHERE " +
         "way_nodes.way_id = :way AND " +
-        "way_nodes.node_id = new_table.node_id",
+        "way_nodes.sequence_id = new_table.sequence_id",
         { way: wayId, seq: sequence })
       .add('DROP SEQUENCE ' + sequence);
 

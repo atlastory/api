@@ -5,26 +5,40 @@ var Level = require('../models/Level'),
 // GET /levels
 exports.index = function(req, res) {
     Level.all().then(function(levels) {
-        res.jsonp(levels);
+        if (req.param("format") == 'html') {
+            res.render('model/index', {
+                title: 'Levels',
+                columns: Object.keys(levels[0].toJSON()),
+                rows: levels
+            });
+        } else {
+            res.jsonp(levels);
+        }
     }).fail(err.send(res));
 };
 
 // GET /levels/:id
 exports.show = function(req, res) {
-    var id = req.param("id"), level;
+    var id = req.param("id");
 
     var find = isNaN(parseFloat(id)) ?
         Level.where({ name: id }) :
         Level.find(id);
 
-    find.then(function(levels) {
-        if (!levels.length) return err.notFound(res)('Level '+id+' not found');
-        level = levels[0];
-        return level.types();
-    }).then(function(types) {
+    find.thenOne(function(level) {
+        if (!level) return err.notFound(res)('Level '+id+' not found');
+        return [level, level.getTypes()];
+    }).spread(function(level, types) {
         level = level.toJSON();
-        level.types = types;
-        res.jsonp(level);
+        level.types = types.map(function(t) { return t.toJSON(); });
+
+        if (req.param("format") == 'html') {
+            res.render('model/show', {
+                title: 'Levels',
+                columns: Object.keys(level),
+                item: level
+            });
+        } else res.jsonp(level);
     }).fail(err.send(res));
 };
 
@@ -39,7 +53,7 @@ exports.types = function(req, res) {
     find.then(function(levels) {
         if (!levels.length) return err.notFound(res)('Level '+id+' not found');
         level = levels[0];
-        return Level.Type.where({ level_id: level.id }).run();
+        return Level.Type.where({ level_id: level.id });
     }).then(function(types) {
         res.jsonp(types);
     }).fail(err.send(res));
@@ -73,7 +87,7 @@ exports.update = function(req, res) {
         return level.update({
             name: req.param("name"),
             level: req.param("level")
-        }).save().run();
+        }).save().catch(err.invalid(res));
     }).then(function(level) {
         res.jsonp(level);
     }).fail(err.send(res));
@@ -87,7 +101,7 @@ exports.destroy = function(req, res) {
 
     Level.find(id).then(function(levels) {
         if (!levels[0]) return err.notFound(res)('Level '+id+' not found');
-        return levels[0].remove().run();
+        return levels[0].remove();
     }).then(function(level) {
         res.jsonp(level);
     }).fail(err.send(res));

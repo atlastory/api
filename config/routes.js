@@ -1,44 +1,52 @@
-module.exports = function(match, resources) {
 
 match('/', 'home#index');
 
-apiVersion1('');    // Most recent version
+// Current version
+apiVersion1('');
+
+// Previous versions
 apiVersion1('/v1');
 
 function apiVersion1(v) {
 
+    // all (v + '*', requireAuth, loadUser);
+
     // Changesets
-    match(v + '/changesets/:id',        'changeset#show');
-    match(v + '/changesets',            'changeset#create', { via: 'post' });
-    match(v + '/changesets/create',     'changeset#create', { via: 'put' });
-    match(v + '/changesets/:id',        'changeset#create', { via: 'put' });
-    match(v + '/changesets/:id/commit', 'changeset#commit');
-    match(v + '/changesets/:id/close',  'changeset#commit');
+    get (v + '/changesets/:id.?:format(json|txt)?', 'changeset#show');
+    post(v + '/changesets',            'changeset#create');
+    put (v + '/changesets/create',     'changeset#create');
+    put (v + '/changesets/:id',        'changeset#create');
+    post(v + '/changesets/:id/commit', 'changeset#commit');
+    put (v + '/changesets/:id/close',  'changeset#commit');
 
     // Time periods
-    resources(v + '/periods', 'period');
-    match(v + '/periods/:pid/:type.:format(json|geojson|topojson)', 'period#shapes');
-    match(v + '/year/:year/:type.:format(json|geojson|topojson)', 'period#year');
-    match(v + '/geojson', 'period#geojson');
+    get (v + '/periods.?:format(json|html)?',     'period#index');
+    get (v + '/periods/:id.?:format(json|html)?', 'period#show');
+    match(v + '/periods/:pid/:type.?:format(json|geojson|topojson)?', 'period#shapes');
+    match(v + '/year/:year/:type.?:format(json|geojson|topojson)?', 'period#year');
+    match(v + '/geojson',  'period#geojson');
     match(v + '/topojson', 'period#topojson');
+    // match(v + '/year/:year/periods')
 
     // Nodes, Ways, Shapes
-    // resources(v + '/nodes', 'node');
-    // resources(v + '/ways', 'way');
-    // resources(v + '/shapes', 'shape');
-    // match('/shapes/:id.json', 'shape#show');
-    // match('/shapes/:id.:format(geojson|topojson)', 'shape#geo');
+    get (v + '/nodes',     'node#index');
+    get (v + '/nodes/:id', 'node#show');
+    get (v + '/ways',      'way#index');
+    get (v + '/ways/:id.?:format(json|geojson|topojson)?', 'way#show');
+    get (v + '/shapes',    'shape#index');
+    get (v + '/shapes/:id.?:format(json|geojson|topojson)?', 'shape#show');
 
     // Levels & Types
-    resources(v + '/levels', 'level');
-    resources(v + '/types', 'type');
-    match(v + '/levels/:id/types', 'level#types');
+    get (v + '/levels.?:format(json|html)?',     'level#index');
+    get (v + '/levels/:id.?:format(json|html)?', 'level#show');
+    get (v + '/types.?:format(json|html)?',      'type#index');
+    get (v + '/types/:id.?:format(json|html)?',  'type#show');
+    get (v + '/levels/:id/types', 'level#types');
 
     // Sources
-    resources(v + '/sources', 'source');
+    get (v + '/sources.?:format(json|html)?',     'source#index');
+    get (v + '/sources/:id.?:format(json|html)?', 'source#show');
 
     // Users
     // match(v + '/@:username', 'user#profile');
 }
-
-};

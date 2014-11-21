@@ -5,7 +5,15 @@ var Type = require('../models/Type'),
 // GET /types
 exports.index = function(req, res) {
     Type.all().then(function(types) {
-        res.jsonp(types);
+        if (req.param("format") == 'html') {
+            res.render('model/index', {
+                title: 'Types',
+                columns: Object.keys(types[0]),
+                rows: types
+            });
+        } else {
+            res.jsonp(types);
+        }
     }).fail(err.send(res));
 };
 
@@ -17,9 +25,17 @@ exports.show = function(req, res) {
         Type.where({ name: id }) :
         Type.find(id);
 
-    find.then(function(types) {
-        if (!types.length) return err.notFound(res)('Type '+id+' not found');
-        res.jsonp(types[0]);
+    find.thenOne(function(type) {
+        if (!type) return err.notFound(res)('Type '+id+' not found');
+        if (req.param("format") == 'html') {
+            res.render('model/show', {
+                title: 'Types',
+                columns: Object.keys(type.toJSON()),
+                item: type
+            });
+        } else {
+            res.jsonp(type);
+        }
     }).fail(err.send(res));
 };
 
@@ -55,7 +71,7 @@ exports.update = function(req, res) {
             level_id: req.param("level_id"),
             color_1: req.param("color_1"),
             color_2: req.param("color_2")
-        }).save().run();
+        }).save().catch(err.invalid(res));
     }).then(function(type) {
         res.jsonp(type);
     }).fail(err.send(res));
@@ -69,7 +85,7 @@ exports.destroy = function(req, res) {
 
     Type.find(id).then(function(types) {
         if (!types[0]) return err.notFound(res)('Type '+id+' not found');
-        return types[0].remove().run();
+        return types[0].remove();
     }).then(function(type) {
         res.jsonp(type);
     }).fail(err.send(res));

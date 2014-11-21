@@ -12,9 +12,10 @@ var Directive = module.exports = pg.model("directives", {
         data:            String, // Stringified JSON object for shapes, types, sources
         geometry:        String, // Stringified coordinate array
         way_nodes:       String, // if object=way: List nodeId > '345,678'
-                                 // if object=node: List wayId-sequence > '0-1234,1-2345'
+                                 // if object=way, action=delete: List seqId > '0,1,2'
+                                 // if object=node: List sequence-wayId > '0-1234,1-2345'
         shape_relations: String, // if object=shape: List sequence-Type-role-id > '3-Way-outer-1234,4-Way-inner-2345'
-                                 // if object=node,way: List shapeId-sequence > '0-1234,1-2345'
+                                 // if object=node,way: List sequence-shapeId > '0-1234,1-2345'
         created_at:      Date
     },
     getters: {
@@ -73,25 +74,28 @@ Directive._parseDirectives = function(id, directives) {
 
     function stringify(d, col) {
         if (typeof d[col] === 'object') d[col] = JSON.stringify(d[col]);
-        return d;
+        return d[col] ? d[col] : null;
     }
 
     return directives.map(function(d) {
         if (d.toJSON) d = d.toJSON();
-        d.action = d.action.toLowerCase();
-        d.object = d.object.toLowerCase();
-        d.changeset_id = id;
-        d.created_at = now;
-        d = stringify(d, 'data');
-        d = stringify(d, 'geometry');
-        d = stringify(d, 'way_nodes');
-        d = stringify(d, 'shape_relations');
-        return d;
+        var newD = {};
+        newD.action = d.action.toLowerCase();
+        newD.object = d.object.toLowerCase();
+        newD.object_id = d.object_id;
+        newD.changeset_id = id;
+        newD.created_at = now;
+        newD.data = stringify(d, 'data');
+        newD.geometry = stringify(d, 'geometry');
+        newD.way_nodes = stringify(d, 'way_nodes');
+        newD.shape_relations = stringify(d, 'shape_relations');
+        return newD;
     });
 };
 
 Directive.addQueryMethod("create", function(id, directives) {
-    return Directive.insert(Directive._parseDirectives(id, directives));
+    directives = Directive._parseDirectives(id, directives);
+    return Directive.insert(directives);
 }, function(directive) {
     return directive.id;
 });

@@ -1,0 +1,28 @@
+{% extends './$layout.html' %}
+
+{% block title %}{{ title }} / {{ item.name || item.id }}{% endblock %}
+
+{% block content %}
+
+    <table class="table table-striped table-condensed table-sm">
+        <tr>
+            <th>id</th><td>{{ item.id }}</td>
+        </tr>
+        {% for col in columns -%}
+        {%- if col != 'id' -%}
+        <tr>
+            {#- Parse item values -#}
+            {% if item[col] && item[col].getDate -%}
+                <th>{{ col }}</th><td>{{ item[col]|date('Y-m-d H:m') }}</td>
+            {%- elseif item[col] && item[col].push && item[col][0] -%}
+                {%- set table = item[col] -%}
+                <th>{{ col }}</th><td>{% include '_table.html' %}</td>
+            {%- else -%}
+                <th>{{ col }}</th><td>{{ item[col]|default('') }}</td>
+            {%- endif %}
+        </tr>
+        {%- endif -%}
+        {% endfor -%}
+    </table>
+
+{% endblock %}

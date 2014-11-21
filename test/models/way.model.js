@@ -49,8 +49,8 @@ describe('#addNodes()', function() {
         ]).then(function(wayNodes) {
             return Way.getNodes(wayId);
         }).then(function(nodes) {
-            node1 = nodes[1].id;
-            node2 = nodes[2].id;
+            node1 = 1;
+            node2 = 2;
             assert.equal(nodes[1].latitude, -3);
             assert.equal(nodes[2].latitude, -2);
         }).then(done, done);

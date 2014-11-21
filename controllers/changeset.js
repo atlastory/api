@@ -4,23 +4,27 @@ var Changeset = require('../models/Changeset'),
     err = require('../lib/errors');
 
 
-// GET /changesets/:id
+// GET /changesets/:id(.:format)
 exports.show = function(req, res) {
     var id = req.param("id");
-    var asString = (req.param("format") == 'text');
 
     Changeset.get(id).then(function(changeset) {
         if (!changeset) return err.notFound(res)('Changeset #'+id+' not found');
-        if (asString) {
+
+        switch (req.param("format")) {
+        case "txt":
             var txt = 'id: ' + changeset.id + '\n' +
                 'user: ' + changeset.user_id + '\n' +
                 'message: ' + changeset.message + '\n' +
                 'created: ' + changeset.created_at + '\n' +
+                'status: ' + changeset.status + '\n' +
                 'directives:\n' + changeset.directives.map(function(d) {
                     return '    ' + d.asString();
                 }).join('\n');
             res.type('text/plain').send(txt);
-        } else {
+            break;
+
+        default:
             changeset.directives = changeset.directives.map(function(d) {
                 return _.omit(d.toJSON(), ['id','changeset_id']);
             });
@@ -38,15 +42,26 @@ exports.create = function(req, res) {
         user = req.param("user_id"),
         csData = { message: message, user_id: user };
 
+    // TODO: OAuth check
     if (id) {
         // Changeset already exists; update
-        Changeset.update(id, csData)
-          .then(function() { return addDirectives(id); })
-          .fail(err.send(res));
+        Changeset.find(id).thenOne(function(cs) {
+            if (!cs) return err.notFound(res)('Changeset #'+id+' not found');
+            return cs.update(csData).save().catch(err.invalid(res));
+        }).then(function() {
+            res.jsonp({
+                id: id,
+                response: 'Changeset updated'
+            });
+        }).fail(err.send(res));
     } else {
-        Changeset.insert(csData)
-          .then(function(c) { return addDirectives(c[0].id); })
-          .fail(err.send(res));
+        var cs = Changeset.new(csData);
+        cs.save().then(function(cs) {
+            res.jsonp({
+                id: cs[0].id,
+                response: 'Changeset created'
+            });
+        }).fail(err.invalid(res));
     }
 };
 
@@ -62,9 +77,9 @@ exports.create = function(req, res) {
 // Accepts { message: '', directives: [] }
 exports.commit = function(req, res) {
     var id = req.param("id"),
-        body = req.body;
+        data = req.body;
 
-    wiki.commit(id, body).then(function(directives) {
+    wiki.commit(id, data).then(function(directives) {
         res.jsonp(directives);
     }).fail(err.send(res));
 };

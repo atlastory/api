@@ -1,48 +1,69 @@
 process.env.TEST = 'true';
 
-var assert = require('assert');
-var fs = require('fs');
+var expect = require('chai').expect;
 var request = require('supertest');
 
 var app = require('../../app');
 request = request(app);
 
-var per = 1, shp = 1;
+describe('shape controller', function () {
+this.timeout(1000);
 
-/*
-describe('Shape controller', function() {
+var shape = 6;
+var newId;
 
-describe('GET /layers/:lid/periods/:pid/shapes/:id.json', function() {
-    this.timeout(1000);
+describe('GET /shapes', function() {
+    it('should respond with error', function(done) {
+        request.get('/shapes')
+          .set('Accept', 'application/json')
+          .expect('Content-Type', /json/)
+          .expect(403)
+          .end(done);
+    });
+});
+
+describe('GET /shapes/:id', function() {
     it('should respond with shape data', function(done) {
-        request.get('/layers/1/periods/'+per+'/shapes/'+shp+'.json')
+        request.get('/shapes/' + shape)
           .set('Accept', 'application/json')
           .expect('Content-Type', /json/)
           .expect(200)
-          .end(function(err, res) {
-            assert.ifError(err);
-            assert.equal(res.body.period, 1);
-            assert.equal(res.body.data.a, "1");
-            done();
-          });
+          .expect(function(res) {
+            expect(res.body).to.have.deep.property('properties.type_id');
+            expect(res.body.objects[0]).to.include.keys('type','id','role');
+          }).end(done);
     });
-});
 
-describe('GET /layers/:lid/periods/:pid/shapes/:id.geojson', function() {
-    this.timeout(1000);
-    it('should respond with shape geojson', function(done) {
-        request.get('/layers/1/periods/'+per+'/shapes/'+shp+'.geojson')
+    it('should respond with error', function(done) {
+        request.get('/shapes/111222.geojson')
+          .set('Accept', 'application/json')
+          .expect('Content-Type', /json/)
+          .expect(404)
+          .expect(function(res) {
+            expect(res.body.message).to.have.string("not found");
+          }).end(done);
+    });
+
+    it('should respond with geojson', function(done) {
+        request.get('/shapes/' + shape + '.geojson')
           .set('Accept', 'application/json')
           .expect('Content-Type', /json/)
           .expect(200)
-          .end(function(err, res) {
-            assert.ifError(err);
-            assert.equal(res.body.type, "FeatureCollection");
-            assert.equal(res.body.features[0].properties.gid, shp);
-            done();
-          });
+          .expect(function(res) {
+            expect(res.body.properties).to.have.property('end_year');
+            expect(res.body.geometry.coordinates[0]).to.be.an('array');
+          }).end(done);
+    });
+
+    it('should respond with topojson', function(done) {
+        request.get('/shapes/' + shape + '.topojson')
+          .set('Accept', 'application/json')
+          .expect('Content-Type', /json/)
+          .expect(200)
+          .expect(function(res) {
+            expect(res.body.type).to.equal('Topology');
+          }).end(done);
     });
 });
 
 });
-*/

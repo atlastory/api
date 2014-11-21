@@ -27,6 +27,7 @@ describe('#create()', function() {
         Changeset.create({
             user_id: 1,
             message: 'test '+new Date(),
+            status: 'start',
             directives: directives
         }).then(function(cs) {
             expect(cs).to.be.a('string');
@@ -39,6 +40,7 @@ describe('#get()', function() {
     it('should get a changeset', function(done) {
         Changeset.get(id).then(function(cs) {
             var d = cs.directives;
+            expect(cs.status).to.equal('start');
             expect(d).to.be.instanceof(Array);
             expect(d[0].object_id).to.equal('1');
             expect(d[0].data.number).to.equal(8);

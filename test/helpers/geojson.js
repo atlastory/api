@@ -75,6 +75,10 @@ exports.multiline = {
 exports.polygon = {
     "type": "FeatureCollection",
     "period": 105,
+    "when": {
+        "start": "-500-08-08",
+        "stop": "+1350-09-12"
+    },
     "features": [
         {
             "type": "Feature",

@@ -36,7 +36,7 @@ var checkNodes = function(geojson, cs) {
     });
 };
 
-var shapeCS;
+var shapeCS, polyCS;
 
 describe('GeoJSON', function() {
 
@@ -103,6 +103,7 @@ describe('#import()', function() {
             geojson: gj.polygon,
             period: gj.polygon.period, user: 1, type: 1
         }).then(function(cs) {
+            polyCS = cs;
             return checkNodes(gj.polygon, cs);
         }).then(done, done);
     });
@@ -134,6 +135,17 @@ describe('#import()', function() {
             assert.equal(data.periods[0], 106);
             assert.equal(data.type_id, 1);
             assert.equal(data.data.a, 55);
+        }).then(done, done);
+    });
+
+    it('should import "when" dates', function(done) {
+        Shape.inChangeset(polyCS).then(function(shapes) {
+            var data = shapes[0].properties;
+            assert.equal(data.data.name, 'poly');
+            assert.equal(data.start_year, -500);
+            assert.equal(data.end_year, 1350);
+            assert.equal(data.end_month, 9);
+            assert.equal(data.end_day, 12);
         }).then(done, done);
     });
 

@@ -1,16 +1,18 @@
 *WORK IN PROGRESS*
 
+<a name="structure"/>
 ## Data structure
 
 ![](./docs/structure.png?raw=true)
 
 ### Objects
+
 #### Nodes
 #### Ways
 #### Shapes
 #### Periods
 
-The original reason for having separate "periods" rather than just giving each shape a start/end was that...
+The original reason for having separate "periods" in addition to each shape having a start/end was that...
 
 At the moment, periods still exist along with times for individual shapes.
 
@@ -32,6 +34,7 @@ Types are used for styling. Every shape belongs to a type. Examples:
 * `admin2`: state, province, republic
 
 ### Changesets
+
 Each Changeset has a list of **directives**. A directive tells the Atlastory API what changes were made on an object. A directive serves three purposes: (1) to instruct the Atlastory API to change the database; (2) as a record of what was changed; and (3) as a template to reverse changes.
 
 With the exeption of importing a GeoJSON, each directive should represent 1 model query (i.e. add a node, edit a shape, etc.). Again, other than a GeoJSON import, there are no "bulk" directives that change many objects.
@@ -50,7 +53,20 @@ Each directive has an *action* (`add`,`edit`,`delete`,`split`) that is/was perfo
     * *shape*: a list of sequence-Type-role-id to add/delete `0-Way-outer-1234,1-Node-center-5678`
     * *node*,*way*: a list of shapeId-sequenceId to add/delete `0-1234,1-2345`
 
-[TABLE: directive examples as Action/Directive]
+**Directive examples:**
+| Action                              | Directive(s)                                                                                                                                            |
+|-------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Add completely new shape            | `add node n-1 geometry[0,0]<br/> add node n-2 geometry[0,0]<br/> add way w-3 way_nodes(n-1,n-2)<br/> add shape s-1 data{} shape_relations(Way-outer-w-3)` |
+| Edit shape data                     | `edit shape %SHAPE data{}`                                                                                                                                |
+| Delete way + non-shared nodes       | `delete way %WAY data{} way_nodes(%NODE,%NODE)`                                                                                                           |
+| Add node into way (mid-sequence)    | `add node n-1 geometry[0,0] way_nodes(%SEQ-%WAY)`                                                                                                         |
+| Edit node location                  | `edit node %NODE geometry[0,0]`                                                                                                                           |
+| Delete node in shape                | `delete node %NODE geometry[0,0] way_nodes(%SEQ-%WAY) || shape_relations(%SEQ-%SHAPE)`                                                                    |
+| Add new way to existing shape       | `add node n-1 geometry[0,0]<br/> add node n-2 geometry[0,0]<br/> add way w-3 way_nodes(n-1,n-2)<br/> edit shape %SHAPE shape_relations(2-Way-outer-w-3)`  |
+| Remove way from 1 shape only        | `delete shape %SHAPE shape_relation(5-Way-outer-%WAY)`                                                                                                    |
+| Delete shape (relations must be removed first)        | `delete shape %SHAPE`                                                                                                    |
+| Link existing way to existing shape | `edit shape %SHAPE shape_relation(2-Way-outer-%WAY)`                                                                                                      |
+| Link existing way to new shape      | `add shape s-3 data{} shape_relations(0-Way-outer-%WAY)`  
 
 ---------------------------------
 ## Utilities

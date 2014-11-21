@@ -7,16 +7,32 @@ var Period = require('../models/Period'),
 // GET /periods
 exports.index = function(req, res) {
     Period.all().then(function(periods) {
-        res.jsonp(periods);
+        if (req.param("format") == 'html') {
+            res.render('model/index', {
+                title: 'Periods',
+                columns: Object.keys(periods[0].toJSON()),
+                rows: periods
+            });
+        } else {
+            res.jsonp(periods);
+        }
     }).fail(err.send(res));
 };
 
 // GET /periods/:id
 exports.show = function(req, res) {
     var id = req.param("id");
-    Period.find(id).then(function(period) {
-        if (!period.length) return err.notFound(res)('Period '+id+' not found');
-        res.jsonp(period[0]);
+    Period.find(id).thenOne(function(period) {
+        if (!period) return err.notFound(res)('Period '+id+' not found');
+        if (req.param("format") == 'html') {
+            res.render('model/show', {
+                title: 'Periods',
+                columns: Object.keys(period.toJSON()),
+                item: period
+            });
+        } else {
+            res.jsonp(period);
+        }
     }).fail(err.send(res));
 };
 
@@ -45,15 +61,14 @@ exports.update = function(req, res) {
 
     if (isNaN(id)) return err.invalid(res)('ID required');
 
-    Period.find(id).then(function(period) {
-        period = period[0];
+    Period.find(id).thenOne(function(period) {
         if (!period) return err.notFound(res)('Period '+id+' not found');
 
         return period.update({
             name: req.param("name"),
             start_year: req.param("start_year"),
             end_year: req.param("end_year")
-        }).save().run();
+        }).save().catch(err.invalid(res));
     }).then(function(period) {
         res.jsonp(period);
     }).fail(err.send(res));
@@ -65,9 +80,9 @@ exports.destroy = function(req, res) {
 
     if (isNaN(id)) return err.invalid(res)('ID required');
 
-    Period.find(id).then(function(period) {
+    Period.find(id).thenOne(function(period) {
         if (!period) return err.notFound(res)('Period '+id+' not found');
-        return period[0].remove().run();
+        return period.remove();
     }).then(function(period) {
         res.jsonp(period);
     }).fail(err.send(res));
@@ -81,12 +96,12 @@ var formats = {
     //json: 'getShapeData'
 };
 
-// GET /year/:year/:type.:format
+// GET /year/:year/:type(.:format)
 exports.year = function(req, res) {
     var year = req.param("year"),
         type = req.param("type"),
         box = req.param("bbox"),
-        format = req.param("format");
+        format = req.param("format") || 'json';
 
     if (box) box = box.replace(/\s/g,'').split(',');
     if (box && box.length < 4) return err.invalid(res)("Box needs 2 points (x1, y1, x2, y2)");
@@ -107,13 +122,13 @@ exports.year = function(req, res) {
     }).fail(err.send(res));
 };
 
-// GET /periods/:pid/:type.:format
+// GET /periods/:pid/:type(.:format)
 exports.shapes = function(req, res, f) {
     var pid = req.param("pid") || req.param("period_id") || req.param("period"),
         type = req.param("type"),
         tid = parseFloat(req.param("type_id")),
         box = req.param("bbox"),
-        format = req.param("format") || f;
+        format = req.param("format") || f || 'json';
 
     pid = parseFloat(pid);
     if (box) box = box.replace(/\s/g,'').split(',');

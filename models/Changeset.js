@@ -9,7 +9,11 @@ var Changeset = module.exports = pg.model("changesets", {
     schema: {
         user_id:    { type: Number, allowNull: false },
         message:    String,
-        created_at: Date
+        status:     { type: function(s) {
+            return _.contains(['start', 'done', 'failed'], s);
+        }, default: 'start' },
+        created_at: Date,
+        finished_at: Date
     }
 });
 var Directive = Changeset.Directive = require('./Directive');
@@ -18,14 +22,15 @@ Changeset.get = function(id) {
     return Q.all([
         Changeset.find(id),
         Directive.changeset(id)
-    ]).then(function(res) {
-        if (!res[0].length) return null;
+    ]).spread(function(changesets, directives) {
+        if (!changesets.length) return null;
         return {
             id: id,
-            user_id: res[0][0].user_id,
-            message: res[0][0].message,
-            directives: res[1].map(function(d) { return d.toJSON(); }),
-            created_at: res[0][0].created_at
+            user_id: changesets[0].user_id,
+            message: changesets[0].message,
+            status: changesets[0].status,
+            directives: directives,
+            created_at: changesets[0].created_at
         };
     });
 };
@@ -36,8 +41,10 @@ Changeset.create = function(changeset) {
 
     if (!changeset.user_id) return Q.reject(new Error('changeset needs user ID'));
 
+    var cs = Changeset.new(changeset);
+
     var csId;
-    return Changeset.insert(changeset).then(function(cs) {
+    return cs.save().then(function(cs) {
         csId = cs[0].id;
         return Directive.create(csId, directives);
     }).then(function() {

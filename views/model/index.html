@@ -1,0 +1,28 @@
+{% extends './$layout.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+
+    <table class="table table-striped table-condensed">
+        <tr>
+            {#- Columns -#}
+            {% for col in columns -%}
+                <th>{{ col }}</th>
+            {% endfor %}
+        </tr>
+        {% for row in rows -%}
+        <tr>
+            {% for col in columns -%}
+                {#- Parse row values -#}
+                {% if row[col] && row[col].getDate -%}
+                    <td>{{ row[col]|date('Y-m-d H:m') }}</td>
+                {%- else -%}
+                    <td>{{ row[col]|default('') }}</td>
+                {%- endif %}
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </table>
+
+{% endblock %}
