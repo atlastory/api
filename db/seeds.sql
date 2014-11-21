@@ -1,8 +1,5 @@
 -- SEED DATA
 
--- Insert version number
-INSERT INTO config (key, value) VALUES ('version', '0.8.8');
-
 INSERT INTO changesets (user_id, message, status, finished_at) VALUES
     (1, 'Initial commit', 'done', NOW());
 INSERT INTO directives (changeset_id, action, object, object_id, data) VALUES
