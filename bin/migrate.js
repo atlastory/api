@@ -42,8 +42,6 @@ function sortBySemVer(filelist) {
 }
 
 function migrateFile(migration) {
-    console.log('up :', path.basename(migration.file));
-
     // Execute migration SQL
     return readFile(migration.file).then(function(sql) {
         return pg.query(sql + '');
@@ -54,7 +52,10 @@ function migrateFile(migration) {
         return pg.setTable('config').where({ key: 'version' })
         .update({ value: migration.version });
     })
-    .thenResolve(true);
+    .then(function() {
+        console.log('up :', path.basename(migration.file));
+        return true;
+    });
 }
 
 function Migrate(fromVersion, toVersion) {

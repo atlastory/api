@@ -13,15 +13,14 @@ SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SET check_function_bodies = false;
 SET client_min_messages = warning;
+SET search_path = public;
 
 CREATE EXTENSION IF NOT EXISTS hstore;
 CREATE EXTENSION IF NOT EXISTS intarray;
+CREATE EXTENSION IF NOT EXISTS btree_gist;
 
-CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
-CREATE EXTENSION IF NOT EXISTS btree_gist WITH SCHEMA public;
-SET search_path = public, pg_catalog;
+-- TYPES
 
-DROP TYPE IF EXISTS format_enum CASCADE;
 DROP TYPE IF EXISTS nws_enum CASCADE;
 DROP TYPE IF EXISTS atlastory_object CASCADE;
 DROP TYPE IF EXISTS directive CASCADE;
@@ -47,7 +46,6 @@ CREATE TYPE directive AS ENUM (
     'link',    -- link shape to new period
     'split'    -- clone shape into new period
 );
-
 
 -- TABLES
 

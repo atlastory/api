@@ -1,6 +1,8 @@
 var env = process.env;
 var mode = env.ENV || env.ENV_VARIABLE || env.NODE_ENV || "development";
 
+// TODO: Use nconf? https://www.npmjs.org/package/nconf
+
 module.exports = {
     env: mode,
 

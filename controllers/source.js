@@ -8,7 +8,7 @@ exports.index = function(req, res) {
         if (req.param("format") == 'html') {
             res.render('model/index', {
                 title: 'Sources',
-                columns: Object.keys(sources[0]),
+                columns: Object.keys(Source._schema),
                 rows: sources
             });
         } else {

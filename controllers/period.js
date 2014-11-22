@@ -10,7 +10,7 @@ exports.index = function(req, res) {
         if (req.param("format") == 'html') {
             res.render('model/index', {
                 title: 'Periods',
-                columns: Object.keys(periods[0].toJSON()),
+                columns: Object.keys(Period._schema),
                 rows: periods
             });
         } else {
