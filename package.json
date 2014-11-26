@@ -32,7 +32,8 @@
         "less-middleware": "*",
 
         "lodash": "*",
-        "q": "~1.0.1",
+        "q": "~1.1.2",
+        "q-plus": "*",
         "grand-central-junction": "0.1.0",
         "grand-central-records": "0.5.2",
         "pg": "3.5.0",

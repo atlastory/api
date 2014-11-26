@@ -7,10 +7,9 @@ to allow JS migration files in addition to SQL
 var fs = require("fs");
 var path = require("path");
 var _ = require("lodash");
-var Q = require("q");
+var Q = require("q-plus");
 var semver = require("semver");
 
-var util = require('../lib/utilities');
 var pg = require('../services/db').pg;
 var config = require('../config/config');
 
@@ -80,7 +79,7 @@ function Migrate(fromVersion, toVersion) {
             var stopIdx = migrations.indexOf(toVersion) + 1;
             migrations.splice(stopIdx, migrations.length - stopIdx);
 
-            return util.promiseSeries(migrations, migrateFile);
+            return Q(migrations).mapSeries(migrateFile);
         }
     })
     .then(function(migrations) {
@@ -104,10 +103,10 @@ if (command == 'init') {
 
     var v = require('../package.json').version;
 
-    util.promiseSeries([
+    Q([
         { file: path.join(__dirname, '../db/structure.sql') },
         { file: path.join(__dirname, '../db/seeds.sql'), version: v }
-    ], migrateFile)
+    ]).mapSeries(migrateFile)
     .thenResolve('migration : complete')
     .then(console.log)
     .fail(console.error)
@@ -129,7 +128,8 @@ else {
 
     pg.setTable('config').where({ key: 'version' })
     .then(function(res) {
-        var currentVer = res[0] ? semver.clean(res[0].value) : null;
+        if (!res[0]) return Migrate('0.0.0', toVersion);
+        var currentVer = semver.clean(res[0].value);
         if (!semver.valid(currentVer)) throw 'Database version "'+currentVer+'" invalid';
         return Migrate(currentVer, toVersion);
     })
