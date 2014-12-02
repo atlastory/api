@@ -1,6 +1,6 @@
 ## Atlastory Database
 
-[>> Structure](../ARCHITECTURE.md#structure)
+[>> Database Structure](../ARCHITECTURE.md#structure)
 
 ### Creating the database
 
