@@ -1,5 +1,7 @@
 # Atlastory: API
 
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/atlastory/api?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Atlastory is an interactive map that chronicles the history of life on earth. The API is a JSON-based RESTful interface for editing and retrieving map data.
 
 ![](https://github.com/atlastory/ideology/blob/master/_img/Atlastory-Stack-API.png?raw=true)
