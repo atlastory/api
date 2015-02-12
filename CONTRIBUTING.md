@@ -1,6 +1,6 @@
 # Contributing to the Atlastory API
 
-For questions and community discussion, head to the [Atlastory Google Group](http://forum.atlastory.com/).
+For coding and development discussion, head to the [Gitter atlastory/api](https://gitter.im/atlastory/api) room.
 
 ### Choosing something to work on
 * Check out the [issue tracker](https://github.com/atlastory/api/issues?q=is%3Aopen+is%3Aissue+no%3Aassignee) for both **features** (*enhancements*) to add and **bugs** to fix.

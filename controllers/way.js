@@ -3,7 +3,7 @@ var Way = require('../models/Way'),
     util = require('../lib/utilities');
 
 
-// GET /nodes
+// GET /ways
 exports.index = function(req, res) {
     var bbox = req.param("bbox");
 
@@ -13,7 +13,7 @@ exports.index = function(req, res) {
     err.forbidden(res)("Feature not available yet");
 };
 
-// GET /nodes/:id
+// GET /ways/:id
 exports.show = function(req, res) {
     var id = req.param("id");
 

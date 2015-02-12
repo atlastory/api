@@ -1,6 +1,6 @@
 ## Data structure <a name="structure"/>
 
-![](./assets/images/structure.svg?raw=true)
+![](./assets/images/structure.jpg?raw=true)
 
 ### Objects
 

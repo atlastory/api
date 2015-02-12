@@ -7,7 +7,7 @@
 3. [x] Ability to import GeoJSON to database
 4. [x] Ability to access map data as nodes/ways/shapes + GeoJSON
 5. [x] Manages Changesets for contributed edits
-6. [ ] Completely open-sourced
+6. [x] Completely open-sourced
 7. [ ] User account system with OAuth logins for Github, Google, OpenID
 8. [ ] Ability to issue API tokens for each user
 9. [ ] Basic API documentation

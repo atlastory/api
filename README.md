@@ -53,7 +53,7 @@ $ curl api.atlastory.com/year/1999/land.geojson
 * [Contributing](CONTRIBUTING.md)
 * [Architecture](ARCHITECTURE.md)
 
-For questions and community discussion, head to the [Atlastory Google Group](http://forum.atlastory.com/).
+For coding or development discussion, chat using the [Gitter atlastory/api](https://gitter.im/atlastory/api) room. For general questions and community discussion, head to the [Atlastory Google Group](http://forum.atlastory.com/).
 
 ## License
 
