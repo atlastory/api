@@ -93,7 +93,7 @@ exports.destroy = function(req, res) {
 var formats = {
     geojson: 'getGeoJSON',
     topojson: 'getTopoJSON',
-    //json: 'getShapeData'
+    json: 'getShapeData'
 };
 
 // GET /year/:year/:type(.:format)
@@ -126,7 +126,7 @@ exports.year = function(req, res) {
 exports.shapes = function(req, res, f) {
     var pid = req.param("pid") || req.param("period_id") || req.param("period"),
         type = req.param("type"),
-        tid = parseFloat(req.param("type_id")),
+        tid = parseFloat(req.param("tid") || req.param("type_id")),
         box = req.param("bbox"),
         format = req.param("format") || f || 'json';
 
@@ -141,7 +141,7 @@ exports.shapes = function(req, res, f) {
         bbox: box || null
     };
 
-    if (isNaN(tid)) {
+    if (isNaN(tid) && isNaN(parseFloat(type))) {
         // No type ID, need to look it up
         Type.getFromTypeOrLevel(type).then(function(types) {
             if (!types.length) return err.notFound(res)('Type name "'+type+'" not found');
@@ -153,7 +153,7 @@ exports.shapes = function(req, res, f) {
             res.jsonp(json);
         }).fail(err.send(res));
     } else {
-        ops.type = tid;
+        ops.type = tid || parseFloat(type);
         Period[formats[format]](pid, ops).then(function(json) {
             res.jsonp(json);
         }).fail(err.send(res));

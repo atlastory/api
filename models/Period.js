@@ -1,7 +1,8 @@
 var _ = require('lodash'),
     pg = require('../services/db').pg,
     util = require('../lib/utilities'),
-    geojson = require('../lib/geojson');
+    geojson = require('../lib/geojson'),
+    Shape = require('./Shape');
 
 
 var Period = module.exports = pg.model("periods", {
@@ -60,4 +61,7 @@ Period.addMethod('getTopoJSON', function(options) {
     return Period.getTopoJSON(this.id, options);
 });
 
-// TODO: getShapeData
+Period.getShapeData = function(id, options) {
+    options.period = id;
+    return Shape.getData(options);
+};

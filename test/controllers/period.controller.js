@@ -128,6 +128,17 @@ describe('GET /periods/:pid/:type.:format', function() {
           }).end(done);
     });
 
+    it('should get geojson with type name', function(done) {
+        request.get('/periods/'+gj.multiPolygon.period+'/1.geojson')
+          .set('Accept', 'application/json')
+          .expect('Content-Type', /json/)
+          .expect(200)
+          .expect(function(res) {
+            var shape = res.body.features[0];
+            expect(shape.type).to.equal("Feature");
+          }).end(done);
+    });
+
     it('should get topojson with type name', function(done) {
         request.get('/periods/'+gj.multiPolygon.period+'/land.topojson')
           .set('Accept', 'application/json')
