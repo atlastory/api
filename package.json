@@ -12,9 +12,11 @@
         "url": "https://github.com/atlastory/api.git"
     },
     "scripts": {
-        "prestart": "node bin/migrate",
+        "prestart": "npm run migrate && npm run docs",
         "start": "node app",
         "test": "mocha --reporter list --bail ./test/reset.js ./test/models/*.js ./test/*.js ./test/*/**.js",
+        "migrate": "node bin/migrate",
+        "docs": "node bin/gitbook build",
         "env": "for x in $(cat .env); do export $x; done"
     },
     "devDependencies": {
@@ -44,7 +46,8 @@
         "topojson": "1.2.2",
         "hstore.js": "~0.1.0",
         "geojsonhint": "~0.3.1",
-        "semver": "~4.1.0"
+        "semver": "~4.1.0",
+        "gitbook": "2.0.0-beta.2"
     },
     "keywords": [
         "maps",

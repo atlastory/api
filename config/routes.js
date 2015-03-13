@@ -1,6 +1,4 @@
 
-match('/', 'home#index');
-
 // Current version
 apiVersion1('');
 
@@ -10,6 +8,8 @@ apiVersion1('/v1');
 function apiVersion1(v) {
 
     // all (v + '*', requireAuth, loadUser);
+
+    match('/', 'home#index');
 
     // Changesets
     get (v + '/changesets/:id.?:format(json|txt)?', 'changeset#show');
