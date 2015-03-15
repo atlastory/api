@@ -1,0 +1,17 @@
+{
+    "title": "Atlastory API Documentation",
+
+    "structure": {
+        "readme": "INTRO.md"
+    },
+
+    "links": {
+        "sidebar": {
+            "Atlastory.com": "http://atlastory.com/"
+        }
+    },
+
+    "plugins": [],
+
+    "variables": {}
+}

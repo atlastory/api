@@ -1,16 +1,4 @@
-# Atlastory API Documentation
-
-*WORK IN PROGRESS*
-
-## Uploading a Changeset (i.e. making a contribution)
-
-1. Create Changeset `POST /changesets`
-    * Need to be signed in for OAuth
-2. Upload Directives and commit Changeset `POST /changesets/:id/commit`
-    * `{ message: "", directives: [...] }`
-    * Requires commit message if not already posted
-
-## GeoJSON
+# Working with GeoJSONs
 
 Maps can be imported and exported using the [GeoJSON Specification](http://geojson.org/geojson-spec.html).
 
@@ -42,3 +30,8 @@ When importing a GeoJSON, the API first looks under `when` for a FeatureCollecti
     }
 }
 ```
+
+## Importing
+
+## Exporting
+

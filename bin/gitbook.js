@@ -26,5 +26,7 @@ if (command == "build") {
     }).then(function() {
         console.log("Documentation generated.")
         process.exit();
+    }).fail(function(err) {
+        console.error("failed:",err);
     });
 }

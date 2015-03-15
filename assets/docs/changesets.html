@@ -5,9 +5,9 @@
         
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=11; IE=10; IE=9; IE=8; IE=7; IE=EDGE" />
-        <title> | Atlastory API Documentation</title>
+        <title>Changesets | Atlastory API Documentation</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
-        <meta name="description" content="Atlastory is an interactive map that chronicles the history of life on earth. The API is a JSON-based RESTful interface for editing and retrieving map data.">
+        <meta name="description" content="">
         <meta name="generator" content="GitBook 2.0.0-beta.2">
         <meta name="HandheldFriendly" content="true"/>
         <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
@@ -19,8 +19,10 @@
         
     
     
-    <link rel="next" href="./objects.html" />
+    <link rel="next" href="./geojson.html" />
     
+    
+    <link rel="prev" href="./objects.html" />
     
 
         
@@ -33,7 +35,7 @@
     
 
         
-    <div class="book" data-level="0" data-basepath="." data-revision="Sat Mar 14 2015 16:30:29 GMT-0700 (PDT)">
+    <div class="book" data-level="2" data-basepath="." data-revision="Sat Mar 14 2015 16:30:29 GMT-0700 (PDT)">
     
 
 <div class="book-summary">
@@ -57,7 +59,7 @@
 
         
     
-        <li class="chapter active" data-level="0" data-path="index.html">
+        <li class="chapter " data-level="0" data-path="index.html">
             
                 
                     <a href="./index.html">
@@ -85,7 +87,7 @@
             
         </li>
     
-        <li class="chapter " data-level="2" data-path="changesets.html">
+        <li class="chapter active" data-level="2" data-path="changesets.html">
             
                 
                     <a href="./changesets.html">
@@ -206,32 +208,95 @@
                 
                     <section class="normal" id="section-">
                     
-                        <h1 id="atlastory-api-documentation">Atlastory API Documentation</h1>
-<p>Atlastory is an interactive map that chronicles the history of life on earth. The API is a JSON-based RESTful interface for editing and retrieving map data.</p>
-<p>Here&apos;s a quick demo using cURL:</p>
-<pre><code class="lang-sh"><span class="hljs-comment"># Get data for an individual level:</span>
-$ curl api.atlastory.com/levels/land
-&gt; {
-    <span class="hljs-string">&quot;id&quot;</span>: <span class="hljs-number">1</span>,
-    <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;land&quot;</span>,
-    <span class="hljs-string">&quot;level&quot;</span>: <span class="hljs-number">1</span>,
-    <span class="hljs-string">&quot;created_at&quot;</span>: <span class="hljs-string">&quot;2014-11-22T02:04:14.676Z&quot;</span>,
-    <span class="hljs-string">&quot;updated_at&quot;</span>: <span class="hljs-string">&quot;2014-11-22T02:04:14.676Z&quot;</span>,
-    <span class="hljs-string">&quot;types&quot;</span>: [{
-      <span class="hljs-string">&quot;id&quot;</span>: <span class="hljs-number">1</span>,
-      <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;land&quot;</span>,
-      <span class="hljs-string">&quot;color_1&quot;</span>: <span class="hljs-string">&quot;&quot;</span>,
-      <span class="hljs-string">&quot;color_2&quot;</span>: <span class="hljs-string">&quot;&quot;</span>
-    }]
-  }
-
-<span class="hljs-comment"># Get a GeoJSON of the land level for the year 1999:</span>
-$ curl api.atlastory.com/year/<span class="hljs-number">1999</span>/land.geojson
-&gt; {
-    <span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;FeatureCollection&quot;</span>,
-    <span class="hljs-string">&quot;features&quot;</span>: [...]
-  }
-</code></pre>
+                        <h1 id="changesets">Changesets</h1>
+<p>Each Changeset has a list of <strong>directives</strong>. A directive tells the Atlastory API what changes were made on an object. A directive serves three purposes: (1) to instruct the Atlastory API to change the database; (2) as a record of what was changed; and (3) as a template to reverse changes.</p>
+<p>With the exception of importing a GeoJSON, each directive should represent 1 model query (i.e. add a node, edit a shape, etc.). Again, other than a GeoJSON import, there are no &quot;bulk&quot; directives that change many objects.</p>
+<p>Each directive has an <em>action</em> (<code>add</code>,<code>edit</code>,<code>delete</code>) that is/was performed on the object.</p>
+<ul>
+<li><strong>action</strong> -- <code>add</code>, <code>edit</code>, or <code>delete</code></li>
+<li><strong>object</strong> -- The object type (<code>node</code>, <code>way</code>, <code>shape</code>, <code>level</code>, <code>type</code>, <code>source</code>, <code>period</code>)</li>
+<li><strong>object_id</strong> -- The ID of the changed object</li>
+<li><strong>data</strong> -- A stringified JSON object for data of a shape, type, source, period.</li>
+<li><strong>geometry</strong> -- A stringified coordinate array for a node or shape (if GeoJSON import)</li>
+<li><strong>way_nodes</strong> -- Behaves differently depending on the object.<ul>
+<li><code>object=&apos;way&apos;</code>: a list of node IDs to add <code>345,678</code></li>
+<li><code>object=&apos;way&apos;, action=&apos;delete&apos;</code>: a list of sequence ID to delete <code>0,1,2</code></li>
+<li><code>object=&apos;node&apos;</code>: a list of wayId-sequenceId to add/delete <code>0-1234,1-2345</code></li>
+</ul>
+</li>
+<li><strong>shape_relations</strong> -- Behaves differently depending on the object.<ul>
+<li><code>object=&apos;shape&apos;</code>: a list of sequence-Type-role-id to add/delete <code>0-Way-outer-1234,1-Node-center-5678</code></li>
+<li><code>object=&apos;node&apos;,&apos;way&apos;</code>: a list of shapeId-sequenceId to add/delete <code>0-1234,1-2345</code></li>
+</ul>
+</li>
+</ul>
+<p><strong>Directive examples:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Directive(s)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Add completely new shape</td>
+<td><code>add node n-1 geometry[0,0]</code><br><code>add node n-2 geometry[0,0]</code><br><code>add way w-3 way_nodes(n-1,n-2)</code><br><code>add shape s-1 data{} shape_relations(Way-outer-w-3)</code></td>
+</tr>
+<tr>
+<td>Edit shape data</td>
+<td><code>edit shape %SHAPE data{}</code></td>
+</tr>
+<tr>
+<td>Delete way + non-shared nodes</td>
+<td><code>delete way %WAY data{} way_nodes(%NODE,%NODE)</code></td>
+</tr>
+<tr>
+<td>Add node into way (mid-sequence)</td>
+<td><code>add node n-1 geometry[0,0] way_nodes(%SEQ-%WAY)</code></td>
+</tr>
+<tr>
+<td>Edit node location</td>
+<td><code>edit node %NODE geometry[0,0]</code></td>
+</tr>
+<tr>
+<td>Delete node in shape</td>
+<td><code>delete node %NODE geometry[0,0] way_nodes(%SEQ-%WAY)</code><br>OR <code>shape_relations(%SEQ-%SHAPE)</code></td>
+</tr>
+<tr>
+<td>Add new way to existing shape</td>
+<td><code>add node n-1 geometry[0,0]</code><br><code>add node n-2 geometry[0,0]</code><br><code>add way w-3 way_nodes(n-1,n-2)</code><br><code>edit shape %SHAPE shape_relations(2-Way-outer-w-3)</code></td>
+</tr>
+<tr>
+<td>Remove way from 1 shape only</td>
+<td><code>delete shape %SHAPE shape_relation(5-Way-outer-%WAY)</code></td>
+</tr>
+<tr>
+<td>Delete shape (relations must be removed first)</td>
+<td><code>delete shape %SHAPE</code></td>
+</tr>
+<tr>
+<td>Link existing way to existing shape</td>
+<td><code>edit shape %SHAPE shape_relation(2-Way-outer-%WAY)</code></td>
+</tr>
+<tr>
+<td>Link existing way to new shape</td>
+<td><code>add shape s-3 data{} shape_relations(0-Way-outer-%WAY)</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="uploading-a-changeset-i-e-making-a-contribution">Uploading a Changeset (i.e. making a contribution)</h2>
+<ol>
+<li>Create Changeset <code>POST /changesets</code><ul>
+<li>Needs to be signed in for OAuth</li>
+</ul>
+</li>
+<li>Upload Directives and commit Changeset <code>POST /changesets/:id/commit</code><ul>
+<li><code>{ message: &quot;&quot;, directives: [...] }</code></li>
+<li>Requires commit message if not already posted</li>
+</ul>
+</li>
+</ol>
 
                     
                     </section>
@@ -242,8 +307,10 @@ $ curl api.atlastory.com/year/<span class="hljs-number">1999</span>/land.geojson
         </div>
 
         
+        <a href="./objects.html" class="navigation navigation-prev " aria-label="Previous page: Objects and structure"><i class="fa fa-angle-left"></i></a>
         
-        <a href="./objects.html" class="navigation navigation-next navigation-unique" aria-label="Next page: Objects and structure"><i class="fa fa-angle-right"></i></a>
+        
+        <a href="./geojson.html" class="navigation navigation-next " aria-label="Next page: GeoJSON Exporting/Importing"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>
