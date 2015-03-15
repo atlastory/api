@@ -22,7 +22,7 @@ npm start
 
 ## Getting started
 
-The official Atlastory-hosted API is live at [api.atlastory.com](http://api.atlastory.com/). See the [API Documention](./docs/index.md) for more on accessing map data through the RESTful interface. Here's a quick demo using cURL:
+The official Atlastory-hosted API is live at [api.atlastory.com](http://api.atlastory.com/). See the [API Documention](./docs/INTRO.md) for more on accessing map data through the RESTful interface. Here's a quick demo using cURL:
 
 ```sh
 # Get data for an individual level:
