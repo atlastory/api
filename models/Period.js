@@ -20,17 +20,17 @@ var Period = module.exports = pg.model("periods", {
 });
 
 // Directly import GeoJSON
-Period.importGeoJSON = function(id, options) {
+Period.importGeoJSON = function(id, options, changeset) {
     if (options.type == 'FeatureCollection') {
         options = { geojson: options };
     }
     options.period = id;
 
-    return geojson.import(options);
+    return geojson.import(options, changeset);
 };
 
-Period.addMethod('importGeoJSON', function(options) {
-    return Period.importGeoJSON(this.id, options);
+Period.addMethod('importGeoJSON', function(options, changeset) {
+    return Period.importGeoJSON(this.id, options, changeset);
 });
 
 /**

@@ -30,7 +30,8 @@ Changeset.get = function(id) {
             message: changesets[0].message,
             status: changesets[0].status,
             directives: directives,
-            created_at: changesets[0].created_at
+            created_at: changesets[0].created_at,
+            finished_at: changesets[0].finished_at
         };
     });
 };

@@ -4,11 +4,12 @@ var expect = require('chai').expect;
 var request = require('supertest');
 
 var cs = require('../helpers/changeset');
+var gj = require('../helpers/geojson');
 
 var app = require('../../app');
 request = request(app);
 
-var id;
+var id, id2;
 
 describe('Changeset controller', function() {
 this.timeout(2000);
@@ -64,9 +65,53 @@ describe('POST /changesets/:id/commit', function() {
             expect(res.body[3]).to.have.property('status','success');
           }).end(done);
     });
+
+    it('should commit geojson', function(done) {
+        request.post('/changesets')
+          .send({ user_id: 1, message: "" })
+          .set('Accept', 'application/json')
+          .end(function(err, res) {
+            if (err) throw err;
+            id2 = res.body.id;
+            request.post('/changesets/'+id2+'/commit')
+              .send({
+                message: 'geojson import',
+                geojson: gj.multiPolygon,
+                period: gj.multiPolygon.period, type: 1
+              })
+              .set('Accept', 'application/json')
+              .expect('Content-Type', /json/)
+              .expect(200)
+              .expect(function(res) {
+                expect(res.body).to.have.length(1);
+                expect(res.body[0]).to.have.property('status','success');
+              }).end(done);
+          });
+    });
+
+    it('should fail with bad geojson', function(done) {
+      delete gj.multiPolygon.features[0].geometry;
+        request.post('/changesets')
+          .send({ user_id: 1, message: "" })
+          .set('Accept', 'application/json')
+          .end(function(err, res) {
+            if (err) throw err;
+            id2 = res.body.id;
+            request.post('/changesets/'+id2+'/commit')
+              .send({
+                geojson: gj.multiPolygon,
+                period: gj.multiPolygon.period, type: 1
+              })
+              .set('Accept', 'application/json')
+              .expect(500)
+              .expect(function(res) {
+                expect(res.body.message).to.have.string('property required');
+              }).end(done);
+          });
+    });
 });
 
-describe('GET /changesets/:id', function() {
+/*describe('GET /changesets/:id', function() {
     it('should respond with changeset json', function(done) {
         request.get('/changesets/'+id)
           .set('Accept', 'application/json')
@@ -99,7 +144,7 @@ describe('GET /changesets/:id', function() {
             expect(res.body.message).to.have.string("not found");
           }).end(done);
     });
-});
+});*/
 
 
 });
