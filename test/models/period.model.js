@@ -27,9 +27,8 @@ describe('#importGeoJSON()', function() {
     this.timeout(6000);
     it('should import a point', function(done) {
         Period.importGeoJSON(42, {
-            geojson: gj.point,
-            user: 1, type: 1
-        }).then(function(cs) {
+            geojson: gj.point, type: 1
+        }, { user: 1 }).then(function(cs) {
             expect(cs).to.be.a('string');
             return Changeset.get(cs);
         }).then(function(cs) {

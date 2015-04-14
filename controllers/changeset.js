@@ -1,6 +1,8 @@
-var Changeset = require('../models/Changeset'),
+var _ = require('lodash'),
+    Changeset = require('../models/Changeset'),
+    Directive = require('../models/Directive'),
     wiki = require('../lib/wiki'),
-    _ = require('lodash'),
+    geojson = require('../lib/geojson'),
     err = require('../lib/errors');
 
 
@@ -18,6 +20,7 @@ exports.show = function(req, res) {
                 'message: ' + changeset.message + '\n' +
                 'created: ' + changeset.created_at + '\n' +
                 'status: ' + changeset.status + '\n' +
+                'finished: ' + changeset.finished_at + '\n' +
                 'directives:\n' + changeset.directives.map(function(d) {
                     return '    ' + d.asString();
                 }).join('\n');
@@ -39,7 +42,7 @@ exports.show = function(req, res) {
 exports.create = function(req, res) {
     var id = req.param("id"),
         message = req.param("message"),
-        user = req.param("user_id"),
+        user = parseFloat(req.param("user_id")),
         csData = { message: message, user_id: user };
 
     // TODO: OAuth check
@@ -73,13 +76,44 @@ exports.create = function(req, res) {
     }).fail(err.send(res));
 };*/
 
-// POST /changeset/:id/commit
+// POST /changesets/:id/commit
 // Accepts { message: '', directives: [] }
 exports.commit = function(req, res) {
     var id = req.param("id"),
-        data = req.body;
+        data = req.body,
+        chain, gjUpload;
 
-    wiki.commit(id, data).then(function(directives) {
+    if (data.geojson) {
+        if (typeof data.geojson === 'string')
+            gjUpload = JSON.parse(data.geojson);
+        else if (/Feature/.test(data.geojson.type)) gjUpload = data.geojson;
+    } else if (req.files.geojson) {
+        // TODO: change to readFile when inMemory=false
+        gjUpload = req.files.geojson.buffer + '';
+        gjUpload = JSON.parse(gjUpload);
+    }
+
+    // Commit normal directives
+    if (!gjUpload) chain = wiki.commit(id, data);
+
+    // Commit imported GeoJSON
+    else chain = wiki.updateMessage(id, { message: data.message })
+    // TODO: .then(geojson.upload: READ GEOJSON FILE UPLOAD)
+    .then(function() {
+        return geojson.import({
+            geojson: gjUpload,
+            period: data.period,
+            type: data.type
+        }, { id: id });
+    })
+    .then(function() {
+        return wiki.updateStatus(id, true);
+    })
+    .then(function() {
+        return Directive.changeset(id).map(wiki.mapToResponse);
+    });
+
+    chain.then(function(directives) {
         res.jsonp(directives);
     }).fail(err.send(res));
 };

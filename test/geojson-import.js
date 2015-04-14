@@ -4,6 +4,7 @@ var assert = require('assert');
 var expect = require('chai').expect;
 
 var geojson = require('../lib/geojson'),
+    Changeset = require('../models/Changeset'),
     Shape = require('../models/Shape'),
     gj = require('./helpers/geojson');
 
@@ -55,8 +56,9 @@ describe('#import()', function() {
     it('should fail if GeoJSON isn\'t valid', function(done) {
         geojson.import({
             geojson: gj.invalid,
-            period: 1, user: 1, type: 1
-        }).fail(function(err) {
+            period: 1, type: 1
+        }, { user_id: 1 })
+        .fail(function(err) {
             expect(err+'').to.contain('GeoJSON has 1 error');
             done();
         });
@@ -66,6 +68,19 @@ describe('#import()', function() {
         geojson.import({
             geojson: gj.point,
             period: gj.point.period, user: 1, type: 1
+        }, { user_id: 1 })
+        .then(function(cs) {
+            return checkNodes(gj.point, cs);
+        }).then(done, done);
+    });
+
+    it('should import a point with existing changeset', function(done) {
+        var cs = Changeset.new({ user_id: 1, message: 'geojson test' });
+        cs.save().then(function(cs) {
+            return geojson.import({
+                geojson: gj.point,
+                period: gj.point.period, user: 1, type: 1
+            }, { id: cs[0].id });
         }).then(function(cs) {
             return checkNodes(gj.point, cs);
         }).then(done, done);
@@ -74,8 +89,9 @@ describe('#import()', function() {
     it('should import a multipoint', function(done) {
         geojson.import({
             geojson: gj.multiPoint,
-            period: gj.multiPoint.period, user: 1, type: 1
-        }).then(function(cs) {
+            period: gj.multiPoint.period, type: 1
+        }, { user_id: 1 })
+        .then(function(cs) {
             return checkNodes(gj.multiPoint, cs);
         }).then(done, done);
     });
@@ -83,8 +99,9 @@ describe('#import()', function() {
     it('should import a line', function(done) {
         geojson.import({
             geojson: gj.line,
-            period: gj.line.period, user: 1, type: 1
-        }).then(function(cs) {
+            period: gj.line.period, type: 1
+        }, { user_id: 1 })
+        .then(function(cs) {
             return checkNodes(gj.line, cs);
         }).then(done, done);
     });
@@ -92,8 +109,9 @@ describe('#import()', function() {
     it('should import a multiline', function(done) {
         geojson.import({
             geojson: gj.multiline,
-            period: gj.multiline.period, user: 1, type: 1
-        }).then(function(cs) {
+            period: gj.multiline.period, type: 1
+        }, { user_id: 1 })
+        .then(function(cs) {
             return checkNodes(gj.multiline, cs);
         }).then(done, done);
     });
@@ -101,8 +119,9 @@ describe('#import()', function() {
     it('should import a polygon', function(done) {
         geojson.import({
             geojson: gj.polygon,
-            period: gj.polygon.period, user: 1, type: 1
-        }).then(function(cs) {
+            period: gj.polygon.period, type: 1
+        }, { user_id: 1 })
+        .then(function(cs) {
             polyCS = cs;
             return checkNodes(gj.polygon, cs);
         }).then(done, done);
@@ -111,9 +130,10 @@ describe('#import()', function() {
     it('shouldn\'t duplicate an existing shape', function(done) {
         geojson.import({
             geojson: gj.polygon,
-            period: 2, user: 1, type: 1,
+            period: 2, type: 1,
             duplicate: false
-        }).then(function(cs) {
+        }, { user_id: 1 })
+        .then(function(cs) {
             return checkNodes(gj.polygon, cs);
         }).then(done, done);
     });
@@ -121,8 +141,9 @@ describe('#import()', function() {
     it('should import a multipolygon', function(done) {
         geojson.import({
             geojson: gj.multiPolygon,
-            period: gj.multiPolygon.period, user: 1, type: 1
-        }).then(function(cs) {
+            period: gj.multiPolygon.period, type: 1
+        }, { user_id: 1 })
+        .then(function(cs) {
             shapeCS = cs;
             return checkNodes(gj.multiPolygon, cs);
         }).then(done, done);

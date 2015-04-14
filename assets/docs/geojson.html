@@ -33,7 +33,7 @@
     
 
         
-    <div class="book" data-level="3" data-basepath="." data-revision="Sat Mar 14 2015 16:30:29 GMT-0700 (PDT)">
+    <div class="book" data-level="3" data-basepath="." data-revision="Tue Apr 14 2015 00:33:30 GMT-0700 (PDT)">
     
 
 <div class="book-summary">
@@ -233,7 +233,38 @@
 }
 </code></pre>
 <h2 id="importing">Importing</h2>
+<p>Importing a raw GeoJSON follows a typical <a href="">Changeset commit</a>, but instead of directives, the period, type and GeoJSON are posted to the changeset.</p>
+<ol>
+<li><code>POST /changesets?user_id=0</code></li>
+<li><code>POST /changesets/:id/commit</code><ul>
+<li><strong>[message]</strong>: new or updated commit message.</li>
+<li><strong>geojson</strong>: JSON object/string, or GeoJSON file upload (multipart/form-data).</li>
+<li><strong>type</strong>: ID of object type for GeoJSON features.</li>
+<li><strong>period</strong>: ID of period for the GeoJSON. For now, a period ID is required. Start/stop dates of individual features are still recorded regardless of whether they match with start/stop dates of the period.</li>
+</ul>
+</li>
+</ol>
+<h4 id="curl-example">cURL Example</h4>
+<pre><code class="lang-sh"><span class="hljs-comment"># Create new changeset</span>
+$ curl -X POST \
+       <span class="hljs-operator">-d</span> <span class="hljs-string">&quot;user_id=0&quot;</span>
+       http://api.atlastory.com/changesets
+{<span class="hljs-string">&quot;id&quot;</span>:<span class="hljs-string">&quot;1&quot;</span>,<span class="hljs-string">&quot;response&quot;</span>:<span class="hljs-string">&quot;Changeset created&quot;</span>}
+<span class="hljs-comment"># Import &apos;data.geojson&apos; file to API</span>
+$ curl -X POST \
+       -F <span class="hljs-string">&quot;message=Import%20GeoJSON&quot;</span> \
+       -F <span class="hljs-string">&quot;period=1&quot;</span> \
+       -F <span class="hljs-string">&quot;type=1&quot;</span> \
+       -F <span class="hljs-string">&quot;geojson=@data.geojson&quot;</span> \
+       http://api.atlastory.com/changesets/<span class="hljs-number">1</span>/commit
+[{<span class="hljs-string">&quot;directive&quot;</span>:<span class="hljs-string">&quot;add shape 1 data()&quot;</span>,<span class="hljs-string">&quot;status&quot;</span>:<span class="hljs-string">&quot;success&quot;</span>}]
+</code></pre>
 <h2 id="exporting">Exporting</h2>
+<p>Building large GeoJSON files may take a while at the moment. Eventually streaming &amp; geometric simplification will be enabled.</p>
+<pre><code class="lang-sh"><span class="hljs-comment"># Export period 1 type 1 GeoJSON to local &apos;export.geojson&apos; file</span>
+$ curl -o export.geojson \
+       http://api.atlastory.com/periods/<span class="hljs-number">1</span>/<span class="hljs-number">1</span>.geojson
+</code></pre>
 
                     
                     </section>

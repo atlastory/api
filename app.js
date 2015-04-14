@@ -5,6 +5,7 @@ var express = require('express'),
     cookieParser = require('cookie-parser'),
     bodyParser = require('body-parser'),
     debug = require('debug')('atlastory-api'),
+    multer = require('multer'),
     swig = require('swig'),
     gcj = require('grand-central-junction'),
     app = express();
@@ -28,6 +29,14 @@ var assets = path.join(__dirname, 'assets');
 
 app.use(require('less-middleware')(assets));
 app.use(express.static(assets));
+
+app.use(multer({
+    dest: './uploads',
+    inMemory: true, // Change to false later when files are figured out
+    rename: function (fieldname, filename) {
+        return filename + Date.now();
+    },
+}));
 
 gcj.route(app);
 
