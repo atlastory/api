@@ -22,7 +22,9 @@ When importing a GeoJSON, the API first looks under `when` for a FeatureCollecti
 ```js
 { ...
     "when": { "start": "1940-05-01", "stop": "1945-04-25" }
-}, {
+}
+==
+{ ...
     "properties": {
         "start_year": 1940, "start_month": 5, "start_day": 1,
         "end_year": 1945, "end_month": 4, "end_day": 25
@@ -45,18 +47,18 @@ Importing a raw GeoJSON follows a typical [Changeset commit](), but instead of d
 ```sh
 # Create new changeset
 $ curl -X POST \
-       -d "user_id=0"
+       -d "user_id=0" \
        http://api.atlastory.com/changesets
-{"id":"1","response":"Changeset created"}
+> {"id":"1","response":"Changeset created"}
 
 # Import 'data.geojson' file to API
 $ curl -X POST \
-       -F "message=Import%20GeoJSON" \
+       -F 'message="Import GeoJSON"' \
        -F "period=1" \
        -F "type=1" \
        -F "geojson=@data.geojson" \
        http://api.atlastory.com/changesets/1/commit
-[{"directive":"add shape 1 data()","status":"success"}]
+> [{"directive":"add shape 1 data()","status":"success"}]
 ```
 
 ## Exporting

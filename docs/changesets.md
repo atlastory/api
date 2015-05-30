@@ -42,3 +42,19 @@ Each directive has an *action* (`add`,`edit`,`delete`) that is/was performed on 
 2. Upload Directives and commit Changeset `POST /changesets/:id/commit`
     * `{ message: "", directives: [...] }`
     * Requires commit message if not already posted
+
+```sh
+# Create new changeset
+$ curl -X POST \
+       -d "user_id=0" \
+       -d 'message="Adding new period"' \
+       http://api.atlastory.com/changesets
+> {"id":"1","response":"Changeset created"}
+
+# Add a new period using directives
+$ curl -X POST \
+       -H "Content-Type: application/json" \
+       -d '{"directives":[{"action":"add", "object":"period", "object_id":"p-1", "data":{"start_year":1992, "end_year":2010}}]}' \
+       http://api.atlastory.com/changesets/1/commit
+> [{"directive":"add period 2 data(start_year = 1992, end_year = 2010, start_day = 1, start_month = 1, end_day = 1, end_month = 1)","status":"success"}]
+```

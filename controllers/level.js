@@ -8,7 +8,7 @@ exports.index = function(req, res) {
         if (req.param("format") == 'html') {
             res.render('model/index', {
                 title: 'Levels',
-                columns: Object.keys(Level._schema),
+                columns: ['id'].concat(Object.keys(Level._schema)),
                 rows: levels
             });
         } else {

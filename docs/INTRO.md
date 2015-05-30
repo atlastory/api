@@ -2,6 +2,8 @@
 
 Atlastory is an interactive map that chronicles the history of life on earth. The API is a JSON-based RESTful interface for editing and retrieving map data.
 
+***Note:*** This API is a work in progress. It currently has limited functionality, including basic storage and retrieval geographic data. Atlastory is open source: [help contribute to the API here](https://github.com/atlastory/api).
+
 Here's a quick demo using cURL:
 
 ```sh

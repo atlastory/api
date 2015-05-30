@@ -35,7 +35,7 @@
     
 
         
-    <div class="book" data-level="2" data-basepath="." data-revision="Tue Apr 14 2015 00:33:30 GMT-0700 (PDT)">
+    <div class="book" data-level="2" data-basepath="." data-revision="Sat May 30 2015 10:59:49 GMT-0700 (PDT)">
     
 
 <div class="book-summary">
@@ -297,6 +297,20 @@
 </ul>
 </li>
 </ol>
+<pre><code class="lang-sh"><span class="hljs-comment"># Create new changeset</span>
+$ curl -X POST \
+       <span class="hljs-operator">-d</span> <span class="hljs-string">&quot;user_id=0&quot;</span> \
+       <span class="hljs-operator">-d</span> <span class="hljs-string">&apos;message=&quot;Adding new period&quot;&apos;</span> \
+       http://api.atlastory.com/changesets
+&gt; {<span class="hljs-string">&quot;id&quot;</span>:<span class="hljs-string">&quot;1&quot;</span>,<span class="hljs-string">&quot;response&quot;</span>:<span class="hljs-string">&quot;Changeset created&quot;</span>}
+
+<span class="hljs-comment"># Add a new period using directives</span>
+$ curl -X POST \
+       -H <span class="hljs-string">&quot;Content-Type: application/json&quot;</span> \
+       <span class="hljs-operator">-d</span> <span class="hljs-string">&apos;{&quot;directives&quot;:[{&quot;action&quot;:&quot;add&quot;, &quot;object&quot;:&quot;period&quot;, &quot;object_id&quot;:&quot;p-1&quot;, &quot;data&quot;:{&quot;start_year&quot;:1992, &quot;end_year&quot;:2010}}]}&apos;</span> \
+       http://api.atlastory.com/changesets/<span class="hljs-number">1</span>/commit
+&gt; [{<span class="hljs-string">&quot;directive&quot;</span>:<span class="hljs-string">&quot;add period 2 data(start_year = 1992, end_year = 2010, start_day = 1, start_month = 1, end_day = 1, end_month = 1)&quot;</span>,<span class="hljs-string">&quot;status&quot;</span>:<span class="hljs-string">&quot;success&quot;</span>}]
+</code></pre>
 
                     
                     </section>

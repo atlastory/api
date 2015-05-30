@@ -8,7 +8,7 @@ exports.index = function(req, res) {
         if (req.param("format") == 'html') {
             res.render('model/index', {
                 title: 'Types',
-                columns: Object.keys(Type._schema),
+                columns: ['id'].concat(Object.keys(Type._schema)),
                 rows: types
             });
         } else {
