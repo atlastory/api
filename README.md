@@ -59,4 +59,4 @@ For coding or development discussion, chat using the [Gitter atlastory/api](http
 
 ## License
 
-The Atlastory API is licensed under the [New BSD](http://opensource.org/licenses/BSD-3-Clause) License. See [LICENSE](LICENSE) for more details.
+The Atlastory API is licensed under the MIT License. See [LICENSE](LICENSE) for more details. Feel free to clone, fork, or use any parts of the codebase as long as they are attributed.
